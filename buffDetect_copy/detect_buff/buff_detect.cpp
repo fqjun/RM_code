@@ -254,7 +254,7 @@ int BuffDetector::buffDetect_Task(Mat &frame){
             if(find_cnt_ == 10)
                 find_cnt_ = 0;
         }
-        
+        int test;
         if(1)//大神符加速函数 
         {
             diff_angle_large = buff_angle_ - last_angle_large;
