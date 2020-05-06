@@ -254,8 +254,8 @@ int BuffDetector::buffDetect_Task(Mat &frame){
             if(find_cnt_ == 10)
                 find_cnt_ = 0;
         }
-
-        if(1)//大神符加速函数
+        int a;
+        if(1)//大神符加速函数 
         {
             diff_angle_large = buff_angle_ - last_angle_large;
             cout<<"buff_angle_="<<buff_angle_<<endl;
@@ -277,7 +277,7 @@ int BuffDetector::buffDetect_Task(Mat &frame){
 
         bool is_circle = findCenter_R(result_img, roi_img);
 
-        roi_power_center.x = roi_center.x-45+circle_center.x;//test
+        roi_power_center.x = roi_center.x-45+circle_center.x;//test roi 
         roi_power_center.y = roi_center.y-45+circle_center.y;//test
         RotatedRect roi_power(roi_power_center,Size(400,400),0);//test
         Rect roi_Power = roi_power.boundingRect();//test
