@@ -22,12 +22,12 @@ int main(){
 //        double fps = 1.0 / t;
 //        cout << "fps:" << fps << endl;
         cout<<"-----------------------------"<<endl;
-        char c = waitKey(1);
+        char c = waitKey(20);
         if(c == 27)
             break;
 
-        int key =waitKey(0);
-        if((char)key== 32)
-            continue;
+//        int key =waitKey(0);
+//        if((char)key== 32)
+//            continue;
     }
 }
