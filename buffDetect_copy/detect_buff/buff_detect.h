@@ -328,10 +328,17 @@ private://大神符加速函数
     float last_angle_large = 0;
     double timing_point_1 = 0;
     double timing_point_2 = 0;
-    double current_speed = 0;
 
-    double first_frame_time = 0;
-    double second_frame_time = 0;
+    //上一帧
+    double last_speed = 0;
+    double last_time = 0;
+    //预测帧
+    double pre_speed = 0;
+    double pre_time = 0;
+    //当前帧
+    double current_speed = 0;
+    double current_time = 0;
+
 };
 
 #endif // BUFF_DETECT_H
