@@ -7,7 +7,7 @@ void BuffDetector::imageProcess(Mat & frame){
     points_2d.clear();
     vector<Mat> bgr;
 
-    split(gauss_img, bgr);
+    split(gauss_img, bgr);                //图像通道分割(红蓝)
     if(COLOR == 0){
         subtract(bgr[2], bgr[0], gauss_img);
     }
@@ -16,11 +16,11 @@ void BuffDetector::imageProcess(Mat & frame){
     }
 
     double th = threshold(gauss_img, bin_Img, THRESHOLD, 255,  0);
-
+    imshow("text",bin_Img);
     //    if(th-10 > 0)
     //        threshold(gaussImg, binImg, th-15, 255,  0);
 
-    dilate(bin_Img, bin_Img, getStructuringElement(MORPH_RECT, Size(3,3)));
+    dilate(bin_Img, bin_Img, getStructuringElement(MORPH_RECT, Size(3,3)));    //膨胀
     //    imshow("bin", bin_Img);
     //    cout << "th:" << th << endl;
 }
@@ -64,16 +64,16 @@ bool BuffDetector::findTarget(Mat & frame){
         object.big_rect_.points(big_point_tmp);
 
         //组合符合条件的装甲板和叶片
-        object.diff_angle =fabsf(object.big_rect_.angle-object.small_rect_.angle);
-        if(object.diff_angle<100 && object.diff_angle>80){
+        object.diff_angle =fabsf(object.big_rect_.angle-object.small_rect_.angle);//大小轮廓的角度差
+        if(object.diff_angle<100 && object.diff_angle>80){                        //大小轮廓相互垂直
             float small_rect_size_ratio;
-            if(object.small_rect_.size.width > object.small_rect_.size.height){
+            if(object.small_rect_.size.width > object.small_rect_.size.height){   //计算长宽比
                 small_rect_size_ratio = object.small_rect_.size.width/object.small_rect_.size.height;
             }else {
                 small_rect_size_ratio = object.small_rect_.size.height/object.small_rect_.size.width;
             }
             //cout << big_rect_area << "  " << small_rect_area << endl;
-            double area_ratio = (double)object.small_rect_.boundingRect().area()/(double)object.big_rect_.boundingRect().area();
+            double area_ratio = (double)object.small_rect_.boundingRect().area()/(double)object.big_rect_.boundingRect().area();   //计算面积比例
             //cout << area_ratio << endl;
             object.type_ = UNKOWN;
             //再次清洗目标找出叶片
@@ -89,17 +89,17 @@ bool BuffDetector::findTarget(Mat & frame){
                     object.smallUpdate_Order();
                     //object.bigUpdateOrder();
                     for(int k=0;k<4;k++){
-                        // line(frame, small_point_tmp[k],small_point_tmp[(k+1)%4], Scalar(0, 0, 255), 3);
-                        //line(img, big_point_tmp[k],big_point_tmp[(k+1)%4], Scalar(0, 0, 255), 1);
+//                         line(frame, small_point_tmp[k],small_point_tmp[(k+1)%4], Scalar(0, 0, 255), 3);
+//                        line(frame, big_point_tmp[k],big_point_tmp[(k+1)%4], Scalar(0, 0, 255), 1);
                     }
                 }
-                else {//未能找出未激活目标,将识别的激活目标逐个筛选出
+                else {//未能找出未激活目标,将识别的激活目标逐个筛选出(间接法)
                     object.smallUpdate_Order();//更新装甲板的四个角的编号
                     object.knowYour_Self(bin_Img);//用roi判断该装甲板是否已激活
                     if(object.type_ == INACTION){//若筛选出
                         for(int k=0;k<4;k++){
                              line(frame, small_point_tmp[k],small_point_tmp[(k+1)%4], Scalar(0, 255, 0), 3);
-                            //line(img, big_point_tmp[k],big_point_tmp[(k+1)%4], Scalar(0, 0, 255), 1);
+                            line(frame, big_point_tmp[k],big_point_tmp[(k+1)%4], Scalar(0, 0, 255), 1);
                         }
                         //object.bigUpdate_Order();
                     }
@@ -111,7 +111,7 @@ bool BuffDetector::findTarget(Mat & frame){
                     }
                 }
                 //所有识别目标装进容器,无论是否是激活状态
-                vec_target.push_back(object);
+                vec_target.push_back(object);    //vec_target的末尾加入object
             }
         }
     }
@@ -127,6 +127,12 @@ bool BuffDetector::findTarget(Mat & frame){
             points_2d = final_target.points_2d_;//当前目标的点
             //big_points_2d = final_target.big_points_2d_;
             target_center = final_target.small_rect_.center;//获取小轮廓的圆心
+
+            current_point = target_center;//test angle bug
+            displacement = pointDistance(current_point,last_point);
+            cout<<"是否有位移,位移为:"<<displacement<<endl;
+            last_point = target_center;//test angle bug
+
             //circle(img, big_points_2d[1], 2, Scalar(0,255,255), 2, 8, 0);
             Point2f small_vector = points_2d[0] - points_2d[3];//获取装甲板的高度
             roi_center = final_target.big_rect_.center-BIG_LENTH_R*small_vector;//根据大轮廓的中心加上一定距离得到假定圆心,可修改
@@ -157,7 +163,7 @@ bool BuffDetector::findCenter_R(Mat &bin_img, Mat &frame){
 
     findContours(bin_img, contours, hierarchy, 0, CHAIN_APPROX_NONE);
 
-    cout<<"轮廓数目："<<contours.size()<<endl;
+//    cout<<"轮廓数目："<<contours.size()<<endl;
 
     for(int j = 0; j < (int)contours.size(); ++j){
         double circle_area = contourArea(contours[j]);
@@ -208,8 +214,8 @@ bool BuffDetector::findCenter_R(Mat &bin_img, Mat &frame){
 }
 
 int BuffDetector::buffDetect_Task(Mat &frame){
-    imageProcess(frame);
-    bool is_target = findTarget(frame);
+    imageProcess(frame);                     //预处理
+    bool is_target = findTarget(frame);      //查找目标
     int common = 0;
     Mat result_img;
     Mat roi_img;
@@ -223,30 +229,79 @@ int BuffDetector::buffDetect_Task(Mat &frame){
         Rect roi = roi_R.boundingRect();
 
         if(roi.tl().x < 0 || roi.tl().y < 0|| roi.br().x > frame.cols || roi.br().y > frame.rows){
-            Point TL = roi.tl();
-            Point BR = roi.br();
-            if(roi.tl().x < 0 || roi.tl().y < 0){
-                if(roi.tl().x<0){
-                    TL.x = 0;
+                    Point TL = roi.tl();
+                    Point BR = roi.br();
+                    if(roi.tl().x < 0 || roi.tl().y < 0){
+                        if(roi.tl().x<0){
+                            TL.x = 0;
+        //                    cout<<"左";
+                            if(roi.tl().y<0)
+                            {
+                                TL.y = 0;
+        //                        cout<<"上";
+                            }
+                            if(roi.br().y>frame.rows)
+                            {
+                                BR.y = frame.rows;
+        //                        cout<<"下";
+                            }
+        //                    cout<<endl;
+                        }
+                        else if(roi.tl().y<0){
+                            TL.y = 0;
+
+                            if(roi.br().x>frame.cols)
+                            {
+                                BR.x = frame.cols;
+        //                        cout<<"右";
+                            }
+                            if(roi.tl().x<0)
+                            {
+                                TL.x = 0;
+        //                        cout<<"左";
+                            }
+        //                    cout<<"上";
+        //                    cout<<endl;
+                        }
+                    }
+                    else if(roi.br().x > frame.cols || roi.br().y > frame.rows){
+                        if(roi.br().x>frame.cols){
+                            BR.x = frame.cols;
+        //                    cout<<"右";
+                            if(roi.br().y>frame.rows)
+                            {
+                                BR.y = frame.rows;
+        //                        cout<<"下";
+                            }
+                            if(roi.tl().y<0)
+                            {
+                                TL.y = 0;
+        //                        cout<<"上";
+                            }
+        //                    cout<<endl;
+                        }
+                        else if(roi.br().y>frame.rows){
+                            BR.y = frame.rows;
+                            if(roi.tl().x<0)
+                            {
+                                TL.x = 0;
+        //                        cout<<"左";
+                            }
+                            if(roi.br().x>frame.cols)
+                            {
+                                BR.x = frame.cols;
+        //                        cout<<"右";
+                            }
+        //                    cout<<"下";
+        //                    cout<<endl;
+                        }
+                    }
+                    roi = Rect(TL, BR);
                 }
-                else {
-                    TL.y = 0;
-                }
-            }
-            else {
-                if(roi.br().x>frame.cols){
-                    BR.x = frame.cols;
-                }
-                else {
-                    BR.y = frame.rows;
-                }
-            }
-            roi = Rect(TL, BR);
-        }
 
         bin_Img(roi).copyTo(result_img);
         frame(roi).copyTo(roi_img);
-        rectangle(frame,roi,Scalar(0,255,200),2,8,0);
+        rectangle(frame,roi,Scalar(0,255,200),2,8,0);      //画出roi区域(在frame)
 
         ++find_cnt_;
         if(find_cnt_%2 == 0){//隔帧读数据
@@ -255,22 +310,27 @@ int BuffDetector::buffDetect_Task(Mat &frame){
                 find_cnt_ = 0;
         }
 
-        if(1)//大神符加速函数
+        if(1)//大神符加速函数 隔帧进行处理
         {
 //            cout<<"direction_tmp_:"<<direction_tmp_<<endl;
 
-            if(direction_tmp_>0  )
+
+
+            if(direction_tmp_>0  )//顺时针
             {
+
                 if(last_angle_large<=360 && buff_angle_>=0 && fabs(buff_angle_ - last_angle_large)>216)
                 {
                     diff_angle_large = buff_angle_ + 360 - last_angle_large;
+
                 }
                 else
                 {
                     diff_angle_large = buff_angle_ - last_angle_large;
+
                 }
             }
-            else if (direction_tmp_<0  )
+            else if (direction_tmp_<0  )//逆时针
             {
                 if(last_angle_large>=0 && buff_angle_<=360 && fabs(buff_angle_ - last_angle_large)>216)
                 {
@@ -282,8 +342,9 @@ int BuffDetector::buffDetect_Task(Mat &frame){
                 }
 
             }
+            //限制从0到360的跳变
 
-            float a = asin(1)*180/CV_PI;
+//            float a = asin(1)*180/CV_PI;
 //            cout<<"asin(1)="<<a<<endl;
 
 
@@ -291,13 +352,38 @@ int BuffDetector::buffDetect_Task(Mat &frame){
             cout<<"last_angle="<<last_angle_large<<endl;
             cout<<"diff_angle_large="<<diff_angle_large<<endl;
 
-            double timing_point_1 = getTickCount();
+            timing_point_1 = getTickCount();
 
-            if(diff_angle_large>=0)
+            bool _is_change_target = false;
+            //角度范围可以修改
+            if(fabs(diff_angle_large) > 40  && fabs(diff_angle_large) < 350){
+                _filter_flag = true;
+            }else{
+                if(_filter_flag == true){
+    //                printf("change\r\n");
+                    _is_change_target = true;
+                    _filter_flag = false;
+                }
+            }
+
+            if(_filter_flag != true )
             {
                 double spt_t = (timing_point_1 - timing_point_2)/ getTickFrequency();//现在的单位为秒
-
                 timing_point_2 = getTickCount();
+
+                pre_time = last_time + spt_t;
+//               如果大于2π不行的话再加上以下
+//                if(pre_time > 2*CV_PI)
+//                {
+//                    pre_time = pre_time - 2*CV_PI;
+//                }
+                pre_speed = 0.785*sin(1.884*pre_time)+1.305;
+                if(pre_speed < 0.785*sin(1.884*(pre_time+(pre_time-last_time)))+1.305)
+                {
+                    //线性处理,可以根据加速度来确定
+
+                }
+
                 cout<<"timing_point_1=="<<timing_point_1<<endl;
 
                 last_angle_large = buff_angle_;
@@ -312,7 +398,12 @@ int BuffDetector::buffDetect_Task(Mat &frame){
                 last_time = current_time;
                 cout<<"current_time="<<current_time<<endl;
             }
+            else
+            {
+                timing_point_2 = getTickCount();
+                last_angle_large = buff_angle_;
 
+            }
 
         }
 
@@ -450,15 +541,15 @@ int BuffDetector::buffDetect_Task(Mat &frame){
 
     }
 
-    common = auto_control.run(angle_x,angle_y,is_target,diff_angle_);
-//    cout <<"current common is:"<<common<<endl;
+    common = auto_control.run(angle_x,angle_y,is_target,diff_angle_);//坐标传出位置
+    cout <<"current common is:"<<common<<endl;
     //imshow("roi", result_img);
     imshow("roi_img", roi_img);
 
 //    imshow("roi_power_img",roi_power_img);//test
 
     imshow("bin", bin_Img);
-    imshow("img", frame);
+//    imshow("img", frame);
     return common;
 }
 
@@ -467,6 +558,7 @@ int BuffDetector::getState(){
     last_angle = buff_angle_;
     if(fabs(diff_angle_)<10 && fabs(diff_angle_)>1e-6){
         d_angle_ = (1 - R) * d_angle_ + R * diff_angle_;
+        cout<<"d_angle_="<<d_angle_<<endl;
     }
     //cout << "d_angle_:" << d_angle_ << endl;
     if(d_angle_ > 1.5)
@@ -487,7 +579,7 @@ void Object::smallUpdate_Order(){
     double down_distance = pointDistance(point_down_center, big_rect_.center);
     //cout << big_rect_.angle << endl;
 
-    if(up_distance > down_distance){
+    if(up_distance > down_distance){ //编号顺序示意图详见北理珠readme
         angle_ = small_rect_.angle;
         points_2d_.push_back(points[0]);points_2d_.push_back(points[1]);
         points_2d_.push_back(points[2]);points_2d_.push_back(points[3]);
@@ -516,11 +608,11 @@ void Object::knowYour_Self(Mat &img){
     Point right1 = Point(right_center.x - width, right_center.y - height);
     Point right2 = Point(right_center.x + width, right_center.y + height);
 
-    Rect left_rect(left1, left2);
-    Rect right_rect(right1, right2);
+    Rect left_rect(left1, left2);           //画出左边小roi
+    Rect right_rect(right1, right2);        //画出右边小roi
 
-    int left_intensity = getRect_Intensity(img, left_rect);
-    int right_intensity = getRect_Intensity(img, right_rect);
+    int left_intensity = getRect_Intensity(img, left_rect);     //计算左边roi内灯光强度
+    int right_intensity = getRect_Intensity(img, right_rect);   //计算右边roi内灯光强度
     //cout << left_intensity << "  " << right_intensity << endl;
     if(left_intensity <= 20 && right_intensity <= 20){
         type_ = INACTION;
@@ -540,7 +632,7 @@ int getRect_Intensity(const Mat &frame, Rect rect){
             || rect.width + rect.x > frame.cols || rect.height + rect.y > frame.rows)
         return 255;
     Mat roi = frame(Range(rect.y, rect.y + rect.height), Range(rect.x, rect.x + rect.width) );
-    imshow("roi ", roi);
+//    imshow("roi ", roi);
     int average_intensity = static_cast<int>(mean(roi).val[0]);
     return average_intensity;
 }
