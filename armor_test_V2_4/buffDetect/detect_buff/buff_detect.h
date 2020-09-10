@@ -1,7 +1,7 @@
 #ifndef BUFF_DETECT_H
 #define BUFF_DETECT_H
 
-#include "buffDetect/base.h"
+#include "configure.h"
 #include "buffDetect/solve_buff/solve_pnp.h"
 
 typedef enum{UNKOWN,INACTION,ACTION}ObjectType;

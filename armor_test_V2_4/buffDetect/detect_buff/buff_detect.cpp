@@ -10,7 +10,7 @@ void BuffDetector::imageProcess(Mat & frame){
     vector<Mat> bgr;
 
     split(gauss_img, bgr);
-    if(COLOR == 0){
+    if(MY_COLOR == 0){
         subtract(bgr[2], bgr[0], gauss_img);
     }
     else{

@@ -1,7 +1,7 @@
 #ifndef SOLVE_PNP_H
 #define SOLVE_PNP_H
 
-#include"buffDetect/base.h"
+#include"configure.h"
 
 class Solve_Buff{
 public:
@@ -33,8 +33,8 @@ private:
     float offset_y_barrel_ptz = 0;
 
     //装甲板单位mm
-    float w = W;
-    float h = H;
+    float w = WIDTH;
+    float h = HEIGHT;
 
 };
 
