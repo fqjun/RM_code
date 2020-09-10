@@ -1,3 +1,4 @@
+
 #include "buff_detect.h"
 
 void BuffDetector::imageProcess(Mat & frame){
@@ -344,10 +345,6 @@ int BuffDetector::buffDetect_Task(Mat &frame){
             }
             //限制从0到360的跳变
 
-//            float a = asin(1)*180/CV_PI;
-//            cout<<"asin(1)="<<a<<endl;
-
-
             cout<<"buff_angle_="<<buff_angle_<<endl;
             cout<<"last_angle="<<last_angle_large<<endl;
             cout<<"diff_angle_large="<<diff_angle_large<<endl;
@@ -407,87 +404,7 @@ int BuffDetector::buffDetect_Task(Mat &frame){
 
         }
 
-
         bool is_circle = findCenter_R(result_img, roi_img);
-//------------------------------------新roi安全条件----------------------------------
-//        roi_power_center.x = roi_center.x-45+circle_center.x;//test roi
-//        roi_power_center.y = roi_center.y-45+circle_center.y;//test
-//        RotatedRect roi_power(roi_power_center,Size(400,400),0);//test
-//        Rect roi_Power = roi_power.boundingRect();//test
-//        if(roi_Power.tl().x < 0 || roi_Power.tl().y < 0|| roi_Power.br().x > frame.cols || roi_Power.br().y > frame.rows){
-//            Point TL = roi_Power.tl();
-//            Point BR = roi_Power.br();
-//            if(roi_Power.tl().x < 0 || roi_Power.tl().y < 0){
-//                if(roi_Power.tl().x<0){
-//                    TL.x = 0;
-////                    cout<<"左";
-//                    if(roi_Power.tl().y<0)
-//                    {
-//                        TL.y = 0;
-////                        cout<<"上";
-//                    }
-//                    if(roi_Power.br().y>frame.rows)
-//                    {
-//                        BR.y = frame.rows;
-////                        cout<<"下";
-//                    }
-////                    cout<<endl;
-//                }
-//                else if(roi_Power.tl().y<0){
-//                    TL.y = 0;
-
-//                    if(roi_Power.br().x>frame.cols)
-//                    {
-//                        BR.x = frame.cols;
-////                        cout<<"右";
-//                    }
-//                    if(roi_Power.tl().x<0)
-//                    {
-//                        TL.x = 0;
-////                        cout<<"左";
-//                    }
-////                    cout<<"上";
-////                    cout<<endl;
-//                }
-//            }
-//            else if(roi_Power.br().x > frame.cols || roi_Power.br().y > frame.rows){
-//                if(roi_Power.br().x>frame.cols){
-//                    BR.x = frame.cols;
-////                    cout<<"右";
-//                    if(roi_Power.br().y>frame.rows)
-//                    {
-//                        BR.y = frame.rows;
-////                        cout<<"下";
-//                    }
-//                    if(roi_Power.tl().y<0)
-//                    {
-//                        TL.y = 0;
-////                        cout<<"上";
-//                    }
-////                    cout<<endl;
-//                }
-//                else if(roi_Power.br().y>frame.rows){
-//                    BR.y = frame.rows;
-//                    if(roi_Power.tl().x<0)
-//                    {
-//                        TL.x = 0;
-////                        cout<<"左";
-//                    }
-//                    if(roi_Power.br().x>frame.cols)
-//                    {
-//                        BR.x = frame.cols;
-////                        cout<<"右";
-//                    }
-////                    cout<<"下";
-////                    cout<<endl;
-//                }
-//            }
-//            roi_Power = Rect(TL, BR);
-//        }//test
-
-//        frame(roi_Power).copyTo(roi_power_img);//test
-//------------------------------------------------------------------
-
 
         if(is_circle == true){
             double total;
