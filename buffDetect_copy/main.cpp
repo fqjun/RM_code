@@ -6,7 +6,7 @@ using namespace cv;
 
 int main(){
     VideoCapture cap;
-    cap.open("/home/jun/workplace/RM/buffDetect/data/camera_13.avi");
+    cap.open("./data/camera_13.avi");
     Mat frame;
 
     int common = 0;
