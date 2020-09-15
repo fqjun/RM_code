@@ -11,7 +11,7 @@
 //信息显示
 //#define FPS
 #define diff_pre_target
-//#define auto_control_text
+#define auto_control_text
 
 typedef enum{UNKOWN,INACTION,ACTION}ObjectType;
 class Object
@@ -200,7 +200,7 @@ public:
             set_fire(command_);
             fire_cnt++;
 //            cout<<"fire_cnt = "<<fire_cnt<<endl;
-            cout<<"current command_:开火 = "<<command_<<endl;
+            // cout<<"current command_:开火 = "<<command_<<endl;
             command_ = 1;//线上赛后修改回来
             return command_;
         }
@@ -213,7 +213,7 @@ public:
 //            current_pit = RESET_ANGLE;//该角度可能还要加上正值，因为不像上的云台角度那么高,根据今年情况还能加上一些不同范围调整相应的角度
             search_target(current_pit,current_yaw);//泛用性更广的复位操作，代替上式
             fire_task.set_fire_chance();// 复位获得一次开火机会
-            cout<<"current command_:复位 = "<<command_<<endl;
+            // cout<<"current command_:复位 = "<<command_<<endl;
             command_ = 2;//线上赛后修改回来
             return command_;
         }
@@ -223,12 +223,12 @@ public:
             if(find_flag == 1)
             {
                 set_follow(command_);
-                cout<<"current command_:跟随 = "<<command_<<endl;
+                // cout<<"current command_:跟随 = "<<command_<<endl;
                 command_ = 3;//线上赛后修改回来
             }else
             {
                 set_no_follow(command_);
-                cout<<"current command_:不跟随 = "<<command_<<endl;
+                // cout<<"current command_:不跟随 = "<<command_<<endl;
                 command_ = 4;//线上赛后修改回来
             }
         }

@@ -58,7 +58,7 @@ int main(){
         }
 #endif
         imshow("img", frame);
-        char c = waitKey(20);//20
+        char c = waitKey(0);//20
         if(c == 27)
             break;
 

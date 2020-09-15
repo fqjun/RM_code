@@ -21,7 +21,7 @@ private:
     void get_Angle(const Mat & pos_in_ptz, float buff_angle);
     void draw_Coordinate(Mat & input);
     //标定数据
-    string file_path = XML_PATH;
+    string file_path = CAMERA_PARAM_FILE;
     Mat cameraMatrix, distCoeffs;
     Mat rvec = Mat::zeros(3, 3, CV_64FC1);
     Mat tvec = Mat::zeros(3, 1, CV_64FC1);

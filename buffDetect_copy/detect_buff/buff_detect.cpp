@@ -158,7 +158,7 @@ bool BuffDetector::findCenter_R(Mat &bin_img, Mat &frame){
     float last_min_distance_target =frame.rows;
     float distance_target = 0;
     double rect_ratio;//比较宽/高
-    Point2f circle_r[4];
+    Point2f circle_r[4];//圆心R的点
 
     vector<RotatedRect>first_screen;
 
@@ -189,7 +189,7 @@ bool BuffDetector::findCenter_R(Mat &bin_img, Mat &frame){
     }
 
 //    cout<<"符合比例条件的:"<<first_screen.size()<<endl;
-    for(int i = 0;i<first_screen.size();++i)
+    for(int i = 0; i < first_screen.size();++ i )
     {
         distance_target = pointDistance(first_screen[i].center,frame_center);
         if(distance_target < last_min_distance_target)
@@ -229,6 +229,7 @@ int BuffDetector::buffDetect_Task(Mat &frame){
         RotatedRect roi_R(roi_center, Size(90,90),0);//画出假定圆心的roi矩形
         Rect roi = roi_R.boundingRect();
 
+        //roi安全条件
         if(roi.tl().x < 0 || roi.tl().y < 0|| roi.br().x > frame.cols || roi.br().y > frame.rows){
                     Point TL = roi.tl();
                     Point BR = roi.br();
@@ -314,21 +315,17 @@ int BuffDetector::buffDetect_Task(Mat &frame){
         if(1)//大神符加速函数 隔帧进行处理
         {
 //            cout<<"direction_tmp_:"<<direction_tmp_<<endl;
-
-
-
+            //修正角度在360°的突变
             if(direction_tmp_>0  )//顺时针
             {
 
                 if(last_angle_large<=360 && buff_angle_>=0 && fabs(buff_angle_ - last_angle_large)>216)
                 {
                     diff_angle_large = buff_angle_ + 360 - last_angle_large;
-
                 }
                 else
                 {
                     diff_angle_large = buff_angle_ - last_angle_large;
-
                 }
             }
             else if (direction_tmp_<0  )//逆时针
@@ -349,21 +346,21 @@ int BuffDetector::buffDetect_Task(Mat &frame){
             cout<<"last_angle="<<last_angle_large<<endl;
             cout<<"diff_angle_large="<<diff_angle_large<<endl;
 
+            //检测装甲板的切换
             timing_point_1 = getTickCount();
-
             bool _is_change_target = false;
             //角度范围可以修改
             if(fabs(diff_angle_large) > 40  && fabs(diff_angle_large) < 350){
                 _filter_flag = true;
-            }else{
+            }
+            else{
                 if(_filter_flag == true){
-    //                printf("change\r\n");
                     _is_change_target = true;
                     _filter_flag = false;
                 }
             }
-
-            if(_filter_flag != true )
+            //是否切换叶片
+                if(_filter_flag != true )
             {
                 double spt_t = (timing_point_1 - timing_point_2)/ getTickFrequency();//现在的单位为秒
                 timing_point_2 = getTickCount();
@@ -378,15 +375,17 @@ int BuffDetector::buffDetect_Task(Mat &frame){
                 if(pre_speed < 0.785*sin(1.884*(pre_time+(pre_time-last_time)))+1.305)
                 {
                     //线性处理,可以根据加速度来确定
-
+ 
                 }
 
-                cout<<"timing_point_1=="<<timing_point_1<<endl;
+                // cout<<"timing_point_1=="<<timing_point_1<<endl;
 
                 last_angle_large = buff_angle_;
 
                 cout<<"当前帧数为:"<<spt_t<<endl;
-                current_speed = diff_angle_large/spt_t*CV_PI/180;//变为弧度
+                // current_speed = diff_angle_large/spt_t*CV_PI/180;//变为弧度
+                current_speed = diff_angle_large/spt_t;
+
                 cout<<"current_speed="<<current_speed<<endl;
                 last_speed = current_speed;
 //                cout<<"asin里="<<(current_speed-1.305)/0.785<<endl;
@@ -399,7 +398,7 @@ int BuffDetector::buffDetect_Task(Mat &frame){
             {
                 timing_point_2 = getTickCount();
                 last_angle_large = buff_angle_;
-
+                cout<<"切换完成"<<endl;
             }
 
         }

@@ -7,10 +7,10 @@ using namespace std;
 using namespace cv;
 
 //标定XML路径
-#define XML_PATH "/home/jun/workplace/qt/armor_test_V2_0/buffDetect/cameraParams_infantry4.xml"
+#define CAMERA_PARAM_FILE "/home/jun/workplace/qt/armor_test_V2_0/buffDetect/cameraParams_infantry4.xml"
 
 //敌方颜色 1蓝 0红
-#define COLOR 1
+#define MY_COLOR 1
 
 //二值化阈值 35
 #define THRESHOLD 35
