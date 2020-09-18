@@ -285,7 +285,7 @@ int BuffDetector::getState(){
     diff_angle_ = buff_angle_ - last_angle;
     last_angle = buff_angle_;
     if(fabs(diff_angle_)<10 && fabs(diff_angle_)>1e-6){
-        d_angle_ = (1 - R) * d_angle_ + R * diff_angle_;
+        d_angle_ = (1 - REVISE) * d_angle_ + REVISE * diff_angle_;
     }
     //cout << "d_angle_:" << d_angle_ << endl;
     if(d_angle_ > 1.5)

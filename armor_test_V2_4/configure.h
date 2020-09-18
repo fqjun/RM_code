@@ -176,7 +176,7 @@ using namespace cv;
 #define BIG_LENTH_R 5
 
 //buff-filter(buff_detect.cpp)
-#define R 0.1
+#define REVISE 0.1
 
 //buff-model尺寸(solve_pnp.cpp)
 #define BULLET_SPEED 25//子弹射速

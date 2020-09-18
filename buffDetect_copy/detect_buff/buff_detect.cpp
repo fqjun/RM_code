@@ -9,7 +9,7 @@ void BuffDetector::imageProcess(Mat & frame){
     vector<Mat> bgr;
 
     split(gauss_img, bgr);                //图像通道分割(红蓝)
-    if(COLOR == 0){
+    if(MY_COLOR == 0){
         subtract(bgr[2], bgr[0], gauss_img);
     }
     else{
@@ -473,7 +473,7 @@ int BuffDetector::getState(){
     diff_angle_ = buff_angle_ - last_angle;
     last_angle = buff_angle_;
     if(fabs(diff_angle_)<10 && fabs(diff_angle_)>1e-6){
-        d_angle_ = (1 - R) * d_angle_ + R * diff_angle_;
+        d_angle_ = (1 - REVISE) * d_angle_ + REVISE * diff_angle_;
         cout<<"d_angle_="<<d_angle_<<endl;
     }
     //cout << "d_angle_:" << d_angle_ << endl;

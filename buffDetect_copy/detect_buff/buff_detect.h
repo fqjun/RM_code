@@ -1,7 +1,7 @@
 #ifndef BUFF_DETECT_H
 #define BUFF_DETECT_H
 
-#include"/home/jun/workplace/RM/buffDetect_copy/base.h"
+#include"base.h"
 #include"solve_buff/solve_pnp.h"
 
 #define DEFAULT 0
