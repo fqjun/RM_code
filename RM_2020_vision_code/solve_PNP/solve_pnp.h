@@ -9,13 +9,9 @@ public:
     RM_SolveAngle();
     ~RM_SolveAngle();
     //调用解算函数
-    void run_SolvePnp(RotatedRect &rect, float _W, float _H);
-    void run_SolvePnp_Buff(RotatedRect & rect, Mat & srcImg,  float buff_angle, float _W, float _H);//大神符
-
+    void run_SolvePnp(RotatedRect & rect, float _W, float _H);
     void draw_Coordinate(Mat & input);
     float angle_x, angle_y, dist;
-
-     float getBuffPitch(float dist, float tvec_y, float ballet_speed);//计算子弹下坠
     
 private:
     void vertex_Sort(RotatedRect & box);
