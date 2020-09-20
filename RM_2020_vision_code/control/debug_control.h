@@ -74,7 +74,7 @@
   @param: 0         二维＋深度
   @param: 1         云台俯仰与偏航角度
 */
-#define SHOW_SERIAL_INFORMATION 1
+#define SHOW_SERIAL_INFORMATION 0
 /**
   @brief: 是否打印串口数据信息
   @param: 0     不打印
