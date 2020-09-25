@@ -96,7 +96,7 @@
   @param: 1     启用
 */
 
-#define ENABLE_ROI_RECT 1
+#define ENABLE_ROI_RECT 0
 /**
   @brief: 启用ROI_RECT截取图像
   @param: 0     不启用
@@ -109,7 +109,7 @@
 */
 /*---------------------------------------------------*/
 
-#define SHOW_OUTPUT_IMG 0
+#define SHOW_OUTPUT_IMG 1
 /**
   @brief: 是否显示输出图像
   @param: 0     不显示
