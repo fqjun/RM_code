@@ -33,7 +33,7 @@
 *.app
 
 #忽略生成的可执行文件
-/bin/run.out
+/bin/run.o
 #忽略掉 .vscode 文件夹
 /.vscode/ipch/
 /.vscode/settings.json

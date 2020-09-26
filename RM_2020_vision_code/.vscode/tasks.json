@@ -40,7 +40,7 @@
                     "${workspaceFolder}/solve_PNP/solve_pnp.cpp",
                     "${workspaceFolder}/main.cpp",
                     "-o", 
-                    "${workspaceFolder}/run.o",//输出的文件名称以及路径
+                    "${workspaceFolder}/bin/run.o",//输出的文件名称以及路径
                     //lib
                     "/usr/local/lib/libopencv_*",
                     // "/usr/local/lib/libtensorflow_cc.so",
