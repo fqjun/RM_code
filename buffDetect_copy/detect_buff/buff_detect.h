@@ -74,7 +74,7 @@ public:
 //        cout<<"current_angle.y:"<<current_angle.y <<endl;
         //每帧之间的最大偏差量，可以修改
         if(fabs(current_angle.x) < limit_angle_x_
-                && fabs(current_angle.y) < limit_anlge_y_)
+                && fabs(current_angle.y) < limit_angle_y_)
         {
             // 满足小于一段时间计数
             cnt_ ++;
@@ -140,7 +140,7 @@ public:
     int fire_cnt = 0;
     int max_cnt_ = 50;             // 满足条件次数,根据帧率进行调整
     float limit_angle_x_ = 15.0f;    // 条件角度阈值 2.0f
-    float limit_anlge_y_ = 15.0f;
+    float limit_angle_y_ = 15.0f;
 };
 
 /**
@@ -264,7 +264,7 @@ private:
             angle_pit = RESET_ANGLE;
             angle_yaw = angle_yaw;
         }
-        else if(lose_cnt=50){
+        else if((lose_cnt=50)){
             angle_pit += (-50)*RESET_ANGLE;
             angle_yaw = angle_yaw;
         }

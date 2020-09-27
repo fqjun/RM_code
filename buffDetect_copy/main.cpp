@@ -1,6 +1,7 @@
 #include <iostream>
 #include <opencv2/opencv.hpp>
 #include "detect_buff/buff_detect.h"
+
 using namespace std;
 using namespace cv;
 
@@ -18,11 +19,16 @@ int main(){
         if(frame.empty())
             break;
         resize(frame, frame, Size(640,480));
+#ifdef FPS
         double t1 = (double)getTickCount();//开始计时
+#endif
+
         common = buff.buffDetect_Task(frame);
+        
+ #ifdef FPS
         double t2 = (double)getTickCount();//开始计时
         double t = (t2 - t1) / getTickFrequency();//结束计时
-#ifdef FPS
+
 
         cout << "t:" << t << endl;
         int fps = int(1.0 / t);//转换为帧率

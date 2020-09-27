@@ -189,7 +189,7 @@ bool BuffDetector::findCenter_R(Mat &bin_img, Mat &frame){
     }
 
 //    cout<<"符合比例条件的:"<<first_screen.size()<<endl;
-    for(int i = 0; i < first_screen.size();++ i )
+    for(std::size_t i = 0; i < first_screen.size(); ++ i )
     {
         distance_target = pointDistance(first_screen[i].center,frame_center);
         if(distance_target < last_min_distance_target)
