@@ -9,16 +9,20 @@ public:
     RM_SolveAngle();
     ~RM_SolveAngle();
     //调用解算函数
-    void run_SolvePnp(RotatedRect & rect, float _W, float _H);
+    void run_SolvePnp(RotatedRect &rect, float _W, float _H);
+    void run_SolvePnp_Buff(RotatedRect & rect, Mat & srcImg,  float buff_angle, float _W, float _H);//大神符
+
     void draw_Coordinate(Mat & input);
     float angle_x, angle_y, dist;
-    
+
+     float getBuffPitch(float dist, float tvec_y, float ballet_speed);//计算子弹下坠
+
 private:
     void vertex_Sort(RotatedRect & box);
     Mat camera_ptz(Mat & t);
     void get_Angle(const Mat & pos_in_ptz);
     void get_Angel_Buff(const Mat & pos_in_ptz, float buff_angle);//大神符
-    
+
     //标定数据
     string file_path = CAMERA_PARAM_FILE;
 

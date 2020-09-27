@@ -16,6 +16,7 @@
                     "-I","${workspaceFolder}/armor/",
                     "-I","${workspaceFolder}/camera/",
                     "-I","${workspaceFolder}/control/",
+                    "-I","${workspaceFolder}/detect_buff",
                     "-I","${workspaceFolder}/filter/",
                     "-I","${workspaceFolder}/serial/",
                     "-I","${workspaceFolder}/solve_PNP/",
@@ -33,6 +34,7 @@
                     //sources files Path
                     "-g",
                     "${workspaceFolder}/armor/rm_armorfitted.cpp",
+                    "${workspaceFolder}/detect_buff/buff_detect.cpp",
                     "${workspaceFolder}/filter/rm_kalmanfilter.cpp",
                     "${workspaceFolder}/camera/rm_videocapture.cpp",
                     "${workspaceFolder}/control/rm_link.cpp",
@@ -40,7 +42,7 @@
                     "${workspaceFolder}/solve_PNP/solve_pnp.cpp",
                     "${workspaceFolder}/main.cpp",
                     "-o", 
-                    "${workspaceFolder}/run.o",//输出的文件名称以及路径
+                    "${workspaceFolder}/bin/run.o",//输出的文件名称以及路径
                     //lib
                     "/usr/local/lib/libopencv_*",
                     // "/usr/local/lib/libtensorflow_cc.so",

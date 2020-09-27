@@ -44,7 +44,7 @@
 */
 /*---------------------------------------------------*/
 
-#define MY_COLOR 3
+#define MY_COLOR 0
 /**
   @brief: 选择己方阵营
   @param: 0     不限制颜色
@@ -53,6 +53,18 @@
   @param: 3     串口数据决定
   @note: 强制颜色模式
 */
+
+#define  MY_MODE 2
+/**
+ * @brief :选择己方模式
+ * @param:0     默认模式
+ * @param:1     自瞄模式
+ * @param:2     神符模式
+ * @param:3     SENTRY模式
+ * @param:4     BASE模式
+ * @param:5     串口数据决定
+ * @note: 强制运行模式
+ */
 
 /*---------------------------------------------------*/
 #define IS_SERIAL_OPEN 1
@@ -161,6 +173,43 @@
   @note: 青色
 */
 /*---------------------------------------------------*/
+
+/*--------------------------能量机关-------------------------*/
+//二值化阈值 35
+#define THRESHOLD_BUFF 35
+
+//model 1固定模型 0实时测距
+#define MODEL 1
+
+//buff-pre(buff_detect.cpp)
+#define PRE_ANGLE 20
+#define SMALL_LENTH_R 1.2
+#define SMALL_PRE_ANGLE 20
+#define BIG_LENTH_R 5
+
+//buff-filter(buff_detect.cpp)
+#define REVISE 0.1
+
+//buff-model尺寸(solve_pnp.cpp)
+#define BULLET_SPEED 25//子弹射速
+#define BUFF_BOTTOM_H 519//buff最底装甲板距离地面高度
+#define ROBOT_H 400//枪口高度    现在是330~340
+#define BUFF_ROBOT_Z 7200//枪口和buff的直线距离    6915.340249311
+#define OFFSET_Y_BARREL_PTZ 27.69 //枪管和云台的高度差
+
+#define WIDTH 300
+#define HEIGHT 170
+
+//auto_control
+// 能量机关自动控制项
+//#define NO_FIRE   // 发现新目标射一发子弹
+//#define NO_REPEAT_FIRE    // 没击打重复发
+#define FIRE_CNT 30             // 越小响应越快
+#define RESET_CNT 30            // 丢失目标复位计数 越小响应越快
+#define REPEAT_FIRE_TIME 1000   // 重复发射时间，单位ｍｓ,可以修改，根据子弹飞行时间进行确认
+#define RESET_ANGLE -10 // 1:-20 else: -10  // 复位绝对角度
+
+/*--------------------------------------能量机关----------------------------------------*/
 
 struct Control_Information{
     int my_color;
