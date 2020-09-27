@@ -1,73 +1,42 @@
-# This file is used to ignore files which are generated
-# ----------------------------------------------------------------------------
+# Prerequisites
+*.d
 
-*~
-*.autosave
-*.a
-*.core
-*.moc
+# Compiled Object files
+*.slo
+*.lo
 *.o
 *.obj
-*.orig
-*.rej
+*.out
+
+# Precompiled Headers
+*.gch
+*.pch
+
+# Compiled Dynamic libraries
 *.so
-*.so.*
-*_pch.h.cpp
-*_resource.rc
-*.qm
-.#*
-*.*#
-core
-!core/
-tags
-.DS_Store
-.directory
-*.debug
-Makefile*
-*.prl
-*.app
-moc_*.cpp
-ui_*.h
-qrc_*.cpp
-Thumbs.db
-*.res
-*.rc
-/.qmake.cache
-/.qmake.stash
-
-# qtcreator generated files
-*.pro.user*
-
-# xemacs temporary files
-*.flc
-
-# Vim temporary files
-.*.swp
-
-# Visual Studio generated files
-*.ib_pdb_index
-*.idb
-*.ilk
-*.pdb
-*.sln
-*.suo
-*.vcproj
-*vcproj.*.*.user
-*.ncb
-*.sdf
-*.opensdf
-*.vcxproj
-*vcxproj.*
-
-# MinGW generated files
-*.Debug
-*.Release
-
-# Python byte code
-*.pyc
-
-# Binaries
-# --------
+*.dylib
 *.dll
-*.exe
 
+# Fortran module files
+*.mod
+*.smod
+
+# Compiled Static libraries
+*.lai
+*.la
+*.a
+*.lib
+
+# Executables
+*.exe
+*.out
+*.app
+
+#忽略生成的可执行文件
+/bin/run.o
+#忽略掉 .vscode 文件夹
+/.vscode/ipch/
+/.vscode/settings.json
+#忽略掉 相机的生成文件
+*.mvdat
+*.config
