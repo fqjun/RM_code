@@ -20,6 +20,13 @@ int main()
         int fps = int(1.0 / t);
         cout<< endl << "FPS: " << fps<< endl;
 #endif
+
+        #if ANALYZE_EACH_FRAME == 1
+        if(run.is_continue()){
+            continue;
+        }
+        #endif
+
         if(run.is_exit()){
             break;
         }

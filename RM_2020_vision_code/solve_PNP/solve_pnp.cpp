@@ -107,6 +107,11 @@ Mat RM_SolveAngle::camera_ptz(Mat & t){
     return position_in_ptz;
 }
 
+/**
+ * @brief Get the Angle object
+ * 
+ * @param pos_in_ptz 
+ */
 void RM_SolveAngle::get_Angle(const Mat & pos_in_ptz){
     //计算子弹下坠补偿
     const double *_xyz = (const double *)pos_in_ptz.data;
@@ -172,6 +177,12 @@ void RM_SolveAngle::get_Angle(const Mat & pos_in_ptz){
 }
 
 /*--------------------------------------大神符------------------------------------------*/
+/**
+ * @brief Get the Angel Buff object
+ * 
+ * @param pos_in_ptz persent angle of ptz pitch axis
+ * @param buff_angle target's rect position
+ */
 void RM_SolveAngle::get_Angel_Buff(const Mat & pos_in_ptz, float buff_angle){
     //计算子弹下坠补偿
     const double *_xyz = (const double *)pos_in_ptz.data;
@@ -234,6 +245,15 @@ void RM_SolveAngle::get_Angel_Buff(const Mat & pos_in_ptz, float buff_angle){
 
 //    cout << "angle_x:" << angle_x << "     angle_y:" << angle_y << "    dist:" << dist <<endl;
 }
+
+/**
+ * @brief 获取Pitch轴角度
+ * 
+ * @param dist 距离
+ * @param tvec_y 枪口与目标装甲板的垂直距离
+ * @param ballet_speed 子弹速度
+ * @return float 
+ */
 float RM_SolveAngle::getBuffPitch(float dist, float tvec_y, float ballet_speed)
 {
     // 申明临时y轴方向长度,子弹实际落点，实际落点与击打点三个变量不断更新（mm）
@@ -276,7 +296,9 @@ void RM_SolveAngle::draw_Coordinate(Mat & input){
     line(input, reference_Img[0], reference_Img[2], Scalar(0, 255, 0), 2);
     line(input, reference_Img[0], reference_Img[3], Scalar(255, 0, 0), 2);
 
-    //imshow("outImg", input);
+    #if SHOW_OUTPUT_IMG == 1
+    imshow("outImg", input);
+    #endif
 }
 
 RM_SolveAngle::~RM_SolveAngle(){

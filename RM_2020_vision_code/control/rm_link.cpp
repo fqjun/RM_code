@@ -132,7 +132,7 @@ void RM_Vision_Init::Run(){
     } break;
     case ENERGY_AGENCY:
     {
-        buff.buffDetect_Task(src_img);
+        buff.buffDetect_Task(src_img,g_Ctrl.my_color);
         // cout<<"Enegry agency mode"<<endl;
     } break;
     default:
@@ -143,6 +143,29 @@ void RM_Vision_Init::Run(){
     }
     cap.cameraReleasebuff();
 }
+
+#if ANALYZE_EACH_FRAME == 1
+/**
+ * @brief 程序继续条件
+ * 
+ * @return true 继续执行
+ * @return false 暂停执行
+ */
+bool RM_Vision_Init::is_continue()
+{
+    bool go_on=false;
+    int key =waitKey(0);
+    if((char)key== 32)
+    {
+        go_on=true;
+    }
+    else
+    {
+        go_on=false;
+    }
+    return go_on;
+}
+#endif
 
 /**
  * @brief 程序退出条件

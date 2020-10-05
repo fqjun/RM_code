@@ -1,6 +1,13 @@
 #ifndef DEBUG_CONTROL_H
 #define DEBUG_CONTROL_H
 
+#define CAMERA_OR_VEDIO 0
+/**
+ * @brief 使用相机或者视频
+ * @param: 0      相机
+ * @param: 1      视频
+ */
+
 /*---------------------------------------------------*/
 #define PB_MODEL_PATH "./py/model/CNN_model1.pb"
 /**
@@ -8,13 +15,15 @@
   @param: PB_MODEL_PATH pb文件路径
 */
 
-#define CAMERA_PARAM_FILE "./camera/param/cameraParams_infantry4.xml"
+#define CAMERA_PARAM_FILE "./camera/param/cameraParams.xml"
 /**
   @brief: 相机标定文件路径
 */
 /*---------------------------------------------------*/
 
 /*---------------------------------------------------*/
+#if CAMERA_OR_VEDIO == 0
+
 #define ISOPEN_INDUSTRY_CAPTURE 0
 /**
   @brief: 是否使用工业相机
@@ -28,11 +37,23 @@
   @note: 使用普通USB相机时，Opencv的VideoCapture接口的值
 */
 
-#define CAMERA_EXPOSURETIME 800
+#else
+
+#define ISOPEN_INDUSTRY_CAPTURE 1
+/**
+  @brief: 是否使用工业相机
+  @param: 0     使用工业相机
+  @param: 1     使用普通USB相机
+*/
+#define USB_CAPTURE_DEFULT "/home/jun/workplace/录像/camera_17.avi" //armor_2  大小装甲-红  步兵自旋-蓝  基地步兵-蓝 camera_13 camera_17
+
+#endif
+
+#define CAMERA_EXPOSURETIME 800 //800
 #define CAMERA_RESOLUTION_COLS 1280
 #define CAMERA_RESOLUTION_ROWS 800
-#define CAMERA_RESOLUTION_COLS_FOV ((1280-CAMERA_RESOLUTION_COLS)*0.5)
-#define CAMERA_RESOLUTION_ROWS_FOV ((1024-CAMERA_RESOLUTION_ROWS)*0.5)
+#define CAMERA_RESOLUTION_COLS_FOV ((1280 - CAMERA_RESOLUTION_COLS) * 0.5)
+#define CAMERA_RESOLUTION_ROWS_FOV ((1024 - CAMERA_RESOLUTION_ROWS) * 0.5)
 /**
   @brief: 设置相机的分辨率
   @param: CAMERA_EXPOSURETIME   相机曝光时间
@@ -44,7 +65,7 @@
 */
 /*---------------------------------------------------*/
 
-#define MY_COLOR 0
+#define MY_COLOR 1
 /**
   @brief: 选择己方阵营
   @param: 0     不限制颜色
@@ -54,7 +75,7 @@
   @note: 强制颜色模式
 */
 
-#define  MY_MODE 2
+#define MY_MODE 2
 /**
  * @brief :选择己方模式
  * @param:0     默认模式
@@ -80,13 +101,13 @@
   @param: 115200    波特率115200
   @param: 1500000   波特率1500000
 */
-#define SERIAL_COMMUNICATION_PLAN 0
+#define SERIAL_COMMUNICATION_PLAN 1
 /**
   @brief: 串口所发送的方案
   @param: 0         二维＋深度
   @param: 1         云台俯仰与偏航角度
 */
-#define SHOW_SERIAL_INFORMATION 0
+#define SHOW_SERIAL_INFORMATION 1
 /**
   @brief: 是否打印串口数据信息
   @param: 0     不打印
@@ -108,7 +129,7 @@
   @param: 1     启用
 */
 
-#define ENABLE_ROI_RECT 0
+#define ENABLE_ROI_RECT 1
 /**
   @brief: 启用ROI_RECT截取图像
   @param: 0     不启用
@@ -139,12 +160,18 @@
   @param: 0     不打印
   @param: 1     打印
 */
-#define IS_PARAM_ADJUSTMENT 0
+#define IS_PARAM_ADJUSTMENT 1
 /**
   @brief: 是否进入调参模式
   @param: 0     否
   @param: 1     是
 */
+#define ANALYZE_EACH_FRAME 0
+/**
+ * @brief:是否分析每一帧
+ * @param: 0    否
+ * @param: 1    是
+ */
 #define SHOW_DEBUG_INFORMATION 0
 /**
   @brief: 是否打印调试信息
@@ -175,8 +202,10 @@
 /*---------------------------------------------------*/
 
 /*--------------------------能量机关-------------------------*/
-//二值化阈值 35
-#define THRESHOLD_BUFF 35
+//二值化阈值
+#define THRESHOLD_BUFF_BLUE 35
+#define THRESHOLD_BUFF_RED 32
+
 
 //model 1固定模型 0实时测距
 #define MODEL 1
@@ -191,10 +220,10 @@
 #define REVISE 0.1
 
 //buff-model尺寸(solve_pnp.cpp)
-#define BULLET_SPEED 25//子弹射速
-#define BUFF_BOTTOM_H 519//buff最底装甲板距离地面高度
-#define ROBOT_H 400//枪口高度    现在是330~340
-#define BUFF_ROBOT_Z 7200//枪口和buff的直线距离    6915.340249311
+#define BULLET_SPEED 30           //子弹射速
+#define BUFF_BOTTOM_H 1369        //buff最底装甲板距离地面高度
+#define ROBOT_H 400               //枪口高度    现在是330~340
+#define BUFF_ROBOT_Z 6914.7       //枪口和buff的直线距离    6915.340249311
 #define OFFSET_Y_BARREL_PTZ 27.69 //枪管和云台的高度差
 
 #define WIDTH 300
@@ -204,28 +233,30 @@
 // 能量机关自动控制项
 //#define NO_FIRE   // 发现新目标射一发子弹
 //#define NO_REPEAT_FIRE    // 没击打重复发
-#define FIRE_CNT 30             // 越小响应越快
-#define RESET_CNT 30            // 丢失目标复位计数 越小响应越快
-#define REPEAT_FIRE_TIME 1000   // 重复发射时间，单位ｍｓ,可以修改，根据子弹飞行时间进行确认
-#define RESET_ANGLE -10 // 1:-20 else: -10  // 复位绝对角度
+#define FIRE_CNT 30           // 越小响应越快
+#define RESET_CNT 30          // 丢失目标复位计数 越小响应越快
+#define REPEAT_FIRE_TIME 1000 // 重复发射时间，单位ｍｓ,可以修改，根据子弹飞行时间进行确认
+#define RESET_ANGLE -10       // 1:-20 else: -10  // 复位绝对角度
 
 /*--------------------------------------能量机关----------------------------------------*/
 
-struct Control_Information{
-    int my_color;
-    int now_run_mode;
-    int serial_plan;
-    int armor_size;
-    int my_Robot_ID;
+struct Control_Information
+{
+  int my_color;
+  int now_run_mode;
+  int serial_plan;
+  int armor_size;
+  int my_Robot_ID;
 };
 
-#define IMG_CENTER (Point2f(CAMERA_RESOLUTION_COLS*0.5, CAMERA_RESOLUTION_ROWS*0.5))
+#define IMG_CENTER (Point2f(CAMERA_RESOLUTION_COLS * 0.5, CAMERA_RESOLUTION_ROWS * 0.5))
 
-enum color{
-    ALL_COLOR,
-    RED,
-    BLUE,
-    /**
+enum color
+{
+  ALL_COLOR,
+  RED,
+  BLUE,
+  /**
       @brief: 描述己方颜色信息
       @param: ALL_COLOR     无颜色信息，两种颜色都识别
       @param: RED           己方为红色
@@ -233,13 +264,14 @@ enum color{
     */
 };
 
-enum run_mode{
-    DEFAULT_MODE,
-    SUP_SHOOT,
-    ENERGY_AGENCY,
-    SENTRY_MODE,
-    BASE_MODE,
-    /**
+enum run_mode
+{
+  DEFAULT_MODE,
+  SUP_SHOOT,
+  ENERGY_AGENCY,
+  SENTRY_MODE,
+  BASE_MODE,
+  /**
       @brief: 描述运行模式信息
       @param: SUP_SHOOT         自瞄模式
       @param: ENERGY_AGENCY     神符模式
@@ -248,10 +280,11 @@ enum run_mode{
     */
 };
 
-enum armor_size{
-    BIG_ARMOR,
-    SMALL_ARMOR,
-    /**
+enum armor_size
+{
+  BIG_ARMOR,
+  SMALL_ARMOR,
+  /**
       @brief: 描述装甲板尺寸信息
       @param: BIG_ARMOR             大装甲
       @param: BIG_ARMOR_SIZE_W      大装甲实际宽度
@@ -261,31 +294,33 @@ enum armor_size{
       @param: LIGHT_SIZE_W          灯条实际宽度
       @param: LIGHT_SIZE_H          灯条实际高度
     */
-    BIG_ARMOR_SIZE_W = 225,
-    BIG_ARMOR_SIZE_H = 55,
-    SMALL_ARMOR_SIZE_W = 125,
-    SMALL_ARMOR_SIZE_H = 55,
-    LIGHT_SIZE_W = 10,
-    LIGHT_SIZE_H = 55,
+  BIG_ARMOR_SIZE_W = 225,
+  BIG_ARMOR_SIZE_H = 55,
+  SMALL_ARMOR_SIZE_W = 125,
+  SMALL_ARMOR_SIZE_H = 55,
+  LIGHT_SIZE_W = 10,
+  LIGHT_SIZE_H = 55,
 };
 
-enum communicationl_plan{
-    COORDINATE,
-    ANGLE,
-    /**
+enum communicationl_plan
+{
+  COORDINATE,
+  ANGLE,
+  /**
       @brief: 描述串口通讯方式信息
       @param: COORDINATE    二维坐标
       @param: ANGLE         角度
     */
 };
 
-enum Robot_ID{
-    HERO = 1,
-    ENGINEERING,
-    INFANTRY,
-    UAV = 6,
-    SENTRY,
-    /**
+enum Robot_ID
+{
+  HERO = 1,
+  ENGINEERING,
+  INFANTRY,
+  UAV = 6,
+  SENTRY,
+  /**
       @brief: 描述当前机器人ID信息
       @param: HERO          英雄
       @param: ENGINEERING   工程

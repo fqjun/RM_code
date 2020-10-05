@@ -20,6 +20,7 @@ public:
 private:
     void vertex_Sort(RotatedRect & box);
     Mat camera_ptz(Mat & t);
+
     void get_Angle(const Mat & pos_in_ptz);
     void get_Angel_Buff(const Mat & pos_in_ptz, float buff_angle);//大神符
 

@@ -46,7 +46,8 @@
                     //lib
                     "/usr/local/lib/libopencv_*",
                     // "/usr/local/lib/libtensorflow_cc.so",
-                    "${workspaceFolder}/lib/./libMVSDK.so",
+                    // "${workspaceFolder}/lib/./libMVSDK.so",
+                    "/lib/libMVSDK.so",
                     //"`pkg-config --cflags --libs protobuf`",
                     // "`pkg-config","--cflags","--libs","protobuf`",
                 ],
