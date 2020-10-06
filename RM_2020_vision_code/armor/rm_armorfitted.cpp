@@ -15,6 +15,7 @@ extern const int BLUE_ARMOR_COLOR_TH;
  */
 void CandidateArmor::inputParam(NiceLight &light_left, NiceLight &light_right, RM_SolveAngle &angle_solve, ArmorROI &roi){
     rect = fit_Rrect(light_left.rect, light_right.rect);             
+    
     armor_width = centerDistance(light_left.rect.center, light_right.rect.center);
     convert_center = rect.center + Point2f(roi.tl);//set center of roi
     dist_to_center = centerDistance(convert_center,IMG_CENTER);
@@ -38,6 +39,13 @@ void CandidateArmor::inputParam(NiceLight &light_left, NiceLight &light_right, R
  * @return RotatedRect
  */
 RotatedRect CandidateArmor::fit_Rrect(RotatedRect &rect_left,RotatedRect &rect_right){
+    // if(rect_left.size.width<0){
+    //     rect_left.size.width = 0;
+    // }
+    // if(rect_right.size.width<0){
+    //     rect_right.size.width = 0;
+    // }
+    
     Point2f center = (rect_left.center+rect_right.center)*0.5;
     float center_slope = (rect_left.center.y-rect_right.center.y)/(rect_left.center.x-rect_right.center.x);
     float distance = centerDistance(rect_left.center,rect_right.center);
@@ -46,8 +54,13 @@ RotatedRect CandidateArmor::fit_Rrect(RotatedRect &rect_left,RotatedRect &rect_r
     float width_right = MIN(rect_right.size.width,rect_right.size.height);
     float height_right =MAX(rect_right.size.width,rect_right.size.height);
 
-    float W = distance-(width_left/2 + width_right/2);//roi of  rect.width         
+    float W = distance-(width_left/2 + width_right/2);//roi of  rect.width
+    if(W < 0){
+        W = 0;
+    }
     float H = MAX(height_left,height_right);//*2.27;
+    cout<<"rect_left.size.width=="<<W<<endl;//test
+    cout<<"rect_right.size.width=="<<H<<endl;
     float angle = atan(center_slope);
     //float angle = atan2((rect_left.center.y-rect_right.center.y),(rect_left.center.x-rect_right.center.x));
     RotatedRect Rrect = RotatedRect(center,Size2f(W,H),angle*180/float(CV_PI));
@@ -395,7 +408,6 @@ void RM_ArmorFitted::armorFitted(){
     //发送串口数据
     #if IS_SERIAL_OPEN == 1
     SerialPort::RMserialWrite(_yaw_data, abs(yaw_data), _pitch_data, abs(pitch_data), armor.depth, is_last_data_catch, shooting);// SerialPort::RMserialWrite(_yaw_data, abs(yaw_data), _pitch_data, abs(pitch_data), armor.depth, is_last_data_catch, shooting);
-    cout<<"pitch_data:====="<<abs(pitch_data)<<endl;
     #endif
 
     #if SHOW_OUTPUT_IMG == 1

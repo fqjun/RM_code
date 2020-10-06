@@ -14,6 +14,7 @@
 #include "camera/rm_videocapture.h"
 #include "serial/serialport.h"
 #include "armor/rm_armorfitted.h"
+#include "detect_buff/buff_detect.h"
 
 class RM_Vision_Init
 {
@@ -21,6 +22,11 @@ public:
     RM_Vision_Init();
     ~RM_Vision_Init();
     void Run();
+
+    #if ANALYZE_EACH_FRAME == 1
+    bool is_continue();
+    #endif  
+
     bool is_exit();
     void updateControl_information(int arr[REC_BUFF_LENGTH]);
 
@@ -36,6 +42,7 @@ public:
 
     /** function initial **/
     RM_ArmorFitted armor;
+    BuffDetector buff;
     /** function initial **/
 
     int th;

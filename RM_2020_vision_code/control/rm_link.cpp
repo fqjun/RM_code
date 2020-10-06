@@ -99,6 +99,21 @@ void RM_Vision_Init::Run(){
 #else
     // cout <<"串口决定"<<endl;
 #endif
+
+#if MY_MODE == 0
+    g_Ctrl.now_run_mode = DEFAULT_MODE
+#elif MY_MODE == 1
+    g_Ctrl.now_run_mode = SUP_SHOOT;
+#elif MY_MODE == 2
+    g_Ctrl.now_run_mode = ENERGY_AGENCY;
+#elif MY_MODE == 3
+    g_Ctrl.now_run_mode = SENTRY_MODE;
+#elif MY_MODE == 4
+    g_Ctrl.now_run_mode = BASE_MODE;
+#else
+    // cout <<"串口决定"<<endl;
+#endif 
+
     // if(g_Ctrl.my_color == RED){
     //     cout <<"己方颜色为红色: "<< RED <<endl;
     // } else if(g_Ctrl.my_color == BLUE){
@@ -117,7 +132,7 @@ void RM_Vision_Init::Run(){
     } break;
     case ENERGY_AGENCY:
     {
-        imshow("src_img",src_img);
+        buff.buffDetect_Task(src_img,g_Ctrl.my_color);
         // cout<<"Enegry agency mode"<<endl;
     } break;
     default:
@@ -128,6 +143,29 @@ void RM_Vision_Init::Run(){
     }
     cap.cameraReleasebuff();
 }
+
+#if ANALYZE_EACH_FRAME == 1
+/**
+ * @brief 程序继续条件
+ * 
+ * @return true 继续执行
+ * @return false 暂停执行
+ */
+bool RM_Vision_Init::is_continue()
+{
+    bool go_on=false;
+    int key =waitKey(0);
+    if((char)key== 32)
+    {
+        go_on=true;
+    }
+    else
+    {
+        go_on=false;
+    }
+    return go_on;
+}
+#endif
 
 /**
  * @brief 程序退出条件

@@ -1,8 +1,10 @@
 #ifndef BUFF_DETECT_H
 #define BUFF_DETECT_H
 
-#include"base.h"
-#include"solve_buff/solve_pnp.h"
+#include "configure.h"
+#include "control/debug_control.h"
+#include "solve_PNP/solve_pnp.h"
+#include "serial/serialport.h"
 
 #define DEFAULT 0
 #define FIRE 3
@@ -15,6 +17,7 @@
 
 typedef enum{UNKOWN,INACTION,ACTION}ObjectType;
 class Object
+
 {
 public:
     Object(){}
@@ -31,8 +34,6 @@ public:
     float diff_angle = 0; //待激活装甲板和叶片的相对角度（判断是否垂直）
     int type_ = UNKOWN; //是否激活种类初始化
 };
-
-
 class FireTask{
 public:
     FireTask(){}
@@ -79,7 +80,7 @@ public:
             // 满足小于一段时间计数
             cnt_ ++;
             time ++;
-            cout<<"第"<<time<<"帧"<<endl;
+            // cout<<"第"<<time<<"帧"<<endl;
 //            cout<<"时间量："<<cnt_<<endl;
         }else {
             // 不满足条件加速减时间，可以修改
@@ -289,10 +290,15 @@ public:
 class BuffDetector
 {
 public:
-    BuffDetector() {solve_buff = Solve_Buff();} //solve.cpp的构造函数
+    BuffDetector() { RM_SolveAngle();} //solve.cpp的构造函数
     ~BuffDetector(){}
-    int buffDetect_Task(Mat & frame); //主逻辑函数
-    float angle_x, angle_y, dist; //输出数据(角度，距离)
+    int buffDetect_Task(Mat & frame,int my_color); //主逻辑函数
+
+    int yaw_data = 0; //云台偏航
+    int _yaw_data = 0; //偏航值的正负
+    int pitch_data = 0; //云台俯仰
+    int _pitch_data = 0; //俯仰值的正负
+    int depth = 0; //深度 -- 装甲板距离相机的距离
 
     //自动控制 类申明
 
@@ -300,17 +306,23 @@ public:
 
 
 private://类的声明
-    Solve_Buff solve_buff;
+    RM_SolveAngle solve_buff;
     Object object;
     Object final_target;
     Object object_tmp;
     AutoControl auto_control;
 
 private:
-    void imageProcess(Mat & frame); //预处理
+    void imageProcess(Mat & frame,int my_color); //预处理
     bool findTarget(Mat & frame);   //寻找叶片以及待激活装甲板
     bool findCenter_R(Mat & bin_img, Mat &frame); //寻找R
     int getState(); //能量机关顺逆时针滤波函数
+
+private:
+    #if IS_PARAM_ADJUSTMENT == 1
+    int COLOR_TH_BLUE = 35;//蓝色装甲的阈值
+    int COLOR_TH_RED = 30;//红色装甲的阈值
+    #endif
 
 private://Object object_tmp新类，用于装清洗出来的新数据 和一些需要公用的数据
      vector<Point2f> points_2d;
@@ -319,7 +331,7 @@ private://Object object_tmp新类，用于装清洗出来的新数据 和一些�
      Point2f roi_center;//假定圆心
      Point2f circle_center;//中心R
      Point2f pre_center;
-     Mat bin_Img;
+     Mat bin_img;
      RotatedRect solve_rect;
 
      Point2f roi_power_center;//test

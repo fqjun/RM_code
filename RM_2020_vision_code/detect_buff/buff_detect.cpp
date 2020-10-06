@@ -1,7 +1,7 @@
 
 #include "buff_detect.h"
 
-void BuffDetector::imageProcess(Mat & frame){
+void BuffDetector::imageProcess(Mat & frame,int my_color){
 
     Mat gauss_img;
     GaussianBlur(frame, gauss_img, Size(3, 3), 0);//高斯滤波
@@ -9,20 +9,57 @@ void BuffDetector::imageProcess(Mat & frame){
     vector<Mat> bgr;
 
     split(gauss_img, bgr);                //图像通道分割(红蓝)
-    if(MY_COLOR == 0){
+    switch (my_color)
+    {
+    case RED:{
         subtract(bgr[2], bgr[0], gauss_img);
-    }
-    else{
+        #if IS_PARAM_ADJUSTMENT == 1
+        cv::createTrackbar("COLOR_TH_RED:", "bin", &COLOR_TH_RED, 255, nullptr);
+        threshold(gauss_img, bin_img, COLOR_TH_RED, 255, THRESH_BINARY);
+        #else
+        threshold(gauss_img, bin_img, THRESHOLD_BUFF_RED, 255, THRESH_BINARY);
+        #endif
+    }break;
+    case BLUE:{
         subtract(bgr[0], bgr[2], gauss_img);
+        #if IS_PARAM_ADJUSTMENT == 1
+        cv::createTrackbar("COLOR_TH_BLUE:", "bin", &COLOR_TH_BLUE, 255, nullptr);
+        threshold(gauss_img, bin_img, COLOR_TH_BLUE, 255, THRESH_BINARY);
+        #else
+        threshold(gauss_img, bin_img, THRESHOLD_BUFF_BLUE, 255, THRESH_BINARY);
+        #endif
+    }break;
+    default:
+    {
+        /* my_color为ALL_COLOR，则包括两种情况 */
+        Mat bin_img_color_1;
+        Mat bin_img_color_2;
+        subtract(bgr[0], bgr[2], bin_img_color_1);// b - r
+        subtract(bgr[2], bgr[0], bin_img_color_2);// r - b
+        #if IS_PARAM_ADJUSTMENT == 1
+        cv::createTrackbar("COLOR_TH_BLUE:", "bin", &COLOR_TH_BLUE, 255, nullptr);
+        cv::createTrackbar("COLOR_TH_RED:", "bin", &COLOR_TH_RED, 255, nullptr);
+        threshold(bin_img_color_1, bin_img_color_1, COLOR_TH_BLUE, 255, THRESH_BINARY);
+        threshold(bin_img_color_2, bin_img_color_2, COLOR_TH_RED, 255, THRESH_BINARY);
+        #else
+        threshold(bin_img_color_1, bin_img_color_1, THRESHOLD_BUFF_BLUE, 255, THRESH_BINARY);
+        threshold(bin_img_color_2, bin_img_color_2, THRESHOLD_BUFF_RED, 255, THRESH_BINARY);
+        #endif
+        bitwise_or(bin_img_color_1,bin_img_color_2,bin_img);// 求并集
+        
+    }break;
     }
 
-    double th = threshold(gauss_img, bin_Img, THRESHOLD, 255,  0);
-    imshow("text",bin_Img);
+    #if SHOW_BIN_IMG == 1
+    imshow("threshold",bin_img);
+    #endif
     //    if(th-10 > 0)
     //        threshold(gaussImg, binImg, th-15, 255,  0);
 
-    dilate(bin_Img, bin_Img, getStructuringElement(MORPH_RECT, Size(3,3)));    //膨胀
-    //    imshow("bin", bin_Img);
+    dilate(bin_img, bin_img, getStructuringElement(MORPH_RECT, Size(3,3)));    //膨胀
+    #if SHOW_BIN_IMG == 1
+    imshow("dilate", bin_Img);
+    #endif
     //    cout << "th:" << th << endl;
 }
 
@@ -31,9 +68,8 @@ bool BuffDetector::findTarget(Mat & frame){
     vector<Object> vec_target;
     vector<vector<Point>> contours;
     vector<Vec4i> hierarchy;
-
-    //    imshow("bin_test",bin_Img);
-    findContours(bin_Img, contours, hierarchy, 2, CHAIN_APPROX_NONE);
+    
+    findContours(bin_img, contours, hierarchy, 2, CHAIN_APPROX_NONE);
     for(int i = 0; i < (int)contours.size(); ++i){
         // 用于寻找小轮廓，没有父轮廓的跳过, 以及不满足6点拟合椭圆
         if(hierarchy[i][3]<0 || contours[i].size() < 6 || contours[static_cast<uint>(hierarchy[i][3])].size() < 6)
@@ -81,7 +117,7 @@ bool BuffDetector::findTarget(Mat & frame){
             if(small_rect_size_ratio>1 && small_rect_size_ratio<3 && area_ratio>0.08f && area_ratio<0.25f){
                 for(int k=0;k<4;k++){
                                     line(frame, small_point_tmp[k],small_point_tmp[(k+1)%4], Scalar(0, 0, 255), 1);
-                                //line(frame, big_point_tmp[k],big_point_tmp[(k+1)%4], Scalar(0, 0, 255), 1);
+                                // line(frame, big_point_tmp[k],big_point_tmp[(k+1)%4], Scalar(0, 0, 255), 1);
                                 }
                 object.type_= ACTION;
                 //直接找出未激活状态目标（待优化）
@@ -96,11 +132,12 @@ bool BuffDetector::findTarget(Mat & frame){
                 }
                 else {//未能找出未激活目标,将识别的激活目标逐个筛选出(间接法)
                     object.smallUpdate_Order();//更新装甲板的四个角的编号
-                    object.knowYour_Self(bin_Img);//用roi判断该装甲板是否已激活
+                    object.knowYour_Self(bin_img);//用roi判断该装甲板是否已激活
                     if(object.type_ == INACTION){//若筛选出
+                    // cout<<"小扇叶"<<endl;
                         for(int k=0;k<4;k++){
-                             line(frame, small_point_tmp[k],small_point_tmp[(k+1)%4], Scalar(0, 255, 0), 3);
-                            line(frame, big_point_tmp[k],big_point_tmp[(k+1)%4], Scalar(0, 0, 255), 1);
+                             line(frame, small_point_tmp[k],small_point_tmp[(k+1)%4], Scalar(255,0, 0), 3);
+                            line(frame, big_point_tmp[k],big_point_tmp[(k+1)%4], Scalar(0, 255,0 ), 1);
                         }
                         //object.bigUpdate_Order();
                     }
@@ -131,7 +168,7 @@ bool BuffDetector::findTarget(Mat & frame){
 
             current_point = target_center;//test angle bug
             displacement = pointDistance(current_point,last_point);
-            cout<<"是否有位移,位移为:"<<displacement<<endl;
+            // cout<<"是否有位移,位移为:"<<displacement<<endl;
             last_point = target_center;//test angle bug
 
             //circle(img, big_points_2d[1], 2, Scalar(0,255,255), 2, 8, 0);
@@ -214,94 +251,95 @@ bool BuffDetector::findCenter_R(Mat &bin_img, Mat &frame){
     return is_circle;
 }
 
-int BuffDetector::buffDetect_Task(Mat &frame){
-    imageProcess(frame);                     //预处理
+int BuffDetector::buffDetect_Task(Mat &frame,int my_color){
+    imageProcess(frame,my_color);                     //预处理
     bool is_target = findTarget(frame);      //查找目标
     int common = 0;
     Mat result_img;
     Mat roi_img;
 //    Mat roi_power_img;//test
-    bin_Img.copyTo(result_img);
+    bin_img.copyTo(result_img);
     frame.copyTo(roi_img);
 //    frame.copyTo(roi_power_img);//test
 
     if(is_target){//可找到未激活目标
+        if(roi_center.x < 0 || roi_center.y < 0 || roi_center.x > frame.cols || roi_center.y > frame.rows){
+            if(roi_center.x < 0){
+                roi_center.x = 1;
+            }else if (roi_center.y < 0){
+                roi_center.y = 1;
+            }else if (roi_center.x > frame.cols){
+                roi_center.x = frame.cols - 1;
+            }else if (roi_center.y > frame.rows){
+                roi_center.y = frame.rows - 1;
+            }
+        }
         RotatedRect roi_R(roi_center, Size(90,90),0);//画出假定圆心的roi矩形
         Rect roi = roi_R.boundingRect();
-
         //roi安全条件
         if(roi.tl().x < 0 || roi.tl().y < 0|| roi.br().x > frame.cols || roi.br().y > frame.rows){
-                    Point TL = roi.tl();
-                    Point BR = roi.br();
-                    if(roi.tl().x < 0 || roi.tl().y < 0){
-                        if(roi.tl().x<0){
-                            TL.x = 0;
-        //                    cout<<"左";
-                            if(roi.tl().y<0)
-                            {
-                                TL.y = 0;
-        //                        cout<<"上";
-                            }
-                            if(roi.br().y>frame.rows)
-                            {
-                                BR.y = frame.rows;
-        //                        cout<<"下";
-                            }
-        //                    cout<<endl;
-                        }
-                        else if(roi.tl().y<0){
-                            TL.y = 0;
-
-                            if(roi.br().x>frame.cols)
-                            {
-                                BR.x = frame.cols;
-        //                        cout<<"右";
-                            }
-                            if(roi.tl().x<0)
-                            {
-                                TL.x = 0;
-        //                        cout<<"左";
-                            }
-        //                    cout<<"上";
-        //                    cout<<endl;
-                        }
+            Point TL = roi.tl();
+            Point BR = roi.br();
+            if(roi.tl().x < 0 || roi.tl().y < 0){
+                if(roi.tl().x<0){
+                    TL.x = 1;
+                    // cout<<"左";
+                    if(roi.tl().y<0){
+                        TL.y = 1;
+                        // cout<<"上";
                     }
-                    else if(roi.br().x > frame.cols || roi.br().y > frame.rows){
-                        if(roi.br().x>frame.cols){
-                            BR.x = frame.cols;
-        //                    cout<<"右";
-                            if(roi.br().y>frame.rows)
-                            {
-                                BR.y = frame.rows;
-        //                        cout<<"下";
-                            }
-                            if(roi.tl().y<0)
-                            {
-                                TL.y = 0;
-        //                        cout<<"上";
-                            }
-        //                    cout<<endl;
-                        }
-                        else if(roi.br().y>frame.rows){
-                            BR.y = frame.rows;
-                            if(roi.tl().x<0)
-                            {
-                                TL.x = 0;
-        //                        cout<<"左";
-                            }
-                            if(roi.br().x>frame.cols)
-                            {
-                                BR.x = frame.cols;
-        //                        cout<<"右";
-                            }
-        //                    cout<<"下";
-        //                    cout<<endl;
-                        }
+                    if(roi.br().y>frame.rows){
+                        BR.y = frame.rows-1;
+                        // cout<<"下";
                     }
-                    roi = Rect(TL, BR);
+                    // cout<<endl;
                 }
+                else if(roi.tl().y<0){
+                    TL.y = 1;
+                    if(roi.br().x>frame.cols){
+                        BR.x = frame.cols-1;
+                        // cout<<"右";
+                    }
+                    if(roi.tl().x<0){
+                        TL.x = 1;
+                        // cout<<"左";
+                    }
+                    // cout<<"上";
+                    // cout<<endl;
+                }
+            }
+            else if(roi.br().x > frame.cols || roi.br().y > frame.rows){
+                if(roi.br().x>frame.cols){
+                    BR.x = frame.cols-1;
+                    // cout<<"右";
+                    if(roi.br().y>frame.rows){
+                        BR.y = frame.rows-1;
+                        // cout<<"下";
+                    }
+                    if(roi.tl().y<0){
+                        TL.y = 1;
+                        // cout<<"上";
+                    }
+                    // cout<<endl;
+                }
+                else if(roi.br().y>frame.rows){
+                    BR.y = frame.rows-1;
+                    if(roi.tl().x<0){
+                        TL.x = 1;
+                        // cout<<"左";
+                    }
+                    if(roi.br().x>frame.cols){
+                        BR.x = frame.cols-1;
+                        // cout<<"右";
+                    }
+                    // cout<<"下";
+                    // cout<<endl;
+                }
+            }
+            roi = Rect(TL, BR);
+        }
 
-        bin_Img(roi).copyTo(result_img);
+        bin_img(roi).copyTo(result_img);
         frame(roi).copyTo(roi_img);
         rectangle(frame,roi,Scalar(0,255,200),2,8,0);      //画出roi区域(在frame)
 
@@ -342,9 +380,9 @@ int BuffDetector::buffDetect_Task(Mat &frame){
             }
             //限制从0到360的跳变
 
-            cout<<"buff_angle_="<<buff_angle_<<endl;
-            cout<<"last_angle="<<last_angle_large<<endl;
-            cout<<"diff_angle_large="<<diff_angle_large<<endl;
+            // cout<<"buff_angle_="<<buff_angle_<<endl;
+            // cout<<"last_angle="<<last_angle_large<<endl;
+            // cout<<"diff_angle_large="<<diff_angle_large<<endl;
 
             //检测装甲板的切换
             timing_point_1 = getTickCount();
@@ -382,23 +420,23 @@ int BuffDetector::buffDetect_Task(Mat &frame){
 
                 last_angle_large = buff_angle_;
 
-                cout<<"当前帧数为:"<<spt_t<<endl;
+                // cout<<"当前帧数为:"<<spt_t<<endl;
                 // current_speed = diff_angle_large/spt_t*CV_PI/180;//变为弧度
                 current_speed = diff_angle_large/spt_t;
 
-                cout<<"current_speed="<<current_speed<<endl;
+                // cout<<"current_speed="<<current_speed<<endl;
                 last_speed = current_speed;
 //                cout<<"asin里="<<(current_speed-1.305)/0.785<<endl;
 
                 current_time =  asin((current_speed-1.305)/0.785)/1.884;
                 last_time = current_time;
-                cout<<"current_time="<<current_time<<endl;
+                // cout<<"current_time="<<current_time<<endl;
             }
             else
             {
                 timing_point_2 = getTickCount();
                 last_angle_large = buff_angle_;
-                cout<<"切换完成"<<endl;
+                // cout<<"切换完成"<<endl;
             }
 
         }
@@ -448,25 +486,48 @@ int BuffDetector::buffDetect_Task(Mat &frame){
                 pre_center = target_center;
             }
         }
-        solve_buff.run_SolvePnp(frame, solve_rect, buff_angle_);
-        angle_x = solve_buff.angle_x;
-        angle_y = solve_buff.angle_y;
-        dist = solve_buff.dist;
-
-        //cout << "angle_x:" << angle_x << "     angle_y:" << angle_y << "    dist:" << dist <<endl;
-
+        solve_buff.run_SolvePnp_Buff(solve_rect,frame, buff_angle_,WIDTH,HEIGHT);
+        common = auto_control.run(solve_buff.angle_x,solve_buff.angle_y,is_target,diff_angle_);//坐标传出位置
+        #if SERIAL_COMMUNICATION_PLAN == 0
+        /* 二维＋深度 */
+        yaw_data = int(pre_center.x);
+        pitch_data = int(pre_center.y);
+        #else
+        /* Angle */
+        yaw_data = int(solve_buff.angle_x);
+        pitch_data = int(solve_buff.angle_y);
+        depth = int(solve_buff.dist);
+        #endif 
+        _yaw_data = (yaw_data >=0 ? 0:1);
+        _pitch_data = (pitch_data >=0 ? 0:1);
+    }else{
+        #if SERIAL_COMMUNICATION_PLAN == 0
+        /* 二维＋深度 */
+        yaw_data = int(frame.cols*0.5);
+        pitch_data = int(frame.rows*0.5);
+        #else
+        yaw_data = 0;
+        pitch_data = 0;
+        #endif
+        _yaw_data = 0;
+        _pitch_data = 0;
     }
-
-    common = auto_control.run(angle_x,angle_y,is_target,diff_angle_);//坐标传出位置
-    cout <<"current common is:"<<common<<endl;
+    
+    // cout <<"current common is:"<<common<<endl;
+    cout<<"depth="<<depth<<endl;
+    // cout<<"yaw_data="<<yaw_data<<endl;
+    // cout<<"pitch_data="<<pitch_data<<endl;
+    //发送串口数据
+    #if IS_SERIAL_OPEN == 1
+    SerialPort::RMserialWrite(_yaw_data, abs(yaw_data), _pitch_data, abs(pitch_data), depth, is_target, common);
+    #endif
+    
+    #if SHOW_OUTPUT_IMG == 1
     //imshow("roi", result_img);
     imshow("roi_img", roi_img);
-
-//    imshow("roi_power_img",roi_power_img);//test
-
-    imshow("bin", bin_Img);
-//    imshow("img", frame);
-    return common;
+    imshow("bin", bin_img);
+    imshow("img", frame);
+    #endif
 }
 
 int BuffDetector::getState(){
@@ -474,7 +535,7 @@ int BuffDetector::getState(){
     last_angle = buff_angle_;
     if(fabs(diff_angle_)<10 && fabs(diff_angle_)>1e-6){
         d_angle_ = (1 - REVISE) * d_angle_ + REVISE * diff_angle_;
-        cout<<"d_angle_="<<d_angle_<<endl;
+        // cout<<"d_angle_="<<d_angle_<<endl;
     }
     //cout << "d_angle_:" << d_angle_ << endl;
     if(d_angle_ > 1.5)
