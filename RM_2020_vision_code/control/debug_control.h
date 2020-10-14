@@ -15,7 +15,7 @@
   @param: PB_MODEL_PATH pb文件路径
 */
 
-#define CAMERA_PARAM_FILE "./camera/param/cameraParams.xml"
+#define CAMERA_PARAM_FILE "./camera/param/cameraParams_csit.xml"
 /**
   @brief: 相机标定文件路径
 */
@@ -49,7 +49,7 @@
 
 #endif
 
-#define CAMERA_EXPOSURETIME 800 //800
+#define CAMERA_EXPOSURETIME 400 //800
 #define CAMERA_RESOLUTION_COLS 1280
 #define CAMERA_RESOLUTION_ROWS 800
 #define CAMERA_RESOLUTION_COLS_FOV ((1280 - CAMERA_RESOLUTION_COLS) * 0.5)
@@ -65,7 +65,7 @@
 */
 /*---------------------------------------------------*/
 
-#define MY_COLOR 1
+#define MY_COLOR 0
 /**
   @brief: 选择己方阵营
   @param: 0     不限制颜色
@@ -75,7 +75,7 @@
   @note: 强制颜色模式
 */
 
-#define MY_MODE 2
+#define MY_MODE 1
 /**
  * @brief :选择己方模式
  * @param:0     默认模式
@@ -107,7 +107,7 @@
   @param: 0         二维＋深度
   @param: 1         云台俯仰与偏航角度
 */
-#define SHOW_SERIAL_INFORMATION 1
+#define SHOW_SERIAL_INFORMATION 0
 /**
   @brief: 是否打印串口数据信息
   @param: 0     不打印
@@ -142,7 +142,7 @@
 */
 /*---------------------------------------------------*/
 
-#define SHOW_OUTPUT_IMG 0
+#define SHOW_OUTPUT_IMG 1
 /**
   @brief: 是否显示输出图像
   @param: 0     不显示
@@ -154,13 +154,13 @@
   @param: 0     不显示
   @param: 1     显示
 */
-#define COUT_FPS 1
+#define COUT_FPS 0
 /**
   @brief: 是否打印帧率
   @param: 0     不打印
   @param: 1     打印
 */
-#define IS_PARAM_ADJUSTMENT 1
+#define IS_PARAM_ADJUSTMENT 0
 /**
   @brief: 是否进入调参模式
   @param: 0     否
@@ -172,14 +172,14 @@
  * @param: 0    否
  * @param: 1    是
  */
-#define SHOW_DEBUG_INFORMATION 0
+#define SHOW_DEBUG_INFORMATION 1
 /**
   @brief: 是否打印调试信息
   @param: 0     不打印
   @param: 1     打印
   @note: 包括深度，角度等
 */
-#define SHOW_ANGLE_INFORMATION 0
+#define SHOW_ANGLE_INFORMATION 1
 /**
   @brief: 是否打印PNP解算角度信息
   @param: 0     不打印
@@ -192,7 +192,7 @@
   @param: 1     绘制
   @note: 蓝色
 */
-#define DRAW_ARMOR_RECT 0
+#define DRAW_ARMOR_RECT 1
 /**
   @brief: 是否绘制符合条件的armor
   @param: 0     不绘制
@@ -294,10 +294,10 @@ enum armor_size
       @param: LIGHT_SIZE_W          灯条实际宽度
       @param: LIGHT_SIZE_H          灯条实际高度
     */
-  BIG_ARMOR_SIZE_W = 225,
-  BIG_ARMOR_SIZE_H = 55,
-  SMALL_ARMOR_SIZE_W = 125,
-  SMALL_ARMOR_SIZE_H = 55,
+  BIG_ARMOR_SIZE_W = 250,//225
+  BIG_ARMOR_SIZE_H = 65, //55
+  SMALL_ARMOR_SIZE_W = 140,//125
+  SMALL_ARMOR_SIZE_H = 60,//55
   LIGHT_SIZE_W = 10,
   LIGHT_SIZE_H = 55,
 };
