@@ -254,7 +254,6 @@ private:
         command |= 0x01;
         command ^= 0x02;
     }
-
     void set_reset(int &command){
         command |= 0x04;
     }
