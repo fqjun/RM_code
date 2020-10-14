@@ -58,7 +58,7 @@ void BuffDetector::imageProcess(Mat & frame,int my_color){
 
     dilate(bin_img, bin_img, getStructuringElement(MORPH_RECT, Size(3,3)));    //膨胀
     #if SHOW_BIN_IMG == 1
-    imshow("dilate", bin_Img);
+    imshow("dilate", bin_img);
     #endif
     //    cout << "th:" << th << endl;
 }
@@ -261,6 +261,17 @@ int BuffDetector::buffDetect_Task(Mat &frame,int my_color){
     bin_img.copyTo(result_img);
     frame.copyTo(roi_img);
 //    frame.copyTo(roi_power_img);//test
+
+    #if IS_PARAM_ADJUSTMENT == 1
+    namedWindow("BuffParam",WINDOW_AUTOSIZE);
+    createTrackbar("fire_max_cnt","BuffParam",&auto_control.fire_task.max_cnt_,200,nullptr);
+    createTrackbar("reset_cnt","BuffParam",&auto_control.reset_task.max_cnt_,200,nullptr);
+    createTrackbar("repeat_time","BuffParam",&auto_control.fire_task.repeat_time,2000,nullptr);
+    createTrackbar("fire","BuffParam",&auto_control.fire_task.fire_flag,1,nullptr);
+    createTrackbar("repeat fire","BuffParam",&auto_control.fire_task.repeat_fire_flag,1,nullptr);
+    Mat BuffParam = Mat::zeros(1,1200, CV_8UC1);
+    imshow("BuffParam",BuffParam);
+    #endif
 
     if(is_target){//可找到未激活目标
         if(roi_center.x < 0 || roi_center.y < 0 || roi_center.x > frame.cols || roi_center.y > frame.rows){
@@ -514,7 +525,7 @@ int BuffDetector::buffDetect_Task(Mat &frame,int my_color){
     }
     
     // cout <<"current common is:"<<common<<endl;
-    cout<<"depth="<<depth<<endl;
+    // cout<<"depth="<<depth<<endl;
     // cout<<"yaw_data="<<yaw_data<<endl;
     // cout<<"pitch_data="<<pitch_data<<endl;
     //发送串口数据
