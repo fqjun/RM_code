@@ -140,7 +140,7 @@ void SerialPort::RMserialWrite(int _yaw,int yaw,int _pitch,int pitch,int depth,i
     uint8_t CRC = Checksum_CRC8(g_CRC_buf, sizeof(g_CRC_buf));
     sprintf(g_write_buf, "%c%1d%1d%1d%04d%1d%03d%04d%03d%c", 'S',data_type, is_shooting, _yaw ,yaw, _pitch, pitch, depth, CRC, 'E');
 
-    cout<<"depth="<<depth<<endl;
+    // cout<<"depth="<<depth<<endl;
     /*协议内容：[0]'S' 帧头
      *[1]数据是否可用(是否识别到装甲板) [2]是否可以射击(控制自动射击)
      *[3]yaw正负 0正1负 [4]~[6]yaw 偏航数据
