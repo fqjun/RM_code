@@ -31,6 +31,7 @@ void RM_SolveAngle::run_SolvePnp(RotatedRect &rect, float _W, float _H){
     Mat ptz = camera_ptz(tvec);
     //cout << ptz << "-----" << rect.center << endl;
 
+
     get_Angle(ptz);
 
 }
@@ -219,6 +220,11 @@ void RM_SolveAngle::get_Angel_Buff(const Mat & pos_in_ptz, float buff_angle){
 //    alpha = asin(offset_y_barrel_ptz/sqrt(xyz[1]*xyz[1] + xyz[2]*xyz[2]));//offset_y_barrel_ptz并未使用
 //    cout<<"aplha: "<<alpha<<endl;
     theta = atan(xyz[1]/xyz[2]);//后续还要进行测试比较角度的准确性和a
+    /*------------------------------------北理珠---------------------------------------------------*/
+    // float thta = -static_cast<float>(atan2(xyz[1],xyz[2])); // 云台与目标点的相对角度
+    // float balta = static_cast<float>(atan2(target_h,xyz[2])) - thta; // 云台与地面的相对角度
+    /*------------------------------------北理珠---------------------------------------------------*/
+
     //该部分参考北理珠，由于balta角的效果还有待考证，这里就先不加入，只是调整了坐标系
     //    angle_y = -(theta-alpha);
 
@@ -237,6 +243,10 @@ void RM_SolveAngle::get_Angel_Buff(const Mat & pos_in_ptz, float buff_angle){
     //    }
 
     angle_y = -getBuffPitch(z/1000, (target_h)/1000, BULLET_SPEED);
+    /*------------------------------------北理珠---------------------------------------------------*/
+    // angle_y += balta;
+    /*------------------------------------北理珠---------------------------------------------------*/
+
 
     angle_x = atan2(xyz[0], xyz[2]);
     angle_x = angle_x * 180 / CV_PI;
