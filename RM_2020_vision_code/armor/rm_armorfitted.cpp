@@ -54,13 +54,13 @@ RotatedRect CandidateArmor::fit_Rrect(RotatedRect &rect_left,RotatedRect &rect_r
     float width_right = MIN(rect_right.size.width,rect_right.size.height);
     float height_right =MAX(rect_right.size.width,rect_right.size.height);
 
-    float W = distance-(width_left/2 + width_right/2);//roi of  rect.width
+    float W = distance +(width_left/2 + width_right/2);//roi of  rect.width
     if(W < 0){
         W = 0;
     }
     float H = MAX(height_left,height_right);//*2.27;
-    cout<<"rect_left.size.width=="<<W<<endl;//test
-    cout<<"rect_right.size.width=="<<H<<endl;
+    // cout<<"rect_left.size.width=="<<W<<endl;//test
+    // cout<<"rect_right.size.width=="<<H<<endl;
     float angle = atan(center_slope);
     //float angle = atan2((rect_left.center.y-rect_right.center.y),(rect_left.center.x-rect_right.center.x));
     RotatedRect Rrect = RotatedRect(center,Size2f(W,H),angle*180/float(CV_PI));
