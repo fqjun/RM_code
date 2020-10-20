@@ -15,7 +15,7 @@
   @param: PB_MODEL_PATH pb文件路径
 */
 
-#define CAMERA_PARAM_FILE "./camera/param/cameraParams_csit.xml"
+#define CAMERA_PARAM_FILE "./camera/param/cameraParams.xml"
 /**
   @brief: 相机标定文件路径
 */
@@ -49,7 +49,7 @@
 
 #endif
 
-#define CAMERA_EXPOSURETIME 400 //800
+#define CAMERA_EXPOSURETIME 400 //800 400大神符
 #define CAMERA_RESOLUTION_COLS 1280
 #define CAMERA_RESOLUTION_ROWS 800
 #define CAMERA_RESOLUTION_COLS_FOV ((1280 - CAMERA_RESOLUTION_COLS) * 0.5)
@@ -75,7 +75,7 @@
   @note: 强制颜色模式
 */
 
-#define MY_MODE 1
+#define MY_MODE 5
 /**
  * @brief :选择己方模式
  * @param:0     默认模式
@@ -101,13 +101,13 @@
   @param: 115200    波特率115200
   @param: 1500000   波特率1500000
 */
-#define SERIAL_COMMUNICATION_PLAN 1
+#define SERIAL_COMMUNICATION_PLAN 0
 /**
   @brief: 串口所发送的方案
   @param: 0         二维＋深度
   @param: 1         云台俯仰与偏航角度
 */
-#define SHOW_SERIAL_INFORMATION 0
+#define SHOW_SERIAL_INFORMATION 1
 /**
   @brief: 是否打印串口数据信息
   @param: 0     不打印
