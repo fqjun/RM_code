@@ -142,7 +142,7 @@
 */
 /*---------------------------------------------------*/
 
-#define SHOW_OUTPUT_IMG 1
+#define SHOW_OUTPUT_IMG 0
 /**
   @brief: 是否显示输出图像
   @param: 0     不显示
