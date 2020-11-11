@@ -18,13 +18,13 @@ void CandidateArmor::inputParam(NiceLight &light_left, NiceLight &light_right, R
     
     armor_width = centerDistance(light_left.rect.center, light_right.rect.center);
     convert_center = rect.center + Point2f(roi.tl);//set center of roi
-    dist_to_center = centerDistance(convert_center,IMG_CENTER);
+    dist_to_center = centerDistance(convert_center,IMG_CENTER);//未用上
     
     rect = RotatedRect(convert_center,rect.size,rect.angle);                          
     float _w = float(sqrt(pow(fabs(light_left.depth - light_right.depth), 2) + pow(armor_width, 2)));
     //RotatedRect _rect = RotatedRect(rect.center,Size(_w,rect.size.height),rect.angle);
     float temp_w = rect.size.width;
-    rect.size.width = _w;
+    // rect.size.width = _w;
     angle_solve.run_SolvePnp(rect, SMALL_ARMOR_SIZE_W, SMALL_ARMOR_SIZE_H);
     rect.size.width = temp_w;                      
 
@@ -207,10 +207,10 @@ void RM_ArmorFitted::imageProcessing(Mat frame, int my_color){
     } break;
     }
 
-    Mat element = getStructuringElement(MORPH_ELLIPSE,cv::Size(3,7));
+    Mat element = getStructuringElement(MORPH_ELLIPSE,cv::Size(3,7));//MORPH_ELLIPSE,cv::Size(3,7)
     dilate(bin_img_gray,bin_img_gray,element);
-    medianBlur(bin_img_color,bin_img_color,5);
-    dilate(bin_img_color,bin_img_color,element);
+    // medianBlur(bin_img_color,bin_img_color,5);
+    // dilate(bin_img_color,bin_img_color,element);
     //medianBlur(bin_img_hsv,bin_img_hsv,3);
     /* 图像预处理结束，最终得到两张二值图像 bin_img_gray bin_img_hsv */
     #if SHOW_BIN_IMG == 1
@@ -261,7 +261,7 @@ void RM_ArmorFitted::armorFitted(){
     }//筛选灯条循环结束
 
     #if SHOW_DEBUG_INFORMATION == 1
-    float max_dis_th;;
+    float max_dis_th;
     float light_distance_val;
     float light_dis_equ_maxh;
     float w1_equ_w2;
@@ -408,6 +408,8 @@ void RM_ArmorFitted::armorFitted(){
     putText(dst_img,to_string(light_dis_equ_maxh),p,FONT_HERSHEY_PLAIN,2,Scalar(0, 100, 255),1,8,false);//橙色 灯条距离与最大高之比
     p = Point(armor_rect.center.x,armor_rect.center.y+80);
     putText(dst_img,to_string(w1_equ_w2),p,FONT_HERSHEY_PLAIN,2,Scalar(0, 255, 255),1,8,false);//黄色 灯条宽之比
+    p = Point(armor_rect.center.x,armor_rect.center.y+100);
+    putText(dst_img,to_string(armor.depth),p,FONT_HERSHEY_PLAIN,2,Scalar(194, 158, 241),1,8,false);//粉色 深度距离信息
     #endif
 
     if(kf_reset_cnt > 20){
