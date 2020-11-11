@@ -15,7 +15,7 @@
   @param: PB_MODEL_PATH pb文件路径
 */
 
-#define CAMERA_PARAM_FILE "./camera/param/cameraParams.xml"
+#define CAMERA_PARAM_FILE "./camera/param/cameraParams_csit.xml"
 /**
   @brief: 相机标定文件路径
 */
@@ -75,7 +75,7 @@
   @note: 强制颜色模式
 */
 
-#define MY_MODE 5
+#define MY_MODE 2
 /**
  * @brief :选择己方模式
  * @param:0     默认模式
@@ -88,7 +88,7 @@
  */
 
 /*---------------------------------------------------*/
-#define IS_SERIAL_OPEN 1
+#define IS_SERIAL_OPEN 0
 /**
   @brief: 是否启用串口
   @param: 0     不启用
@@ -101,7 +101,7 @@
   @param: 115200    波特率115200
   @param: 1500000   波特率1500000
 */
-#define SERIAL_COMMUNICATION_PLAN 0
+#define SERIAL_COMMUNICATION_PLAN 1
 /**
   @brief: 串口所发送的方案
   @param: 0         二维＋深度
@@ -148,7 +148,7 @@
   @param: 0     不显示
   @param: 1     显示
 */
-#define SHOW_BIN_IMG 0
+#define SHOW_BIN_IMG 1
 /**
   @brief: 是否显示二值图像
   @param: 0     不显示
@@ -160,7 +160,7 @@
   @param: 0     不打印
   @param: 1     打印
 */
-#define IS_PARAM_ADJUSTMENT 0
+#define IS_PARAM_ADJUSTMENT 1
 /**
   @brief: 是否进入调参模式
   @param: 0     否
@@ -172,20 +172,20 @@
  * @param: 0    否
  * @param: 1    是
  */
-#define SHOW_DEBUG_INFORMATION 1
+#define SHOW_DEBUG_INFORMATION 0
 /**
   @brief: 是否打印调试信息
   @param: 0     不打印
   @param: 1     打印
   @note: 包括深度，角度等
 */
-#define SHOW_ANGLE_INFORMATION 1
+#define SHOW_ANGLE_INFORMATION 0
 /**
   @brief: 是否打印PNP解算角度信息
   @param: 0     不打印
   @param: 1     打印
 */
-#define DRAW_LIGHT 0
+#define DRAW_LIGHT 1
 /**
   @brief: 是否绘制符合条件的light
   @param: 0     不绘制
@@ -214,7 +214,7 @@
 #define PRE_ANGLE 20
 #define SMALL_LENTH_R 1.2
 #define SMALL_PRE_ANGLE 20
-#define BIG_LENTH_R 5
+#define BIG_LENTH_R 4
 
 //buff-filter(buff_detect.cpp)
 #define REVISE 0.1
@@ -294,12 +294,12 @@ enum armor_size
       @param: LIGHT_SIZE_W          灯条实际宽度
       @param: LIGHT_SIZE_H          灯条实际高度
     */
-  BIG_ARMOR_SIZE_W = 250,//225
+  BIG_ARMOR_SIZE_W = 250,//225 250
   BIG_ARMOR_SIZE_H = 65, //55
-  SMALL_ARMOR_SIZE_W = 140,//125
-  SMALL_ARMOR_SIZE_H = 60,//55
-  LIGHT_SIZE_W = 10,
-  LIGHT_SIZE_H = 55,
+  SMALL_ARMOR_SIZE_W = 140,//125 140
+  SMALL_ARMOR_SIZE_H = 60,//55 60
+  LIGHT_SIZE_W = 14,//10 15 14
+  LIGHT_SIZE_H = 57,//55 58 57
 };
 
 enum communicationl_plan
@@ -337,15 +337,11 @@ enum Robot_ID
  * @param RED_ARMOR_COLOR_TH    红色颜色阈值
  * @param BLUE_ARMOR_GRAY_TH    蓝色灰度阈值
  * @param BLUE_ARMOR_COLOR_TH   蓝色颜色阈值
- *
- *
- *
- *
  */
 const int RED_ARMOR_GRAY_TH = 40;
 const int RED_ARMOR_COLOR_TH = 100;
 const int BLUE_ARMOR_GRAY_TH = 80;
-const int BLUE_ARMOR_COLOR_TH = 135;
+const int BLUE_ARMOR_COLOR_TH = 100;//135
 
 /*---------------------------------------------------*/
 
