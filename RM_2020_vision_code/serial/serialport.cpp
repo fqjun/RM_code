@@ -8,6 +8,7 @@
  * @copyright Copyright (c) 2019 GCU Robot Lab. All Rights Reserved.
  *
  */
+//即将进行修改
 #include "serialport.h"
 
 int SerialPort::fd;
