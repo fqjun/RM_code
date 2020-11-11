@@ -201,12 +201,12 @@ bool BuffDetector::findCenter_R(Mat &bin_img, Mat &frame){
 
     findContours(bin_img, contours, hierarchy, 0, CHAIN_APPROX_NONE);
 
-//    cout<<"轮廓数目："<<contours.size()<<endl;
+   cout<<"轮廓数目："<<contours.size()<<endl;
 
     for(int j = 0; j < (int)contours.size(); ++j){
         double circle_area = contourArea(contours[j]);
 
-        if(circle_area > 250 || circle_area < 50)//原来为30
+        if(circle_area > 1000 || circle_area < 50)//原来为30
             continue;
         RotatedRect temp_circle_rect = fitEllipse(contours[j]);
 
