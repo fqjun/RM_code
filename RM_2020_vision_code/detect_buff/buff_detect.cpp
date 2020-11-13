@@ -505,8 +505,8 @@ int BuffDetector::buffDetect_Task(Mat &frame,int my_color){
         pitch_data = int(pre_center.y);
         #else
         /* Angle */
-        yaw_data = int(solve_buff.angle_x);
-        pitch_data = int(solve_buff.angle_y);
+        yaw_data = solve_buff.angle_x;
+        pitch_data = solve_buff.angle_y;
         depth = int(solve_buff.dist);
         #endif 
         _yaw_data = (yaw_data >=0 ? 0:1);
@@ -530,7 +530,7 @@ int BuffDetector::buffDetect_Task(Mat &frame,int my_color){
     // cout<<"pitch_data="<<pitch_data<<endl;
     //发送串口数据
     #if IS_SERIAL_OPEN == 1
-    SerialPort::RMserialWrite(_yaw_data, abs(yaw_data), _pitch_data, abs(pitch_data), depth, is_target, common);
+    SerialPort::RMserialWrite(_yaw_data,yaw_data*100,_pitch_data,pitch_data*100, depth, is_target, common);
     #endif
     
     #if SHOW_OUTPUT_IMG == 1

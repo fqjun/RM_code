@@ -8,12 +8,12 @@
   @brief: 串口部分参数
 */
 /** Serious **/
-#define WRITE_BUFF_LENGTH 20//19
+#define WRITE_BUFF_LENGTH 13//20
 /**
   @brief: 写入串口的Buff长度
   */
 
-#define CRC_BUFF_LENGTH 16//15
+#define CRC_BUFF_LENGTH 11//15
 /**
   @brief: 进入CRC校验的Buff长度
   */
@@ -36,22 +36,23 @@ class SerialPort
 public:
     //串口标志量
     static int fd;
-    static char g_write_buf[WRITE_BUFF_LENGTH];
-    static char g_CRC_buf[CRC_BUFF_LENGTH];
-    static char g_rec_buf[REC_BUFF_LENGTH];
-
+    static unsigned char g_write_buf[WRITE_BUFF_LENGTH];
+    static unsigned char g_CRC_buf[CRC_BUFF_LENGTH];
+    static unsigned char g_rec_buf[REC_BUFF_LENGTH];
 public:
     /**              函数声明            **/
     SerialPort();
     ~SerialPort();
 
-    static uint8_t Checksum_CRC8(char *buf,uint16_t len);
+    static uint8_t Checksum_CRC8(unsigned char *buf,uint16_t len);
     //自定义串口发送
-    static void RMserialWrite(int _yaw,int yaw,int _pitch,int pitch,int depth,int data_type,int is_shooting);
+    static void RMserialWrite(int _yaw,int16_t yaw,int _pitch,int16_t pitch,int16_t depth,int data_type,int is_shooting);
 
     //接收并处理串口数据
     static void RMreceiveData(int arr[REC_BUFF_LENGTH]);
 
+    static void getDataForCRC(int data_type,int is_shooting,int _yaw,int16_t yaw,int _pitch,int16_t pitch,int16_t depth);
+    static void getDataForSend(int data_type,int is_shooting,int _yaw,int16_t yaw,int _pitch,int16_t pitch,int16_t depth,uint8_t CRC);
 };
 
 const unsigned char CRC8Tab[300]=

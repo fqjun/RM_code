@@ -1,7 +1,7 @@
 #ifndef DEBUG_CONTROL_H
 #define DEBUG_CONTROL_H
 
-#define CAMERA_OR_VEDIO 0
+#define CAMERA_OR_VEDIO 1
 /**
  * @brief 使用相机或者视频
  * @param: 0      相机
@@ -45,7 +45,7 @@
   @param: 0     使用工业相机
   @param: 1     使用普通USB相机
 */
-#define USB_CAPTURE_DEFULT "/home/jun/workplace/录像/camera_17.avi" //armor_2  大小装甲-红  步兵自旋-蓝  基地步兵-蓝 camera_13 camera_17
+#define USB_CAPTURE_DEFULT "/home/jun/workplace/录像/基地步兵-蓝.avi" //armor_2  大小装甲-红  步兵自旋-蓝  基地步兵-蓝 camera_13 camera_17
 
 #endif
 
@@ -75,7 +75,7 @@
   @note: 强制颜色模式
 */
 
-#define MY_MODE 2
+#define MY_MODE 1
 /**
  * @brief :选择己方模式
  * @param:0     默认模式
@@ -88,7 +88,7 @@
  */
 
 /*---------------------------------------------------*/
-#define IS_SERIAL_OPEN 0
+#define IS_SERIAL_OPEN 1
 /**
   @brief: 是否启用串口
   @param: 0     不启用
@@ -148,7 +148,7 @@
   @param: 0     不显示
   @param: 1     显示
 */
-#define SHOW_BIN_IMG 1
+#define SHOW_BIN_IMG 0
 /**
   @brief: 是否显示二值图像
   @param: 0     不显示

@@ -380,8 +380,8 @@ void RM_ArmorFitted::armorFitted(){
         pitch_data = int(armor_rect.center.y);
         #else
         /* Angle */
-        yaw_data = int(angle_solve.angle_x);
-        pitch_data = int(angle_solve.angle_y);
+        yaw_data = angle_solve.angle_x;
+        pitch_data = angle_solve.angle_y;
         #endif
         _yaw_data = (yaw_data >=0 ? 0:1);
         _pitch_data = (pitch_data >=0 ? 0:1);
@@ -393,8 +393,8 @@ void RM_ArmorFitted::armorFitted(){
         pitch_data = int(src_img.rows*0.5);
         #else
         /* Angle */
-        yaw_data = 0;
-        pitch_data = 0;
+        yaw_data = 0.0;
+        pitch_data = 0.0;
         #endif
         _yaw_data = 0;
         _pitch_data = 0;
@@ -418,7 +418,7 @@ void RM_ArmorFitted::armorFitted(){
     }
     //发送串口数据
     #if IS_SERIAL_OPEN == 1
-    SerialPort::RMserialWrite(_yaw_data, abs(yaw_data), _pitch_data, abs(pitch_data), armor.depth, is_last_data_catch, shooting);// SerialPort::RMserialWrite(_yaw_data, abs(yaw_data), _pitch_data, abs(pitch_data), armor.depth, is_last_data_catch, shooting);
+    SerialPort::RMserialWrite(_yaw_data,yaw_data*1000, _pitch_data,pitch_data*1000, armor.depth, is_last_data_catch, shooting);// SerialPort::RMserialWrite(_yaw_data, abs(yaw_data), _pitch_data, abs(pitch_data), armor.depth, is_last_data_catch, shooting);
     #endif
 
     #if SHOW_OUTPUT_IMG == 1
