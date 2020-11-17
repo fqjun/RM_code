@@ -201,7 +201,7 @@ bool BuffDetector::findCenter_R(Mat &bin_img, Mat &frame){
 
     findContours(bin_img, contours, hierarchy, 0, CHAIN_APPROX_NONE);
 
-   cout<<"轮廓数目："<<contours.size()<<endl;
+//    cout<<"轮廓数目："<<contours.size()<<endl;
 
     for(int j = 0; j < (int)contours.size(); ++j){
         double circle_area = contourArea(contours[j]);
@@ -505,8 +505,8 @@ int BuffDetector::buffDetect_Task(Mat &frame,int my_color){
         pitch_data = int(pre_center.y);
         #else
         /* Angle */
-        yaw_data = int(solve_buff.angle_x);
-        pitch_data = int(solve_buff.angle_y);
+        yaw_data = solve_buff.angle_x;
+        pitch_data = solve_buff.angle_y;
         depth = int(solve_buff.dist);
         #endif 
         _yaw_data = (yaw_data >=0 ? 0:1);
@@ -530,7 +530,7 @@ int BuffDetector::buffDetect_Task(Mat &frame,int my_color){
     // cout<<"pitch_data="<<pitch_data<<endl;
     //发送串口数据
     #if IS_SERIAL_OPEN == 1
-    SerialPort::RMserialWrite(_yaw_data, abs(yaw_data), _pitch_data, abs(pitch_data), depth, is_target, common);
+    SerialPort::RMserialWrite(_yaw_data,fabs(yaw_data)*1000,_pitch_data,fabs(pitch_data)*1000, depth, is_target, common);
     #endif
     
     #if SHOW_OUTPUT_IMG == 1

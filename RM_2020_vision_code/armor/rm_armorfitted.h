@@ -321,9 +321,9 @@ public:
     void armorFitted();
 
 public:
-    int yaw_data = 0; //云台偏航
+    float yaw_data = 0; //云台偏航
     int _yaw_data = 0; //偏航值的正负
-    int pitch_data = 0; //云台俯仰
+    float pitch_data = 0; //云台俯仰
     int _pitch_data = 0; //俯仰值的正负
     int armor_depth = 0; //深度 -- 装甲板距离相机的距离
 
