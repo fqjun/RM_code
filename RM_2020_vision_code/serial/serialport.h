@@ -39,6 +39,10 @@ public:
     static unsigned char g_write_buf[WRITE_BUFF_LENGTH];
     static unsigned char g_CRC_buf[CRC_BUFF_LENGTH];
     static unsigned char g_rec_buf[REC_BUFF_LENGTH];
+
+    static int16_t _yaw_reduction;
+    static int16_t _pitch_reduction;
+    static int16_t _depth_reduction;
 public:
     /**              函数声明            **/
     SerialPort();

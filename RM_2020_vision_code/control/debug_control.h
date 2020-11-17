@@ -45,7 +45,7 @@
   @param: 0     使用工业相机
   @param: 1     使用普通USB相机
 */
-#define USB_CAPTURE_DEFULT "/home/jun/workplace/录像/基地步兵-蓝.avi" //armor_2  大小装甲-红  步兵自旋-蓝  基地步兵-蓝 camera_13 camera_17
+#define USB_CAPTURE_DEFULT "/home/jun/workplace/录像/camera_MaxBuff01.avi" //armor_2  大小装甲-红  步兵自旋-蓝  基地步兵-蓝 camera_13 camera_17
 
 #endif
 
@@ -75,7 +75,7 @@
   @note: 强制颜色模式
 */
 
-#define MY_MODE 1
+#define MY_MODE 2
 /**
  * @brief :选择己方模式
  * @param:0     默认模式
@@ -142,7 +142,7 @@
 */
 /*---------------------------------------------------*/
 
-#define SHOW_OUTPUT_IMG 0
+#define SHOW_OUTPUT_IMG 1
 /**
   @brief: 是否显示输出图像
   @param: 0     不显示
@@ -160,7 +160,7 @@
   @param: 0     不打印
   @param: 1     打印
 */
-#define IS_PARAM_ADJUSTMENT 1
+#define IS_PARAM_ADJUSTMENT 0
 /**
   @brief: 是否进入调参模式
   @param: 0     否

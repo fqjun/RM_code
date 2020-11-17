@@ -209,8 +209,8 @@ void RM_ArmorFitted::imageProcessing(Mat frame, int my_color){
 
     Mat element = getStructuringElement(MORPH_ELLIPSE,cv::Size(3,7));//MORPH_ELLIPSE,cv::Size(3,7)
     dilate(bin_img_gray,bin_img_gray,element);
-    // medianBlur(bin_img_color,bin_img_color,5);
-    // dilate(bin_img_color,bin_img_color,element);
+    medianBlur(bin_img_color,bin_img_color,5);
+    dilate(bin_img_color,bin_img_color,element);
     //medianBlur(bin_img_hsv,bin_img_hsv,3);
     /* 图像预处理结束，最终得到两张二值图像 bin_img_gray bin_img_hsv */
     #if SHOW_BIN_IMG == 1
@@ -229,6 +229,7 @@ void RM_ArmorFitted::imageProcessing(Mat frame, int my_color){
  */
 void RM_ArmorFitted::armorFitted(){
     is_last_data_catch = false;
+    float rect_area;
     
     vector <NiceLight> candidate_lights;   //符合条件的灯条实例化
 
@@ -240,10 +241,10 @@ void RM_ArmorFitted::armorFitted(){
         RotatedRect R_rect = fitEllipse(contours[j]);
         float width = MIN(R_rect.size.width,R_rect.size.height);
         float height =MAX(R_rect.size.width,R_rect.size.height);
-        //float rect_area = width * height;
+        rect_area = width * height;
         float w_h_ratio = width / height;
         if ((w_h_ratio < 0.4f) /*高宽比,角度筛选形状符合要求的灯条*/
-                && ((0<= R_rect.angle && R_rect.angle<=45)||(135<=R_rect.angle && R_rect.angle<=180))){
+                && ((0<= R_rect.angle && R_rect.angle<=45)||(135<=R_rect.angle && R_rect.angle<=180)) && rect_area > 50 ){
             light.inputParam(R_rect, angle_solve);
             candidate_lights.push_back(light);
             #if DRAW_LIGHT == 1
@@ -384,7 +385,7 @@ void RM_ArmorFitted::armorFitted(){
         pitch_data = angle_solve.angle_y;
         #endif
         _yaw_data = (yaw_data >=0 ? 0:1);
-        _pitch_data = (pitch_data >=0 ? 0:1);
+        _pitch_data = (pitch_data <=0 ? 0:1);
     } else {
         kf_reset_cnt += 1;
         #if SERIAL_COMMUNICATION_PLAN == 0
@@ -418,7 +419,7 @@ void RM_ArmorFitted::armorFitted(){
     }
     //发送串口数据
     #if IS_SERIAL_OPEN == 1
-    SerialPort::RMserialWrite(_yaw_data,yaw_data*1000, _pitch_data,pitch_data*1000, armor.depth, is_last_data_catch, shooting);// SerialPort::RMserialWrite(_yaw_data, abs(yaw_data), _pitch_data, abs(pitch_data), armor.depth, is_last_data_catch, shooting);
+    SerialPort::RMserialWrite(_yaw_data,fabs(yaw_data)*1000, _pitch_data,fabs(pitch_data)*1000, armor.depth, is_last_data_catch, shooting);// SerialPort::RMserialWrite(_yaw_data, abs(yaw_data), _pitch_data, abs(pitch_data), armor.depth, is_last_data_catch, shooting);
     #endif
 
     #if SHOW_OUTPUT_IMG == 1
