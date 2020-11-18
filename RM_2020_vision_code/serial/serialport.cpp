@@ -144,17 +144,14 @@ void SerialPort::RMserialWrite(int _yaw,int16_t yaw,int _pitch,int16_t pitch,int
 
     uint8_t CRC = Checksum_CRC8(g_CRC_buf, sizeof(g_CRC_buf));
     getDataForSend(data_type,is_shooting,_yaw,yaw,_pitch,pitch,depth,CRC);
-    // sprintf(g_write_buf, "%c%1d%1d%1d%04d%1d%03d%04d%03d%c", 'S',data_type, is_shooting, _yaw ,yaw, _pitch, pitch, depth, CRC, 'E');
-
-    // cout<<"depth="<<depth<<endl;
-    /*协议内容：[0]'S' 帧头
-     *[1]数据是否可用(是否识别到装甲板) [2]是否可以射击(控制自动射击)
-     *[3]yaw正负 0正1负 [4]~[6]yaw 偏航数据
-     *[7]pitch正负 0正1负 [8]~[10]pitch 俯仰数据
-     *[11]~[14]depth 深度数据
-     *[15]~[17]CRC CRC校验位
-     *[18]'E' 帧尾
-     */
+    /*
+    0：帧头     1：是否正确识别的标志   2：是否射击的信号
+    3：yaw正负值    4：yaw低八位数据    5：yaw高八位数据
+    6：pitch正负值  7：pitch低八位数据  8：pitch高八位数据
+    9：深度低八位   10：深度高八位
+    11：CRC
+    12：帧尾
+    */
     write(fd,g_write_buf,sizeof(g_write_buf));
     #if SHOW_SERIAL_INFORMATION == 1
     // std::cout<<"g_write_buf: "<<g_write_buf<<std::endl;
@@ -165,12 +162,16 @@ void SerialPort::RMserialWrite(int _yaw,int16_t yaw,int _pitch,int16_t pitch,int
     _pitch_reduction = g_write_buf[7] | _pitch_reduction;
     _depth_reduction = (g_write_buf[10]<<8) | _depth_reduction;
     _depth_reduction = g_write_buf[9] | _depth_reduction;
-    // _yaw_test = _yaw_test | _yaw_test2;
-    // _yaw_test = _yaw_test;
+
     cout<<"g_write_buf:"<<g_write_buf[0]<<static_cast<int>(g_write_buf[1])<<static_cast<int>(g_write_buf[2])<<"     "<<static_cast<int>(g_write_buf[11])<<g_write_buf[12]<<endl;
-    cout<<"pitch_reduciton:"<<static_cast<int>(g_write_buf[6])<<float(_pitch_reduction)/1000<<endl;
-    cout<<"yaw_reduction:"<<static_cast<int>(g_write_buf[3])<<float(_yaw_reduction)/1000<<endl;
+    cout<<"pitch_reduciton:"<<float(_pitch_reduction)/1000<<endl;
+    cout<<"yaw_reduction:"<<float(_yaw_reduction)/1000<<endl;
     cout<<"depth_reduction:"<<_depth_reduction<<endl;
+
+    _yaw_reduction = 0x0000;
+    _pitch_reduction = 0x0000;
+    _depth_reduction = 0x0000;
+    
     
     #endif
     //usleep(1);
@@ -227,19 +228,4 @@ void SerialPort::getDataForSend(int data_type,int is_shooting,int _yaw,int16_t y
     g_write_buf[10] = (depth>>8) & 0xff;
     g_write_buf[11] = CRC & 0xff;
     g_write_buf[12] = 0x45;
-    /*
-    0：帧头
-    1：是否正确识别的标志
-    2：是否射击的信号
-    3：yaw正负值
-    4：yaw低八位数据
-    5：yaw高八位数据
-    6：pitch正负值
-    7：pitch低八位数据
-    8：pitch高八位数据
-    9：深度低八位
-    10：深度高八位
-    11：CRC
-    12：帧尾
-    */
 }
