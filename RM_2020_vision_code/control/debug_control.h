@@ -65,7 +65,7 @@
 */
 /*---------------------------------------------------*/
 
-#define MY_COLOR 0
+#define MY_COLOR 1
 /**
   @brief: 选择己方阵营
   @param: 0     不限制颜色
@@ -101,7 +101,7 @@
   @param: 115200    波特率115200
   @param: 1500000   波特率1500000
 */
-#define SERIAL_COMMUNICATION_PLAN 1
+#define SERIAL_COMMUNICATION_PLAN 0
 /**
   @brief: 串口所发送的方案
   @param: 0         二维＋深度

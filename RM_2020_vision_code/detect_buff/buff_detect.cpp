@@ -248,6 +248,9 @@ bool BuffDetector::findCenter_R(Mat &bin_img, Mat &frame){
 //        drawContours(img, contours, j, Scalar(0,255,0),2);
     ellipse(frame,circle_rect,Scalar(0,255,233),2,8);
 
+    // vector<vector<Point>>().swap(contours);
+    // vector<RotatedRect>().swap(first_screen);
+
     return is_circle;
 }
 
@@ -530,7 +533,11 @@ int BuffDetector::buffDetect_Task(Mat &frame,int my_color){
     // cout<<"pitch_data="<<pitch_data<<endl;
     //发送串口数据
     #if IS_SERIAL_OPEN == 1
+    #if SERIAL_COMMUNICATION_PLAN == 1
     SerialPort::RMserialWrite(_yaw_data,fabs(yaw_data)*1000,_pitch_data,fabs(pitch_data)*1000, depth, is_target, common);
+    #else
+    SerialPort::RMserialWrite(_yaw_data,yaw_data,_pitch_data,pitch_data, depth, is_target, common);
+    #endif
     #endif
     
     #if SHOW_OUTPUT_IMG == 1
