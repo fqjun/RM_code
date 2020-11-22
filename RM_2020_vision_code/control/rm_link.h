@@ -15,6 +15,7 @@
 #include "serial/serialport.h"
 #include "armor/rm_armorfitted.h"
 #include "detect_buff/buff_detect.h"
+#include "fps/fps.h"
 
 class RM_Vision_Init
 {

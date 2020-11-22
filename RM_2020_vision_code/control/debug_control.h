@@ -1,7 +1,7 @@
 #ifndef DEBUG_CONTROL_H
 #define DEBUG_CONTROL_H
 
-#define CAMERA_OR_VEDIO 1
+#define CAMERA_OR_VEDIO 0
 /**
  * @brief 使用相机或者视频
  * @param: 0      相机
@@ -65,7 +65,7 @@
 */
 /*---------------------------------------------------*/
 
-#define MY_COLOR 1
+#define MY_COLOR 0
 /**
   @brief: 选择己方阵营
   @param: 0     不限制颜色
@@ -75,7 +75,7 @@
   @note: 强制颜色模式
 */
 
-#define MY_MODE 2
+#define MY_MODE 5
 /**
  * @brief :选择己方模式
  * @param:0     默认模式
@@ -101,7 +101,7 @@
   @param: 115200    波特率115200
   @param: 1500000   波特率1500000
 */
-#define SERIAL_COMMUNICATION_PLAN 0
+#define SERIAL_COMMUNICATION_PLAN 1
 /**
   @brief: 串口所发送的方案
   @param: 0         二维＋深度
@@ -154,7 +154,7 @@
   @param: 0     不显示
   @param: 1     显示
 */
-#define COUT_FPS 0
+#define COUT_FPS 1
 /**
   @brief: 是否打印帧率
   @param: 0     不打印

@@ -6,19 +6,19 @@ int main()
 #if IS_SERIAL_OPEN == 1
     SerialPort serialport;
 #endif
+    Fps fps;
+
 //    g_Ctrl.my_color = ALL_COLOR;
 //    g_Ctrl.now_run_mode = DEFAULT_MODE;
     for(;;)
     {
-        double t = double(getTickCount());
+        fps.starttheTime();
         /** run **/
         run.Run();
-
-        t = (double(getTickCount() - t)) / getTickFrequency();
-        run.armor._t = t;
+        fps.endtheTime();
+        run.armor._t = fps.time;
 #if COUT_FPS == 1
-        int fps = int(1.0 / t);
-        cout<< endl << "FPS: " << fps<< endl;
+        fps.displayframeRate();
 #endif
 
         #if ANALYZE_EACH_FRAME == 1
