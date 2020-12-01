@@ -6,6 +6,7 @@
 #include "solve_PNP/solve_pnp.h"
 #include "serial/serialport.h"
 #include "filter/rm_kalmanfilter.h"
+#include "pinhole/pinhole.h"
 
 // //结构体实现方法
 // struct ArmorROI
@@ -335,6 +336,8 @@ private:
     ArmorROI roi;
     CandidateArmor armor = CandidateArmor();
     NiceLight light,left_light,right_light;
+
+    Pinhole pinhole_test;
 
     Mat src_img;
     Mat gray_img;

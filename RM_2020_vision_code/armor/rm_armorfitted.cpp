@@ -419,6 +419,7 @@ void RM_ArmorFitted::armorFitted(){
     }
     //发送串口数据
     #if IS_SERIAL_OPEN == 1
+    pinhole_test.getDistance(&this->armor.rect.size.width,17,SMALL_ARMOR_SIZE_W);
     SerialPort::RMserialWrite(_yaw_data,fabs(yaw_data)*1000, _pitch_data,fabs(pitch_data)*1000, armor.depth, is_last_data_catch, shooting);// SerialPort::RMserialWrite(_yaw_data, abs(yaw_data), _pitch_data, abs(pitch_data), armor.depth, is_last_data_catch, shooting);
     #endif
 
