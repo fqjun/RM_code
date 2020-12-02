@@ -133,7 +133,7 @@ void RM_ArmorFitted::imageProcessing(Mat frame, int my_color){
     #endif
     src_img.copyTo(dst_img);
     /* 获取灰度图 */
-    // imshow("roi_img", roi_img);
+    imshow("roi_img", roi_img);
     cvtColor(roi_img, gray_img, COLOR_BGR2GRAY);
     //cvtColor(roi_img, hsv_img, COLOR_BGR2HSV);
     vector<Mat> _split;     //B G R
@@ -416,10 +416,18 @@ void RM_ArmorFitted::armorFitted(){
     if(kf_reset_cnt > 20){
         kf.reset();
         kf_reset_cnt = 0;
+
     }
+
+    float focal_length = 1783;//1680 1781（1783）1815）1800 1804 1822 1832 1817 17726
+    //1624 1781 1792 1805 1827 1862
+    float distance = 1000;
+    float small_armor_size_w = SMALL_ARMOR_SIZE_W;
+    
+    pinhole_test.getDistance(this->armor.rect.size.width,focal_length,small_armor_size_w);
+    pinhole_test.getfocalLength(this->armor.rect.size.width,distance,small_armor_size_w);
     //发送串口数据
     #if IS_SERIAL_OPEN == 1
-    pinhole_test.getDistance(&this->armor.rect.size.width,17,SMALL_ARMOR_SIZE_W);
     SerialPort::RMserialWrite(_yaw_data,fabs(yaw_data)*1000, _pitch_data,fabs(pitch_data)*1000, armor.depth, is_last_data_catch, shooting);// SerialPort::RMserialWrite(_yaw_data, abs(yaw_data), _pitch_data, abs(pitch_data), armor.depth, is_last_data_catch, shooting);
     #endif
 

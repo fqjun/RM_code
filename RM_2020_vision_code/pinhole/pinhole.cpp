@@ -8,9 +8,10 @@
  * @param target 目标长度 mm
  * @return float 
  */
-float Pinhole::getDistance(float *pix,float focal_length,float target){
+float Pinhole::getDistance(float &pix,float &focal_length,float &target){
 
-    distance = *pix * focal_length / target;
+    distance = target * focal_length / pix;
+    cout<<"distance: "<<distance<<endl;
     return distance;
 
 }
@@ -23,9 +24,10 @@ float Pinhole::getDistance(float *pix,float focal_length,float target){
  * @param target 目标长度 mm
  * @return float 
  */
-float Pinhole::getfocalLength(float *pix,float distance,float target){
+float Pinhole::getfocalLength(float &pix,float &distance,float &target){
 
-    focal_length = *pix * distance / target; 
+    focal_length = pix * distance / target; 
+    cout<<"focal_length: "<<focal_length<<endl;
     return focal_length;
 
 }

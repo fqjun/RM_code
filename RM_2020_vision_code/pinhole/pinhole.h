@@ -16,8 +16,8 @@ public:
     float distance = 0;
 
 
-    float getDistance(float *pix,float focal_length,float target);
-    float getfocalLength(float *pix,float distance,float target);
+    float getDistance(float &pix,float &focal_length,float &target);
+    float getfocalLength(float &pix,float &distance,float &target);
 
 
 };

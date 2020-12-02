@@ -1,7 +1,7 @@
 #ifndef DEBUG_CONTROL_H
 #define DEBUG_CONTROL_H
 
-#define CAMERA_OR_VEDIO 1
+#define CAMERA_OR_VEDIO 0
 /**
  * @brief 使用相机或者视频
  * @param: 0      相机
@@ -49,7 +49,7 @@
 
 #endif
 
-#define CAMERA_EXPOSURETIME 400 //800 400大神符
+#define CAMERA_EXPOSURETIME 870 //800 400大神符
 #define CAMERA_RESOLUTION_COLS 1280
 #define CAMERA_RESOLUTION_ROWS 800
 #define CAMERA_RESOLUTION_COLS_FOV ((1280 - CAMERA_RESOLUTION_COLS) * 0.5)
@@ -75,7 +75,7 @@
   @note: 强制颜色模式
 */
 
-#define MY_MODE 2
+#define MY_MODE 1
 /**
  * @brief :选择己方模式
  * @param:0     默认模式
@@ -88,7 +88,7 @@
  */
 
 /*---------------------------------------------------*/
-#define IS_SERIAL_OPEN 1
+#define IS_SERIAL_OPEN 0
 /**
   @brief: 是否启用串口
   @param: 0     不启用
@@ -154,7 +154,7 @@
   @param: 0     不显示
   @param: 1     显示
 */
-#define COUT_FPS 1
+#define COUT_FPS 0
 /**
   @brief: 是否打印帧率
   @param: 0     不打印
