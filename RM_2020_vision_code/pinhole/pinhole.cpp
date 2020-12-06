@@ -31,3 +31,21 @@ float Pinhole::getfocalLength(float &pix,float &distance,float &target){
     return focal_length;
 
 }
+
+float Pinhole::getfitDistance(float &pix_width,float &pix_area,float &pix_height){
+    
+    // 装甲板宽度
+    distance_width = a*(pow(pix_width,b))+c;
+    //装甲板面积
+    distance_area = d*(pow(pix_area,e))+f;
+    //灯条高度
+    distance_height = g*(pow(pix_height,h))+i;
+
+    distance = MIN(distance_width,distance_area);
+    distance = MIN(distance,Pinhole::distance_height);
+
+    cout<<"distance: "<<distance<<endl;
+
+    return distance;
+
+}

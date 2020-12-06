@@ -172,7 +172,7 @@
  * @param: 0    否
  * @param: 1    是
  */
-#define SHOW_DEBUG_INFORMATION 0
+#define SHOW_DEBUG_INFORMATIO 0
 /**
   @brief: 是否打印调试信息
   @param: 0     不打印

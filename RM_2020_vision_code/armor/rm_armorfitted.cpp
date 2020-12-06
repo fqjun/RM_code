@@ -327,7 +327,7 @@ void RM_ArmorFitted::armorFitted(){
                 if(h1 + h2 >= light_addH_max){
                     light_addH_max = h1 + h2;
                     armor.inputParam(left_light, right_light, angle_solve, roi);
-                                        
+
                     #if SHOW_DEBUG_INFORMATION == 1
                     light_distance_val = light_distance;
                     max_dis_th = MAX(h1,h2) * 5;
@@ -419,27 +419,11 @@ void RM_ArmorFitted::armorFitted(){
 
     }
 
-    float focal_length = 1783;//1680 1781（1783）1815）1800 1804 1822 1832 1817 17726
-    //1624 1781 1792 1805 1827 1862
-    float distance = 1000;
-    float small_armor_size_w = SMALL_ARMOR_SIZE_W;
-    
-    distance=pinhole_test.getDistance(this->armor.rect.size.width,focal_length,small_armor_size_w);
-    pinhole_test.getfocalLength(this->armor.rect.size.width,distance,small_armor_size_w);
-    cout<<"outside_distance = "<<distance;
-    //按g写入容器
-    if(waitKey(1) == 103){
+    float armor_area = armor.rect.size.area();
+    float armor_width = armor.rect.size.width;
+    float light_height = left_light.rect.size.height;
 
-        data_exchange.getvalueManually(this->armor.rect.size.width);
-
-    }
-
-    //按w保存进入csv
-    if(waitKey(1) == 119){
-
-        data_exchange.writeinCSV();
-
-    }
+    pinhole_test.getfitDistance(armor_width,armor_area,light_height);
 
     //发送串口数据
     #if IS_SERIAL_OPEN == 1

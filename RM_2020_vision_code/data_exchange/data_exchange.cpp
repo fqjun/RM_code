@@ -23,19 +23,19 @@ void Data_exchange::getvalueAutomatically(float &x_value,float &y_value){
  */
 void Data_exchange::getvalueManually(float &x_value){
 
+    if(waitKey(1) == 103){
+        xvalue.push_back(x_value);
 
-    xvalue.push_back(x_value);
+        cin.clear();
+        cin.ignore(numeric_limits<streamsize>::max(),'\n');
 
-    cin.clear();
-    cin.ignore(numeric_limits<streamsize>::max(),'\n');
+        cout<<"请输入y值：";
+        cin>>y_value_temp;
 
-    cout<<"请输入y值：";
-    cin>>y_value_temp;
+        yvalue.push_back(y_value_temp);
 
-    yvalue.push_back(y_value_temp);
-
-    for(auto i = 0;i<5;++i){cout<<"---------写入成功---------"<<endl;}
-    
+        for(auto i = 0;i<5;++i){cout<<"---------写入成功---------"<<endl;} 
+    }
 }
 
 /**
@@ -43,7 +43,7 @@ void Data_exchange::getvalueManually(float &x_value){
  * 
  */
 void Data_exchange::writeinCSV(){
-
+    if(waitKey(1) == 119){
         data_csv = Mat(xvalue.size(),2,CV_32F);
 
         auto iter_xvalue = xvalue.begin();
@@ -77,5 +77,5 @@ void Data_exchange::writeinCSV(){
             }
         cout<<endl;
         }
-
+    }
 }
