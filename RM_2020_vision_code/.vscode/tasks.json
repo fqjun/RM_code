@@ -23,6 +23,7 @@
                     "-I","${workspaceFolder}/vedio/",
                     "-I","${workspaceFolder}/fps/",
                     "-I","${workspaceFolder}/pinhole/",
+                    "-I","${workspaceFolder}/data_exchange/",
                     "-I","/usr/local/include/",
                     "-I","/usr/local/include/opencv4/",
                     "-I","/usr/local/include/opencv4/opencv2/",
@@ -44,6 +45,7 @@
                     "${workspaceFolder}/solve_PNP/solve_pnp.cpp",
                     "${workspaceFolder}/fps/fps.cpp",
                     "${workspaceFolder}/pinhole/pinhole.cpp",
+                    "${workspaceFolder}/data_exchange/data_exchange.cpp",
                     "${workspaceFolder}/main.cpp",
                     "-o", 
                     "${workspaceFolder}/bin/run.o",//输出的文件名称以及路径

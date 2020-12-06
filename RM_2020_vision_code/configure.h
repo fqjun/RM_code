@@ -9,12 +9,13 @@
 /*---工业相机中使用到opencv2.0的 cvReleaseImageHeader 需要包含此头文件 ---*/
 
 /*---- OpenCV header files ----*/
-#include <opencv2/video/tracking.hpp>
-#include <opencv2/highgui.hpp>
-#include <opencv2/imgproc.hpp>
-#include <opencv2/imgcodecs.hpp>
-#include <opencv2/core.hpp>
-#include <opencv2/calib3d.hpp>
+// #include <opencv2/video/tracking.hpp>
+// #include <opencv2/highgui.hpp>
+// #include <opencv2/imgproc.hpp>
+// #include <opencv2/imgcodecs.hpp>
+// #include <opencv2/core.hpp>
+// #include <opencv2/calib3d.hpp>
+#include <opencv2/opencv.hpp>
 /*---- OpenCV header files ----*/
 
 /*---- Others header files ----*/

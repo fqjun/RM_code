@@ -7,6 +7,7 @@
 #include "serial/serialport.h"
 #include "filter/rm_kalmanfilter.h"
 #include "pinhole/pinhole.h"
+#include "data_exchange/data_exchange.h"
 
 // //结构体实现方法
 // struct ArmorROI
@@ -338,6 +339,7 @@ private:
     NiceLight light,left_light,right_light;
 
     Pinhole pinhole_test;
+    Data_exchange data_exchange;
 
     Mat src_img;
     Mat gray_img;

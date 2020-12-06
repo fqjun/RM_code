@@ -424,8 +424,23 @@ void RM_ArmorFitted::armorFitted(){
     float distance = 1000;
     float small_armor_size_w = SMALL_ARMOR_SIZE_W;
     
-    pinhole_test.getDistance(this->armor.rect.size.width,focal_length,small_armor_size_w);
+    distance=pinhole_test.getDistance(this->armor.rect.size.width,focal_length,small_armor_size_w);
     pinhole_test.getfocalLength(this->armor.rect.size.width,distance,small_armor_size_w);
+    cout<<"outside_distance = "<<distance;
+    //按g写入容器
+    if(waitKey(1) == 103){
+
+        data_exchange.getvalueManually(this->armor.rect.size.width);
+
+    }
+
+    //按w保存进入csv
+    if(waitKey(1) == 119){
+
+        data_exchange.writeinCSV();
+
+    }
+
     //发送串口数据
     #if IS_SERIAL_OPEN == 1
     SerialPort::RMserialWrite(_yaw_data,fabs(yaw_data)*1000, _pitch_data,fabs(pitch_data)*1000, armor.depth, is_last_data_catch, shooting);// SerialPort::RMserialWrite(_yaw_data, abs(yaw_data), _pitch_data, abs(pitch_data), armor.depth, is_last_data_catch, shooting);
