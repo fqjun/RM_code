@@ -1,7 +1,7 @@
 #ifndef DEBUG_CONTROL_H
 #define DEBUG_CONTROL_H
 
-#define CAMERA_OR_VEDIO 0
+#define CAMERA_OR_VEDIO 1
 /**
  * @brief 使用相机或者视频
  * @param: 0      相机
@@ -45,7 +45,7 @@
   @param: 0     使用工业相机
   @param: 1     使用普通USB相机
 */
-#define USB_CAPTURE_DEFULT "/home/jun/workplace/录像/camera_MaxBuff01.avi" //armor_2  大小装甲-红  步兵自旋-蓝  基地步兵-蓝 camera_13 camera_17
+#define USB_CAPTURE_DEFULT "/home/jun/workplace/录像/armor_2.avi" //armor_2  大小装甲-红  步兵自旋-蓝  基地步兵-蓝 camera_13 camera_17 camera_MaxBuff01
 
 #endif
 
@@ -65,7 +65,7 @@
 */
 /*---------------------------------------------------*/
 
-#define MY_COLOR 1
+#define MY_COLOR 0
 /**
   @brief: 选择己方阵营
   @param: 0     不限制颜色
@@ -88,7 +88,7 @@
  */
 
 /*---------------------------------------------------*/
-#define IS_SERIAL_OPEN 0
+#define IS_SERIAL_OPEN 1
 /**
   @brief: 是否启用串口
   @param: 0     不启用
@@ -101,7 +101,7 @@
   @param: 115200    波特率115200
   @param: 1500000   波特率1500000
 */
-#define SERIAL_COMMUNICATION_PLAN 1
+#define SERIAL_COMMUNICATION_PLAN 0
 /**
   @brief: 串口所发送的方案
   @param: 0         二维＋深度

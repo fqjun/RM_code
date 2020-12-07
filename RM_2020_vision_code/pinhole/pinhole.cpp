@@ -39,11 +39,14 @@ float Pinhole::getfitDistance(float &pix_width,float &pix_area,float &pix_height
     //装甲板面积
     distance_area = d*(pow(pix_area,e))+f;
     //灯条高度
-    distance_height = g*(pow(pix_height,h))+i;
+    // distance_height = g*(pow(pix_height,h))+i;
+
 
     distance = MIN(distance_width,distance_area);
-    distance = MIN(distance,Pinhole::distance_height);
-
+    // distance = MIN(distance,Pinhole::distance_height);
+    cout<<"distance_width："<<distance_width<<endl;
+    cout<<"distance_area："<<distance_area<<endl;
+    // cout<<"distance_height："<<distance_height<<endl;
     cout<<"distance: "<<distance<<endl;
 
     return distance;
