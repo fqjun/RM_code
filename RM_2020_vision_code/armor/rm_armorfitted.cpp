@@ -377,15 +377,19 @@ void RM_ArmorFitted::armorFitted(){
         
         #if SERIAL_COMMUNICATION_PLAN == 0
         /* 二维＋深度 */
-        yaw_data = int(armor_rect.center.x);
-        pitch_data = int(armor_rect.center.y);
+        yaw_data = armor_rect.center.x;
+        pitch_data = armor_rect.center.y;
+        _yaw_data = 0;
+        _pitch_data = 0;
+
         #else
         /* Angle */
-        yaw_data = angle_solve.angle_x;
-        pitch_data = angle_solve.angle_y;
-        #endif
+        yaw_data = fabs(angle_solve.angle_x)*1000;
+        pitch_data = fabs(angle_solve.angle_y)*1000;
         _yaw_data = (yaw_data >=0 ? 0:1);
         _pitch_data = (pitch_data <=0 ? 0:1);
+        #endif
+        
     } else {
         kf_reset_cnt += 1;
         #if SERIAL_COMMUNICATION_PLAN == 0
@@ -420,14 +424,20 @@ void RM_ArmorFitted::armorFitted(){
     }
 
     float armor_area = armor.rect.size.area();
+    float light_height = left_light.rect.size.height;   
     float armor_width = armor.rect.size.width;
-    float light_height = left_light.rect.size.height;
 
-    pinhole_test.getfitDistance(armor_width,armor_area,light_height);
+    float distance = pinhole_test.getfitDistance(armor_width,armor_area,light_height);
+
+    Point p = Point(100,100);
+    putText(src_img,"current distance:   " + to_string(distance/1000),p,FONT_HERSHEY_PLAIN,2,Scalar(255, 255, 255),1,8,false);
+    // p = Point(100,200);
+    // putText(src_img,"armor depth distance:   " + to_string(armor.depth/1000),p,FONT_HERSHEY_PLAIN,2,Scalar(255, 255, 255),1,8,false);
+
 
     //发送串口数据
     #if IS_SERIAL_OPEN == 1
-    SerialPort::RMserialWrite(_yaw_data,fabs(yaw_data)*1000, _pitch_data,fabs(pitch_data)*1000, armor.depth, is_last_data_catch, shooting);// SerialPort::RMserialWrite(_yaw_data, abs(yaw_data), _pitch_data, abs(pitch_data), armor.depth, is_last_data_catch, shooting);
+    SerialPort::RMserialWrite(_yaw_data,yaw_data, _pitch_data,pitch_data, distance, is_last_data_catch, shooting);// SerialPort::RMserialWrite(_yaw_data, abs(yaw_data), _pitch_data, abs(pitch_data), armor.depth, is_last_data_catch, shooting);
     #endif
 
     #if SHOW_OUTPUT_IMG == 1
