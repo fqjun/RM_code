@@ -303,7 +303,6 @@ public:
 
 
 
-
 private://类的声明
     RM_SolveAngle solve_buff;
     Object object;
@@ -319,19 +318,26 @@ private:
 
 private:
     #if IS_PARAM_ADJUSTMENT == 1
+    int GRAY_TH_BLUE = 80;
     int COLOR_TH_BLUE = 35;//蓝色装甲的阈值
-    int COLOR_TH_RED = 48;//红色装甲的阈值
+
+    int GRAY_TH_RED = 40;
+    int COLOR_TH_RED = 38;//红色装甲的阈值
     #endif
 
 private://Object object_tmp新类，用于装清洗出来的新数据 和一些需要公用的数据
-     vector<Point2f> points_2d;
-     //vector<Point2f> big_points_2d;
-     Point2f target_center;//小轮廓圆心
-     Point2f roi_center;//假定圆心
-     Point2f circle_center;//中心R
-     Point2f pre_center;
-     Mat bin_img;
-     RotatedRect solve_rect;
+        vector<Point2f> points_2d;
+        //vector<Point2f> big_points_2d;
+        Point2f target_center;//小轮廓圆心
+        Point2f roi_center;//假定圆心
+        Point2f circle_center;//中心R
+        Point2f pre_center;
+        Mat bin_img;
+        Mat gauss_img;
+        Mat gray_img;
+        Mat bin_img_gray;
+        Mat bin_img_color;
+        RotatedRect solve_rect;
 
      Point2f roi_power_center;//test
 

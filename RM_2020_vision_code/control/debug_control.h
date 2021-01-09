@@ -50,7 +50,7 @@
 
 #endif
 
-#define CAMERA_EXPOSURETIME 870 //800 400大神符
+#define CAMERA_EXPOSURETIME 2000 //800 400大神符
 #define CAMERA_RESOLUTION_COLS 1280
 #define CAMERA_RESOLUTION_ROWS 800
 #define CAMERA_RESOLUTION_COLS_FOV ((1280 - CAMERA_RESOLUTION_COLS) * 0.5)
@@ -206,7 +206,10 @@
 /*--------------------------能量机关-------------------------*/
 //二值化阈值
 #define THRESHOLD_BUFF_BLUE 35
-#define THRESHOLD_BUFF_RED 48
+#define THRESHOLD_GRAY_TH_BLUE 80
+
+#define THRESHOLD_BUFF_RED 38
+#define THRESHOLD_GRAY_TH_RED 40
 
 
 //model 1固定模型 0实时测距

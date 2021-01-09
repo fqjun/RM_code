@@ -3,30 +3,45 @@
 
 void BuffDetector::imageProcess(Mat & frame,int my_color){
 
-    Mat gauss_img;
     GaussianBlur(frame, gauss_img, Size(3, 3), 0);//高斯滤波
     points_2d.clear();
-    vector<Mat> bgr;
+    cvtColor(frame,gray_img,COLOR_BGR2GRAY);
 
+    vector<Mat> bgr;
     split(gauss_img, bgr);                //图像通道分割(红蓝)
+
     switch (my_color)
     {
     case RED:{
         subtract(bgr[2], bgr[0], gauss_img);
         #if IS_PARAM_ADJUSTMENT == 1
-        cv::createTrackbar("COLOR_TH_RED:", "bin", &COLOR_TH_RED, 255, nullptr);
-        threshold(gauss_img, bin_img, COLOR_TH_RED, 255, THRESH_BINARY);
+            Mat trackbar_img = Mat::zeros(1,1200,CV_8UC1);
+            namedWindow("trackbar");
+            cv::createTrackbar("GRAY_TH_RED:", "trackbar", &GRAY_TH_RED, 255, nullptr);
+            cv::createTrackbar("COLOR_TH_RED:", "trackbar", &COLOR_TH_RED, 255, nullptr);        
+            threshold(gauss_img, bin_img, COLOR_TH_RED, 255, THRESH_BINARY);
+            threshold(gray_img, bin_img_gray, GRAY_TH_RED, 255, THRESH_BINARY);
+            imshow("trackbar",trackbar_img);
         #else
-        threshold(gauss_img, bin_img, THRESHOLD_BUFF_RED, 255, THRESH_BINARY);
+            threshold(gauss_img, bin_img, THRESHOLD_BUFF_RED, 255, THRESH_BINARY);
+            threshold(gray_img, bin_img_gray, THRESHOLD_GRAY_TH_RED, 255, THRESH_BINARY);
+
         #endif
     }break;
     case BLUE:{
         subtract(bgr[0], bgr[2], gauss_img);
         #if IS_PARAM_ADJUSTMENT == 1
-        cv::createTrackbar("COLOR_TH_BLUE:", "bin", &COLOR_TH_BLUE, 255, nullptr);
-        threshold(gauss_img, bin_img, COLOR_TH_BLUE, 255, THRESH_BINARY);
+            Mat trackbar_img = Mat::zeros(1,1200,CV_8UC1);
+            namedWindow("trackbar");
+            cv::createTrackbar("GRAY_TH_BLUE:", "trackbar", &GRAY_TH_BLUE, 255, nullptr);
+            cv::createTrackbar("COLOR_TH_BLUE:", "trackbar", &COLOR_TH_BLUE, 255, nullptr);        
+            threshold(gauss_img, bin_img, COLOR_TH_BLUE, 255, THRESH_BINARY);
+            threshold(gray_img, bin_img_gray, GRAY_TH_BLUE, 255, THRESH_BINARY);
+            imshow("trackbar",trackbar_img);
         #else
-        threshold(gauss_img, bin_img, THRESHOLD_BUFF_BLUE, 255, THRESH_BINARY);
+            threshold(gauss_img, bin_img, THRESHOLD_BUFF_BLUE, 255, THRESH_BINARY);
+            threshold(gray_img, bin_img_gray, THRESHOLD_GRAY_TH_BLUE, 255, THRESH_BINARY);
+
         #endif
     }break;
     default:
@@ -37,15 +52,25 @@ void BuffDetector::imageProcess(Mat & frame,int my_color){
         subtract(bgr[0], bgr[2], bin_img_color_1);// b - r
         subtract(bgr[2], bgr[0], bin_img_color_2);// r - b
         #if IS_PARAM_ADJUSTMENT == 1
-        cv::createTrackbar("COLOR_TH_BLUE:", "bin", &COLOR_TH_BLUE, 255, nullptr);
-        cv::createTrackbar("COLOR_TH_RED:", "bin", &COLOR_TH_RED, 255, nullptr);
-        threshold(bin_img_color_1, bin_img_color_1, COLOR_TH_BLUE, 255, THRESH_BINARY);
-        threshold(bin_img_color_2, bin_img_color_2, COLOR_TH_RED, 255, THRESH_BINARY);
+            Mat trackbar_img = Mat::zeros(1,1200,CV_8UC1);
+            namedWindow("trackbar");
+
+            cv::createTrackbar("GRAY_TH_RED:", "trackbar", &GRAY_TH_RED, 255, nullptr);
+            cv::createTrackbar("GRAY_TH_BLUE:", "trackbar", &GRAY_TH_BLUE, 255, nullptr);
+            cv::createTrackbar("COLOR_TH_BLUE:", "trackbar", &COLOR_TH_BLUE, 255, nullptr);
+            cv::createTrackbar("COLOR_TH_RED:", "trackbar", &COLOR_TH_RED, 255, nullptr);
+            int th = int((GRAY_TH_RED +GRAY_TH_BLUE)*0.5);
+            threshold(gray_img, bin_img_gray, th, 255, THRESH_BINARY);
+            threshold(bin_img_color_1, bin_img_color_1, COLOR_TH_BLUE, 255, THRESH_BINARY);
+            threshold(bin_img_color_2, bin_img_color_2, COLOR_TH_RED, 255, THRESH_BINARY);
+            imshow("trackbar",trackbar_img);
         #else
-        threshold(bin_img_color_1, bin_img_color_1, THRESHOLD_BUFF_BLUE, 255, THRESH_BINARY);
-        threshold(bin_img_color_2, bin_img_color_2, THRESHOLD_BUFF_RED, 255, THRESH_BINARY);
+            int th = int((COLOR_TH_BLUE + COLOR_TH_RED)*0.5);
+            threshold(gray_img, bin_img_gray, th, 255, THRESH_BINARY);
+            threshold(bin_img_color_1, bin_img_color_1, THRESHOLD_BUFF_BLUE, 255, THRESH_BINARY);
+            threshold(bin_img_color_2, bin_img_color_2, THRESHOLD_BUFF_RED, 255, THRESH_BINARY);
         #endif
-        bitwise_or(bin_img_color_1,bin_img_color_2,bin_img);// 求并集
+            bitwise_or(bin_img_color_1,bin_img_color_2,bin_img);// 求并集
         
     }break;
     }
@@ -59,6 +84,7 @@ void BuffDetector::imageProcess(Mat & frame,int my_color){
     dilate(bin_img, bin_img, getStructuringElement(MORPH_RECT, Size(3,3)));    //膨胀
     #if SHOW_BIN_IMG == 1
     imshow("dilate", bin_img);
+    imshow("bin_img_gray",bin_img_gray);
     #endif
     //    cout << "th:" << th << endl;
 }
