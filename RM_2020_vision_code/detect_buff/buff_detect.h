@@ -320,7 +320,7 @@ private:
 private:
     #if IS_PARAM_ADJUSTMENT == 1
     int COLOR_TH_BLUE = 35;//蓝色装甲的阈值
-    int COLOR_TH_RED = 30;//红色装甲的阈值
+    int COLOR_TH_RED = 48;//红色装甲的阈值
     #endif
 
 private://Object object_tmp新类，用于装清洗出来的新数据 和一些需要公用的数据

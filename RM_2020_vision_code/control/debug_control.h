@@ -15,9 +15,10 @@
   @param: PB_MODEL_PATH pb文件路径
 */
 
-#define CAMERA_PARAM_FILE "./camera/param/cameraParams_csit.xml"
+#define CAMERA_PARAM_FILE "./camera/param/cameraParams_last.xml"
 /**
   @brief: 相机标定文件路径
+  记得改路径
 */
 /*---------------------------------------------------*/
 
@@ -75,7 +76,7 @@
   @note: 强制颜色模式
 */
 
-#define MY_MODE 1
+#define MY_MODE 2
 /**
  * @brief :选择己方模式
  * @param:0     默认模式
@@ -101,7 +102,7 @@
   @param: 115200    波特率115200
   @param: 1500000   波特率1500000
 */
-#define SERIAL_COMMUNICATION_PLAN 0
+#define SERIAL_COMMUNICATION_PLAN 1
 /**
   @brief: 串口所发送的方案
   @param: 0         二维＋深度
@@ -148,7 +149,7 @@
   @param: 0     不显示
   @param: 1     显示
 */
-#define SHOW_BIN_IMG 0
+#define SHOW_BIN_IMG 1
 /**
   @brief: 是否显示二值图像
   @param: 0     不显示
@@ -165,6 +166,7 @@
   @brief: 是否进入调参模式
   @param: 0     否
   @param: 1     是
+  记得调整原参数
 */
 #define ANALYZE_EACH_FRAME 0
 /**
@@ -204,7 +206,7 @@
 /*--------------------------能量机关-------------------------*/
 //二值化阈值
 #define THRESHOLD_BUFF_BLUE 35
-#define THRESHOLD_BUFF_RED 32
+#define THRESHOLD_BUFF_RED 48
 
 
 //model 1固定模型 0实时测距
