@@ -1,7 +1,7 @@
 #ifndef DEBUG_CONTROL_H
 #define DEBUG_CONTROL_H
 
-#define CAMERA_OR_VEDIO 1
+#define CAMERA_OR_VEDIO 0
 /**
  * @brief 使用相机或者视频
  * @param: 0      相机
