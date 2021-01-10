@@ -50,7 +50,7 @@
 
 #endif
 
-#define CAMERA_EXPOSURETIME 2000 //800 400大神符
+#define CAMERA_EXPOSURETIME 1500 //800 400大神符
 #define CAMERA_RESOLUTION_COLS 1280
 #define CAMERA_RESOLUTION_ROWS 800
 #define CAMERA_RESOLUTION_COLS_FOV ((1280 - CAMERA_RESOLUTION_COLS) * 0.5)
@@ -89,7 +89,7 @@
  */
 
 /*---------------------------------------------------*/
-#define IS_SERIAL_OPEN 1
+#define IS_SERIAL_OPEN 0
 /**
   @brief: 是否启用串口
   @param: 0     不启用

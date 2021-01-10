@@ -19,11 +19,11 @@ void BuffDetector::imageProcess(Mat & frame,int my_color){
             namedWindow("trackbar");
             cv::createTrackbar("GRAY_TH_RED:", "trackbar", &GRAY_TH_RED, 255, nullptr);
             cv::createTrackbar("COLOR_TH_RED:", "trackbar", &COLOR_TH_RED, 255, nullptr);        
-            threshold(gauss_img, bin_img, COLOR_TH_RED, 255, THRESH_BINARY);
+            threshold(gauss_img, bin_img_color, COLOR_TH_RED, 255, THRESH_BINARY);
             threshold(gray_img, bin_img_gray, GRAY_TH_RED, 255, THRESH_BINARY);
             imshow("trackbar",trackbar_img);
         #else
-            threshold(gauss_img, bin_img, THRESHOLD_BUFF_RED, 255, THRESH_BINARY);
+            threshold(gauss_img, bin_img_color, THRESHOLD_BUFF_RED, 255, THRESH_BINARY);
             threshold(gray_img, bin_img_gray, THRESHOLD_GRAY_TH_RED, 255, THRESH_BINARY);
 
         #endif
@@ -35,13 +35,12 @@ void BuffDetector::imageProcess(Mat & frame,int my_color){
             namedWindow("trackbar");
             cv::createTrackbar("GRAY_TH_BLUE:", "trackbar", &GRAY_TH_BLUE, 255, nullptr);
             cv::createTrackbar("COLOR_TH_BLUE:", "trackbar", &COLOR_TH_BLUE, 255, nullptr);        
-            threshold(gauss_img, bin_img, COLOR_TH_BLUE, 255, THRESH_BINARY);
+            threshold(gauss_img, bin_img_color, COLOR_TH_BLUE, 255, THRESH_BINARY);
             threshold(gray_img, bin_img_gray, GRAY_TH_BLUE, 255, THRESH_BINARY);
             imshow("trackbar",trackbar_img);
         #else
-            threshold(gauss_img, bin_img, THRESHOLD_BUFF_BLUE, 255, THRESH_BINARY);
+            threshold(gauss_img, bin_img_color, THRESHOLD_BUFF_BLUE, 255, THRESH_BINARY);
             threshold(gray_img, bin_img_gray, THRESHOLD_GRAY_TH_BLUE, 255, THRESH_BINARY);
-
         #endif
     }break;
     default:
@@ -54,7 +53,6 @@ void BuffDetector::imageProcess(Mat & frame,int my_color){
         #if IS_PARAM_ADJUSTMENT == 1
             Mat trackbar_img = Mat::zeros(1,1200,CV_8UC1);
             namedWindow("trackbar");
-
             cv::createTrackbar("GRAY_TH_RED:", "trackbar", &GRAY_TH_RED, 255, nullptr);
             cv::createTrackbar("GRAY_TH_BLUE:", "trackbar", &GRAY_TH_BLUE, 255, nullptr);
             cv::createTrackbar("COLOR_TH_BLUE:", "trackbar", &COLOR_TH_BLUE, 255, nullptr);
@@ -65,26 +63,27 @@ void BuffDetector::imageProcess(Mat & frame,int my_color){
             threshold(bin_img_color_2, bin_img_color_2, COLOR_TH_RED, 255, THRESH_BINARY);
             imshow("trackbar",trackbar_img);
         #else
-            int th = int((COLOR_TH_BLUE + COLOR_TH_RED)*0.5);
+            int th = int((GRAY_TH_RED + GRAY_TH_RED)*0.5);
             threshold(gray_img, bin_img_gray, th, 255, THRESH_BINARY);
             threshold(bin_img_color_1, bin_img_color_1, THRESHOLD_BUFF_BLUE, 255, THRESH_BINARY);
             threshold(bin_img_color_2, bin_img_color_2, THRESHOLD_BUFF_RED, 255, THRESH_BINARY);
         #endif
-            bitwise_or(bin_img_color_1,bin_img_color_2,bin_img);// 求并集
-        
+            bitwise_or(bin_img_color_1,bin_img_color_2,bin_img_color);// 求并集
     }break;
     }
 
     #if SHOW_BIN_IMG == 1
-    imshow("threshold",bin_img);
-    #endif
+    imshow("bin_img_color", bin_img_color);
+    imshow("bin_img_gray",bin_img_gray);
+    #endif 
     //    if(th-10 > 0)
     //        threshold(gaussImg, binImg, th-15, 255,  0);
 
-    dilate(bin_img, bin_img, getStructuringElement(MORPH_RECT, Size(3,3)));    //膨胀
+    dilate(bin_img_color, bin_img_color, getStructuringElement(MORPH_RECT, Size(3,3)));    //膨胀 可能可以放在最后进行
+    bitwise_and(bin_img_color, bin_img_gray, bin_img_color); 
+    bin_img_color.copyTo(bin_img);
     #if SHOW_BIN_IMG == 1
-    imshow("dilate", bin_img);
-    imshow("bin_img_gray",bin_img_gray);
+    imshow("bin_img_final", bin_img_color);
     #endif
     //    cout << "th:" << th << endl;
 }
@@ -232,7 +231,7 @@ bool BuffDetector::findCenter_R(Mat &bin_img, Mat &frame){
     for(int j = 0; j < (int)contours.size(); ++j){
         double circle_area = contourArea(contours[j]);
 
-        if(circle_area > 1000 || circle_area < 50)//原来为30
+        if(circle_area > 6000 || circle_area < 50)//原来为30 有bug
             continue;
         RotatedRect temp_circle_rect = fitEllipse(contours[j]);
 
@@ -243,7 +242,7 @@ bool BuffDetector::findCenter_R(Mat &bin_img, Mat &frame){
             rect_ratio = (double)temp_circle_rect.boundingRect().height/(double)temp_circle_rect.boundingRect().width;
         }
 
-//        cout<<"rect_ratio["<<j<<"]="<<rect_ratio<<endl;
+       cout<<"rect_ratio["<<j<<"]="<<rect_ratio<<endl;
 
         //比例适度要修正.原来为1.1f
         if(rect_ratio > 0.9f && rect_ratio < 1.12f){
