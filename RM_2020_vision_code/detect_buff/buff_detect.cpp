@@ -5,6 +5,7 @@ void BuffDetector::imageProcess(Mat & frame,int my_color){
 
     GaussianBlur(frame, gauss_img, Size(3, 3), 0);//高斯滤波
     points_2d.clear();
+    vector<Point2f>(points_2d).swap(points_2d);//可预设容器大小，待检测
     cvtColor(frame,gray_img,COLOR_BGR2GRAY);
 
     vector<Mat> bgr;
@@ -88,6 +89,10 @@ void BuffDetector::imageProcess(Mat & frame,int my_color){
     imshow("bin_img_final", bin_img_color);
     #endif
     //    cout << "th:" << th << endl;
+
+    bgr.clear();
+    vector<Mat>(bgr).swap(bgr);
+
 }
 
 bool BuffDetector::findTarget(Mat & frame){
@@ -209,20 +214,15 @@ bool BuffDetector::findTarget(Mat & frame){
     }
 
     /*----- vector 清除内容 -----*/
-    
-    cout << "hierarchy.capacity = " << hierarchy.capacity() <<endl;
-    cout << "contours.capacity = " << contours.capacity() <<endl;
-
     contours.clear();
     hierarchy.clear();
+    vec_target.clear();
 
+    vector<Object>(vec_target).swap(vec_target);
     vector<Vec4i>(hierarchy).swap(hierarchy);
     vector<vector<Point>>(contours).swap(contours);
-    cout << "hierarchy.capacity = " << hierarchy.capacity() <<endl;
-    cout << "contours.capacity = " << contours.capacity() <<endl;
-
-
     /*----- vector 清除内容 -----*/
+
     //imshow("src", img);
     return is_target;
 }
@@ -293,6 +293,14 @@ bool BuffDetector::findCenter_R(Mat &bin_img, Mat &frame){
 
     // vector<vector<Point>>().swap(contours);
     // vector<RotatedRect>().swap(first_screen);
+
+    contours.clear();
+    hierarchy.clear();
+    first_screen.clear();
+
+    vector<RotatedRect>(first_screen).swap(first_screen);
+    vector<Vec4i>(hierarchy).swap(hierarchy);
+    vector<vector<Point>>(contours).swap(contours);
 
     return is_circle;
 }

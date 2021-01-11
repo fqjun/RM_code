@@ -306,6 +306,12 @@ void RM_SolveAngle::draw_Coordinate(Mat & input){
     line(input, reference_Img[0], reference_Img[2], Scalar(0, 255, 0), 2);
     line(input, reference_Img[0], reference_Img[3], Scalar(255, 0, 0), 2);
 
+    reference_Img.clear();
+    reference_Obj.clear();
+
+    vector<Point2f> (reference_Img).swap(reference_Img);
+    vector<Point3f> (reference_Obj).swap(reference_Obj);
+
     #if SHOW_OUTPUT_IMG == 1
     imshow("outImg", input);
     #endif

@@ -5,6 +5,7 @@
 #include "control/debug_control.h"
 #include "solve_PNP/solve_pnp.h"
 #include "serial/serialport.h"
+#include "fps/fps.h"
 
 #define DEFAULT 0
 #define FIRE 3
@@ -20,7 +21,9 @@ class Object
 
 {
 public:
-    Object(){}
+    Object(){
+        points_2d_.reserve(4);
+    }
     ~Object(){}
     void smallUpdate_Order(); // 更新能量机关装甲板的绝对位置
     void bigUpdate_Order(); //更新能量机关叶片的绝对位置
@@ -289,7 +292,12 @@ public:
 class BuffDetector
 {
 public:
-    BuffDetector() { RM_SolveAngle();} //solve.cpp的构造函数
+    BuffDetector() { 
+        
+        RM_SolveAngle();
+        points_2d.reserve(4);
+
+    } //solve.cpp的构造函数
     ~BuffDetector(){}
     int buffDetect_Task(Mat & frame,int my_color); //主逻辑函数
 
@@ -309,6 +317,7 @@ private://类的声明
     Object final_target;
     Object object_tmp;
     AutoControl auto_control;
+    Fps buff_fps;
 
 private:
     void imageProcess(Mat & frame,int my_color); //预处理
