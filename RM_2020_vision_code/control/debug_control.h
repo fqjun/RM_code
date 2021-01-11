@@ -50,7 +50,7 @@
 
 #endif
 
-#define CAMERA_EXPOSURETIME 1500 //800 400大神符
+#define CAMERA_EXPOSURETIME 1200 //800 400大神符
 #define CAMERA_RESOLUTION_COLS 1280
 #define CAMERA_RESOLUTION_ROWS 800
 #define CAMERA_RESOLUTION_COLS_FOV ((1280 - CAMERA_RESOLUTION_COLS) * 0.5)
@@ -66,7 +66,7 @@
 */
 /*---------------------------------------------------*/
 
-#define MY_COLOR 0
+#define MY_COLOR 2
 /**
   @brief: 选择己方阵营
   @param: 0     不限制颜色

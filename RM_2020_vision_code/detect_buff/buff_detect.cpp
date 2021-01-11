@@ -80,7 +80,9 @@ void BuffDetector::imageProcess(Mat & frame,int my_color){
     //        threshold(gaussImg, binImg, th-15, 255,  0);
 
     dilate(bin_img_color, bin_img_color, getStructuringElement(MORPH_RECT, Size(3,3)));    //膨胀 可能可以放在最后进行
+    dilate(bin_img_gray, bin_img_gray, getStructuringElement(MORPH_RECT, Size(3,3)));    //膨胀 可能可以放在最后进行
     bitwise_and(bin_img_color, bin_img_gray, bin_img_color); 
+    dilate(bin_img_color, bin_img_color, getStructuringElement(MORPH_RECT, Size(3,3)));    //膨胀 可能可以放在最后进行
     bin_img_color.copyTo(bin_img);
     #if SHOW_BIN_IMG == 1
     imshow("bin_img_final", bin_img_color);
@@ -93,7 +95,7 @@ bool BuffDetector::findTarget(Mat & frame){
     vector<Object> vec_target;
     vector<vector<Point>> contours;
     vector<Vec4i> hierarchy;
-    
+
     findContours(bin_img, contours, hierarchy, 2, CHAIN_APPROX_NONE);
     for(int i = 0; i < (int)contours.size(); ++i){
         // 用于寻找小轮廓，没有父轮廓的跳过, 以及不满足6点拟合椭圆
@@ -205,6 +207,22 @@ bool BuffDetector::findTarget(Mat & frame){
             //circle(frame, points_2d[3], 2, Scalar(0,0,255), 2, 8, 0);
         }
     }
+
+    /*----- vector 清除内容 -----*/
+    
+    cout << "hierarchy.capacity = " << hierarchy.capacity() <<endl;
+    cout << "contours.capacity = " << contours.capacity() <<endl;
+
+    contours.clear();
+    hierarchy.clear();
+
+    vector<Vec4i>(hierarchy).swap(hierarchy);
+    vector<vector<Point>>(contours).swap(contours);
+    cout << "hierarchy.capacity = " << hierarchy.capacity() <<endl;
+    cout << "contours.capacity = " << contours.capacity() <<endl;
+
+
+    /*----- vector 清除内容 -----*/
     //imshow("src", img);
     return is_target;
 }
