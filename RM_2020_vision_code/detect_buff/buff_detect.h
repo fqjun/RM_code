@@ -330,7 +330,7 @@ private:
 private:
     #if IS_PARAM_ADJUSTMENT == 1
     int GRAY_TH_BLUE = 80;
-    int COLOR_TH_BLUE = 35;//蓝色装甲的阈值
+    int COLOR_TH_BLUE = 66;//蓝色装甲的阈值 35
 
     int GRAY_TH_RED = 40;
     int COLOR_TH_RED = 38;//红色装甲的阈值

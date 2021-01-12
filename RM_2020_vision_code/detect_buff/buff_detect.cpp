@@ -250,7 +250,7 @@ bool BuffDetector::findCenter_R(Mat &bin_img, Mat &frame){
     for(int j = 0; j < (int)contours.size(); ++j){
         double circle_area = contourArea(contours[j]);
 
-        if(circle_area > 6000 || circle_area < 50)//原来为30 有bug
+        if(circle_area > 6000 || circle_area < 500)//原来为30 有bug
             continue;
         RotatedRect temp_circle_rect = fitEllipse(contours[j]);
 
@@ -418,32 +418,21 @@ int BuffDetector::buffDetect_Task(Mat &frame,int my_color){
 
         if(1)//大神符加速函数 隔帧进行处理
         {
-//            cout<<"direction_tmp_:"<<direction_tmp_<<endl;
+            //  cout<<"direction_tmp_:"<<direction_tmp_<<endl;
             //修正角度在360°的突变
-            if(direction_tmp_>0  )//顺时针
-            {
 
-                if(last_angle_large<=360 && buff_angle_>=0 && fabs(buff_angle_ - last_angle_large)>216)
-                {
-                    diff_angle_large = buff_angle_ + 360 - last_angle_large;
-                }
-                else
-                {
-                    diff_angle_large = buff_angle_ - last_angle_large;
-                }
-            }
-            else if (direction_tmp_<0  )//逆时针
+            diff_angle_large = buff_angle_ - last_angle;//有bug 一直有规律的变为0
+            if(diff_angle_large > 180)
             {
-                if(last_angle_large>=0 && buff_angle_<=360 && fabs(buff_angle_ - last_angle_large)>216)
-                {
-                    diff_angle_large = last_angle_large + 360 - buff_angle_;
-                }
-                else
-                {
-                    diff_angle_large = fabs(buff_angle_ - last_angle_large);
-                }
-
+                diff_angle_large -= 360;
             }
+            else if (diff_angle_large < -180)
+            {
+                diff_angle_large += 360;
+            }
+            diff_angle_large = fabs(diff_angle_large);
+            cout<<"diff_angle_large="<<diff_angle_large<<endl;
+
             //限制从0到360的跳变
 
             // cout<<"buff_angle_="<<buff_angle_<<endl;
@@ -470,11 +459,11 @@ int BuffDetector::buffDetect_Task(Mat &frame,int my_color){
                 timing_point_2 = getTickCount();
 
                 pre_time = last_time + spt_t;
-//               如果大于2π不行的话再加上以下
-//                if(pre_time > 2*CV_PI)
-//                {
-//                    pre_time = pre_time - 2*CV_PI;
-//                }
+                //  如果大于2π不行的话再加上以下
+                //  if(pre_time > 2*CV_PI)
+                //  {
+                //  pre_time = pre_time - 2*CV_PI;
+                //  }
                 pre_speed = 0.785*sin(1.884*pre_time)+1.305;
                 if(pre_speed < 0.785*sin(1.884*(pre_time+(pre_time-last_time)))+1.305)
                 {
@@ -492,7 +481,7 @@ int BuffDetector::buffDetect_Task(Mat &frame,int my_color){
 
                 // cout<<"current_speed="<<current_speed<<endl;
                 last_speed = current_speed;
-//                cout<<"asin里="<<(current_speed-1.305)/0.785<<endl;
+                //  cout<<"asin里="<<(current_speed-1.305)/0.785<<endl;
 
                 current_time =  asin((current_speed-1.305)/0.785)/1.884;
                 last_time = current_time;
@@ -598,6 +587,8 @@ int BuffDetector::buffDetect_Task(Mat &frame,int my_color){
     imshow("bin", bin_img);
     imshow("img", frame);
     #endif
+
+    return 0;
 }
 
 int BuffDetector::getState(){
