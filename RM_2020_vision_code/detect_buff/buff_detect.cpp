@@ -80,18 +80,19 @@ void BuffDetector::imageProcess(Mat & frame,int my_color){
     //    if(th-10 > 0)
     //        threshold(gaussImg, binImg, th-15, 255,  0);
 
-    dilate(bin_img_color, bin_img_color, getStructuringElement(MORPH_RECT, Size(3,3)));    //膨胀 可能可以放在最后进行
-    dilate(bin_img_gray, bin_img_gray, getStructuringElement(MORPH_RECT, Size(3,3)));    //膨胀 可能可以放在最后进行
+    dilate(bin_img_color, bin_img_color, getStructuringElement(MORPH_RECT, Size(3,3)));    //膨胀 
+    dilate(bin_img_gray, bin_img_gray, getStructuringElement(MORPH_RECT, Size(3,3)));    //膨胀 
     bitwise_and(bin_img_color, bin_img_gray, bin_img_color); 
-    dilate(bin_img_color, bin_img_color, getStructuringElement(MORPH_RECT, Size(3,3)));    //膨胀 可能可以放在最后进行
+    dilate(bin_img_color, bin_img_color, getStructuringElement(MORPH_RECT, Size(3,3)));    //膨胀 
     bin_img_color.copyTo(bin_img);
     #if SHOW_BIN_IMG == 1
     imshow("bin_img_final", bin_img_color);
     #endif
-    //    cout << "th:" << th << endl;
-
+    
+    /*-----清空vector-----*/
     bgr.clear();
     vector<Mat>(bgr).swap(bgr);
+    /*-----清空vector-----*/
 
 }
 

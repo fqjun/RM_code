@@ -24,7 +24,9 @@ public:
     Object(){
         points_2d_.reserve(4);
     }
-    ~Object(){}
+    ~Object(){
+        vector<Point2f>(points_2d_).swap(points_2d_);
+    }
     void smallUpdate_Order(); // 更新能量机关装甲板的绝对位置
     void bigUpdate_Order(); //更新能量机关叶片的绝对位置
     void knowYour_Self(Mat &img);    //判断能量机关扇叶的状态（激活　未激活）
@@ -32,7 +34,7 @@ public:
     RotatedRect small_rect_;    // 能量机关扇叶内轮廓
     RotatedRect big_rect_;  // 能量机关扇叶外轮廓
     vector<Point2f> points_2d_; //内轮廓装点集
-    vector<Point2f> big_points_2d_; //叶片点集
+    // vector<Point2f> big_points_2d_; //叶片点集
     float angle_ = 0; //待激活装甲板 0~360度
     float diff_angle = 0; //待激活装甲板和叶片的相对角度（判断是否垂直）
     int type_ = UNKOWN; //是否激活种类初始化
