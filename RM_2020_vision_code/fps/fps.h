@@ -15,7 +15,9 @@ public:
     void computetheAverage();
     void displayframeRate();
 
-    double time;
+    double time = 0.0;
+    double time_1 = 0.0;
+    double time_2 = 0.0;
 
 private:
     //Timing

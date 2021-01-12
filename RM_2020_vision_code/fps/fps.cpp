@@ -13,14 +13,15 @@ Fps::~Fps(){
 
 void Fps::starttheTime(){
 
-    time = double(getTickCount());
+    time_1 = double(getTickCount());
     time_account += 1;
 
 }
 
 void Fps::endtheTime(){
 
-    time = (double(getTickCount() - time)) / getTickFrequency();
+    time_2 = double(getTickCount());
+    time = (time_2 - time_1) / getTickFrequency();
     fps = int(1.0/time);
     
 
