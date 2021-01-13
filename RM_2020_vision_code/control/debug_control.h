@@ -46,11 +46,11 @@
   @param: 0     使用工业相机
   @param: 1     使用普通USB相机
 */
-#define USB_CAPTURE_DEFULT "/home/jun/workplace/录像/armor_2.avi" //armor_2  大小装甲-红  步兵自旋-蓝  基地步兵-蓝 camera_13 camera_17 camera_MaxBuff01
-
+// #define USB_CAPTURE_DEFULT "/home/jun/workplace/录像/armor_2.avi" //armor_2  大小装甲-红  步兵自旋-蓝  基地步兵-蓝 camera_13 camera_17 camera_MaxBuff01
+#define USB_CAPTURE_DEFULT "/home/nuc/workspace/vedio/camera_MaxBuff01.avi"
 #endif
 
-#define CAMERA_EXPOSURETIME 1200 //800 400大神符
+#define CAMERA_EXPOSURETIME 1200 //800 400大神符 1200
 #define CAMERA_RESOLUTION_COLS 1280
 #define CAMERA_RESOLUTION_ROWS 800
 #define CAMERA_RESOLUTION_COLS_FOV ((1280 - CAMERA_RESOLUTION_COLS) * 0.5)
@@ -219,13 +219,13 @@
 #define PRE_ANGLE 20
 #define SMALL_LENTH_R 1.2
 #define SMALL_PRE_ANGLE 20
-#define BIG_LENTH_R 4
+#define BIG_LENTH_R 4.8 //4
 
 //buff-filter(buff_detect.cpp)
 #define REVISE 0.1
 
 //buff-model尺寸(solve_pnp.cpp)
-#define BULLET_SPEED 30           //子弹射速
+#define BULLET_SPEED 29           //子弹射速
 #define BUFF_BOTTOM_H 1369        //buff最底装甲板距离地面高度
 #define ROBOT_H 400               //枪口高度    现在是330~340
 #define BUFF_ROBOT_Z 6914.7       //枪口和buff的直线距离    6915.340249311

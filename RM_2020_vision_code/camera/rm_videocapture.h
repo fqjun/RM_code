@@ -37,6 +37,15 @@ public:
     bool isindustryimgInput();
     void cameraReleasebuff();
     int cameraSet();
+
+public:
+    int b_gain = 107;
+    int g_gain = 161;
+    int r_gain = 88;
+    int gamma = 97;
+    int contrast = 136;
+    int saturation = 100;
+    int exposuretime = 1200;
 };
 
 #endif // RM_VIDEOCAPTURE_H

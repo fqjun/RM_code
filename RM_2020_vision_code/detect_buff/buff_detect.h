@@ -300,7 +300,16 @@ public:
         points_2d.reserve(4);
 
     } //solve.cpp的构造函数
-    ~BuffDetector(){}
+    ~BuffDetector(){
+        src_img.release();
+        bin_img_color.release();
+        bin_img_gray.release();
+        gray_img.release();
+        gauss_img.release();
+        trackbar_img.release();
+        bin_img.release();
+
+    }
     int buffDetect_Task(Mat & frame,int my_color); //主逻辑函数
 
     float yaw_data = 0; //云台偏航
@@ -329,6 +338,8 @@ private:
 
 private:
     #if IS_PARAM_ADJUSTMENT == 1
+    Mat trackbar_img = Mat::zeros(1,1200,CV_8UC1);
+
     int GRAY_TH_BLUE = 80;
     int COLOR_TH_BLUE = 66;//蓝色装甲的阈值 35
 
@@ -343,11 +354,14 @@ private://Object object_tmp新类，用于装清洗出来的新数据 和一些�
         Point2f roi_center;//假定圆心
         Point2f circle_center;//中心R
         Point2f pre_center;
+
+        Mat src_img; //待释放
         Mat bin_img;
-        Mat gauss_img;
-        Mat gray_img;
-        Mat bin_img_gray;
-        Mat bin_img_color;
+        Mat gauss_img;//待释放
+        Mat gray_img;//待释放
+        Mat bin_img_gray;//待释放
+        Mat bin_img_color;//待释放
+
         RotatedRect solve_rect;
 
      Point2f roi_power_center;//test
@@ -367,10 +381,10 @@ private://能量机关顺逆时针判断
     float displacement = 0;
 
 private://大神符加速函数
-    float diff_angle_large = 0;
-    float last_angle_large = 0;
-    double timing_point_1 = 0;
-    double timing_point_2 = 0;
+    float diff_angle_large = 0.f;
+    float last_angle_large = 0.f;
+    double timing_point_1 = 0.f;
+    double timing_point_2 = 0.f;
 
     //切换与重置的标识符
     bool _filter_flag = false;

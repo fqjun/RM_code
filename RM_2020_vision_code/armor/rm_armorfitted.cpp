@@ -221,6 +221,9 @@ void RM_ArmorFitted::imageProcessing(Mat frame, int my_color){
     #if SHOW_BIN_IMG == 1
     imshow("bin_img_final", bin_img_color);
     #endif
+
+    _split.clear();
+    vector<Mat>(_split).swap(_split);
 } 
 
 /**

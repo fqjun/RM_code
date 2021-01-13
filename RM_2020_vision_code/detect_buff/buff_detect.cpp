@@ -3,10 +3,11 @@
 
 void BuffDetector::imageProcess(Mat & frame,int my_color){
 
-    GaussianBlur(frame, gauss_img, Size(3, 3), 0);//高斯滤波
+    src_img = frame;
+    GaussianBlur(src_img, gauss_img, Size(3, 3), 0);//高斯滤波
     points_2d.clear();
     vector<Point2f>(points_2d).swap(points_2d);//可预设容器大小，待检测
-    cvtColor(frame,gray_img,COLOR_BGR2GRAY);
+    cvtColor(src_img,gray_img,COLOR_BGR2GRAY);
 
     vector<Mat> bgr;
     split(gauss_img, bgr);                //图像通道分割(红蓝)
@@ -16,13 +17,12 @@ void BuffDetector::imageProcess(Mat & frame,int my_color){
     case RED:{
         subtract(bgr[2], bgr[0], gauss_img);
         #if IS_PARAM_ADJUSTMENT == 1
-            Mat trackbar_img = Mat::zeros(1,1200,CV_8UC1);
-            namedWindow("trackbar");
-            cv::createTrackbar("GRAY_TH_RED:", "trackbar", &GRAY_TH_RED, 255, nullptr);
-            cv::createTrackbar("COLOR_TH_RED:", "trackbar", &COLOR_TH_RED, 255, nullptr);        
+            namedWindow("trackbar_img");
+            cv::createTrackbar("GRAY_TH_RED:", "trackbar_img", &GRAY_TH_RED, 255, nullptr);
+            cv::createTrackbar("COLOR_TH_RED:", "trackbar_img", &COLOR_TH_RED, 255, nullptr);        
             threshold(gauss_img, bin_img_color, COLOR_TH_RED, 255, THRESH_BINARY);
             threshold(gray_img, bin_img_gray, GRAY_TH_RED, 255, THRESH_BINARY);
-            imshow("trackbar",trackbar_img);
+            imshow("trackbar_img",trackbar_img);
         #else
             threshold(gauss_img, bin_img_color, THRESHOLD_BUFF_RED, 255, THRESH_BINARY);
             threshold(gray_img, bin_img_gray, THRESHOLD_GRAY_TH_RED, 255, THRESH_BINARY);
@@ -32,13 +32,12 @@ void BuffDetector::imageProcess(Mat & frame,int my_color){
     case BLUE:{
         subtract(bgr[0], bgr[2], gauss_img);
         #if IS_PARAM_ADJUSTMENT == 1
-            Mat trackbar_img = Mat::zeros(1,1200,CV_8UC1);
-            namedWindow("trackbar");
-            cv::createTrackbar("GRAY_TH_BLUE:", "trackbar", &GRAY_TH_BLUE, 255, nullptr);
-            cv::createTrackbar("COLOR_TH_BLUE:", "trackbar", &COLOR_TH_BLUE, 255, nullptr);        
+            namedWindow("trackbar_img");
+            cv::createTrackbar("GRAY_TH_BLUE:", "trackbar_img", &GRAY_TH_BLUE, 255, nullptr);
+            cv::createTrackbar("COLOR_TH_BLUE:", "trackbar_img", &COLOR_TH_BLUE, 255, nullptr);        
             threshold(gauss_img, bin_img_color, COLOR_TH_BLUE, 255, THRESH_BINARY);
             threshold(gray_img, bin_img_gray, GRAY_TH_BLUE, 255, THRESH_BINARY);
-            imshow("trackbar",trackbar_img);
+            imshow("trackbar_img",trackbar_img);
         #else
             threshold(gauss_img, bin_img_color, THRESHOLD_BUFF_BLUE, 255, THRESH_BINARY);
             threshold(gray_img, bin_img_gray, THRESHOLD_GRAY_TH_BLUE, 255, THRESH_BINARY);
@@ -52,17 +51,16 @@ void BuffDetector::imageProcess(Mat & frame,int my_color){
         subtract(bgr[0], bgr[2], bin_img_color_1);// b - r
         subtract(bgr[2], bgr[0], bin_img_color_2);// r - b
         #if IS_PARAM_ADJUSTMENT == 1
-            Mat trackbar_img = Mat::zeros(1,1200,CV_8UC1);
-            namedWindow("trackbar");
-            cv::createTrackbar("GRAY_TH_RED:", "trackbar", &GRAY_TH_RED, 255, nullptr);
-            cv::createTrackbar("GRAY_TH_BLUE:", "trackbar", &GRAY_TH_BLUE, 255, nullptr);
-            cv::createTrackbar("COLOR_TH_BLUE:", "trackbar", &COLOR_TH_BLUE, 255, nullptr);
-            cv::createTrackbar("COLOR_TH_RED:", "trackbar", &COLOR_TH_RED, 255, nullptr);
+            namedWindow("trackbar_img");
+            cv::createTrackbar("GRAY_TH_RED:", "trackbar_img", &GRAY_TH_RED, 255, nullptr);
+            cv::createTrackbar("GRAY_TH_BLUE:", "trackbar_img", &GRAY_TH_BLUE, 255, nullptr);
+            cv::createTrackbar("COLOR_TH_BLUE:", "trackbar_img", &COLOR_TH_BLUE, 255, nullptr);
+            cv::createTrackbar("COLOR_TH_RED:", "trackbar_img", &COLOR_TH_RED, 255, nullptr);
             int th = int((GRAY_TH_RED +GRAY_TH_BLUE)*0.5);
             threshold(gray_img, bin_img_gray, th, 255, THRESH_BINARY);
             threshold(bin_img_color_1, bin_img_color_1, COLOR_TH_BLUE, 255, THRESH_BINARY);
             threshold(bin_img_color_2, bin_img_color_2, COLOR_TH_RED, 255, THRESH_BINARY);
-            imshow("trackbar",trackbar_img);
+            imshow("trackbar_img",trackbar_img);
         #else
             int th = int((GRAY_TH_RED + GRAY_TH_RED)*0.5);
             threshold(gray_img, bin_img_gray, th, 255, THRESH_BINARY);
@@ -70,6 +68,8 @@ void BuffDetector::imageProcess(Mat & frame,int my_color){
             threshold(bin_img_color_2, bin_img_color_2, THRESHOLD_BUFF_RED, 255, THRESH_BINARY);
         #endif
             bitwise_or(bin_img_color_1,bin_img_color_2,bin_img_color);// 求并集
+            bin_img_color_1.release();
+            bin_img_color_2.release();
     }break;
     }
 
@@ -93,7 +93,7 @@ void BuffDetector::imageProcess(Mat & frame,int my_color){
     bgr.clear();
     vector<Mat>(bgr).swap(bgr);
     /*-----清空vector-----*/
-
+    
 }
 
 bool BuffDetector::findTarget(Mat & frame){
@@ -113,12 +113,12 @@ bool BuffDetector::findTarget(Mat & frame){
         double small_rect_length = arcLength(contours[i],true);
         if(small_rect_length < 10)
             continue;
-        if(small_rect_area < 200 || small_rect_area > 2000)
+        if(small_rect_area < 200 || small_rect_area > 2000)//2000
             continue;
         // 大轮廓面积条件
         double big_rect_area = contourArea(contours[static_cast<uint>(hierarchy[i][3])]);
         double big_rect_length = arcLength(contours[static_cast<uint>(hierarchy[i][3])],true);
-        if(big_rect_area < 300 || big_rect_area > 1e4)
+        if(big_rect_area < 300 || big_rect_area > 1e4)//1e4
             continue;
         if(big_rect_length < 50)
             continue;
@@ -133,6 +133,12 @@ bool BuffDetector::findTarget(Mat & frame){
         Point2f big_point_tmp[4];
         object.big_rect_.points(big_point_tmp);
 
+        // for(int k = 0; k < 4; ++k){
+        //     line(frame,small_point_tmp[k],small_point_tmp[(k+1)%4],Scalar(0,255,0),1);
+        //     line(frame,big_point_tmp[k],big_point_tmp[(k+1)%4],Scalar(0,255,125),1);
+
+        // }
+
         //组合符合条件的装甲板和叶片
         object.diff_angle =fabsf(object.big_rect_.angle-object.small_rect_.angle);//大小轮廓的角度差
         if(object.diff_angle<100 && object.diff_angle>80){                        //大小轮廓相互垂直
@@ -143,7 +149,7 @@ bool BuffDetector::findTarget(Mat & frame){
                 small_rect_size_ratio = object.small_rect_.size.height/object.small_rect_.size.width;
             }
             //cout << big_rect_area << "  " << small_rect_area << endl;
-            double area_ratio = (double)object.small_rect_.boundingRect().area()/(double)object.big_rect_.boundingRect().area();   //计算面积比例
+            double area_ratio = (double)object.small_rect_.size.area()/(double)object.big_rect_.size.area();   //计算面积比例,yi
             //cout << area_ratio << endl;
             object.type_ = UNKOWN;
             //再次清洗目标找出叶片
@@ -159,8 +165,8 @@ bool BuffDetector::findTarget(Mat & frame){
                     object.smallUpdate_Order();
                     //object.bigUpdateOrder();
                     for(int k=0;k<4;k++){
-//                         line(frame, small_point_tmp[k],small_point_tmp[(k+1)%4], Scalar(0, 0, 255), 3);
-//                        line(frame, big_point_tmp[k],big_point_tmp[(k+1)%4], Scalar(0, 0, 255), 1);
+                        //  line(frame, small_point_tmp[k],small_point_tmp[(k+1)%4], Scalar(0, 0, 255), 3);
+                        //  line(frame, big_point_tmp[k],big_point_tmp[(k+1)%4], Scalar(0, 0, 255), 1);
                     }
                 }
                 else {//未能找出未激活目标,将识别的激活目标逐个筛选出(间接法)
@@ -254,11 +260,11 @@ bool BuffDetector::findCenter_R(Mat &bin_img, Mat &frame){
             continue;
         RotatedRect temp_circle_rect = fitEllipse(contours[j]);
 
-        if((double)temp_circle_rect.boundingRect().width > (double)temp_circle_rect.boundingRect().height){
-            rect_ratio = (double)temp_circle_rect.boundingRect().width/(double)temp_circle_rect.boundingRect().height;
+        if((double)temp_circle_rect.size.width > (double)temp_circle_rect.size.height){
+            rect_ratio = (double)temp_circle_rect.size.width/(double)temp_circle_rect.size.height;
         }
         else {
-            rect_ratio = (double)temp_circle_rect.boundingRect().height/(double)temp_circle_rect.boundingRect().width;
+            rect_ratio = (double)temp_circle_rect.size.height/(double)temp_circle_rect.size.width;
         }
 
        cout<<"rect_ratio["<<j<<"]="<<rect_ratio<<endl;
@@ -318,14 +324,15 @@ int BuffDetector::buffDetect_Task(Mat &frame,int my_color){
 //    frame.copyTo(roi_power_img);//test
 
     #if IS_PARAM_ADJUSTMENT == 1
+    Mat BuffParam = Mat::zeros(1,1200, CV_8UC1);
     namedWindow("BuffParam",WINDOW_AUTOSIZE);
     createTrackbar("fire_max_cnt","BuffParam",&auto_control.fire_task.max_cnt_,200,nullptr);
     createTrackbar("reset_cnt","BuffParam",&auto_control.reset_task.max_cnt_,200,nullptr);
     createTrackbar("repeat_time","BuffParam",&auto_control.fire_task.repeat_time,2000,nullptr);
     createTrackbar("fire","BuffParam",&auto_control.fire_task.fire_flag,1,nullptr);
     createTrackbar("repeat fire","BuffParam",&auto_control.fire_task.repeat_fire_flag,1,nullptr);
-    Mat BuffParam = Mat::zeros(1,1200, CV_8UC1);
     imshow("BuffParam",BuffParam);
+    BuffParam.release();
     #endif
 
     if(is_target){//可找到未激活目标
@@ -409,6 +416,7 @@ int BuffDetector::buffDetect_Task(Mat &frame,int my_color){
         frame(roi).copyTo(roi_img);
         rectangle(frame,roi,Scalar(0,255,200),2,8,0);      //画出roi区域(在frame)
 
+
         ++find_cnt_;
         if(find_cnt_%2 == 0){//隔帧读数据
             direction_tmp_ = getState();//判断旋转方向 1顺时针,-1逆时针
@@ -421,7 +429,9 @@ int BuffDetector::buffDetect_Task(Mat &frame,int my_color){
             //  cout<<"direction_tmp_:"<<direction_tmp_<<endl;
             //修正角度在360°的突变
 
-            diff_angle_large = buff_angle_ - last_angle;//有bug 一直有规律的变为0
+            diff_angle_large = buff_angle_ - last_angle_large;//有bug 一直有规律的变为0
+            cout<<"diff_angle_large="<<diff_angle_large<<endl;
+
             if(diff_angle_large > 180)
             {
                 diff_angle_large -= 360;
@@ -431,7 +441,7 @@ int BuffDetector::buffDetect_Task(Mat &frame,int my_color){
                 diff_angle_large += 360;
             }
             diff_angle_large = fabs(diff_angle_large);
-            cout<<"diff_angle_large="<<diff_angle_large<<endl;
+            cout<<"diff_angle_large="<<diff_angle_large<<endl<<" ---------- "<<endl;
 
             //限制从0到360的跳变
 
@@ -453,7 +463,7 @@ int BuffDetector::buffDetect_Task(Mat &frame,int my_color){
                 }
             }
             //是否切换叶片
-                if(_filter_flag != true )
+            if(_filter_flag != true )
             {
                 double spt_t = (timing_point_1 - timing_point_2)/ getTickFrequency();//现在的单位为秒
                 timing_point_2 = getTickCount();
@@ -588,6 +598,9 @@ int BuffDetector::buffDetect_Task(Mat &frame,int my_color){
     imshow("img", frame);
     #endif
 
+    result_img.release();
+    roi_img.release();
+
     return 0;
 }
 
@@ -596,7 +609,7 @@ int BuffDetector::getState(){
     last_angle = buff_angle_;
     if(fabs(diff_angle_)<10 && fabs(diff_angle_)>1e-6){
         d_angle_ = (1 - REVISE) * d_angle_ + REVISE * diff_angle_;
-        // cout<<"d_angle_="<<d_angle_<<endl;
+        cout<<"d_angle_="<<d_angle_<<endl;
     }
     //cout << "d_angle_:" << d_angle_ << endl;
     if(d_angle_ > 1.5)
@@ -672,6 +685,7 @@ int getRect_Intensity(const Mat &frame, Rect rect){
     Mat roi = frame(Range(rect.y, rect.y + rect.height), Range(rect.x, rect.x + rect.width) );
 //    imshow("roi ", roi);
     int average_intensity = static_cast<int>(mean(roi).val[0]);
+    roi.release();
     return average_intensity;
 }
 
