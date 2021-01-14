@@ -306,7 +306,9 @@ public:
         bin_img_gray.release();
         gray_img.release();
         gauss_img.release();
+        #if IS_PARAM_ADJUSTMENT == 1
         trackbar_img.release();
+        #endif
         bin_img.release();
 
     }
@@ -335,6 +337,8 @@ private:
     bool findTarget(Mat & frame);   //寻找叶片以及待激活装甲板
     bool findCenter_R(Mat & bin_img, Mat &frame); //寻找R
     int getState(); //能量机关顺逆时针滤波函数
+    double preangleoflargeBuff();//大能量机关的提前量计算
+    void updateData();//更新速度值
 
 private:
     #if IS_PARAM_ADJUSTMENT == 1
@@ -372,7 +376,7 @@ private://能量机关顺逆时针判断
     float last_angle = 0;
     float d_angle_ = 1;//0
     int find_cnt_ = 0;
-    int direction_tmp_ = 0;
+    int direction_tmp_ = 0; // -1逆时针 1顺时针
 
     //angle bug test
 
@@ -381,10 +385,44 @@ private://能量机关顺逆时针判断
     float displacement = 0;
 
 private://大神符加速函数
+    double pre_angle_large = 0.f;//最终得到的提前量
+
+    int a = 0;//切换次数
+
     float diff_angle_large = 0.f;
     float last_angle_large = 0.f;
     double timing_point_1 = 0.f;
     double timing_point_2 = 0.f;
+    double spt_t = 0.f;//连续扇叶每一帧之间的间隔时间，切换的时候也加了进去
+
+    //对频，判断最低点
+    double speed_5 = 0.f;
+    double speed_4 = 0.f;
+    double speed_3 = 0.f;
+    double speed_2 = 0.f;
+    double speed_1 = 0.f;
+    double diff_speed_4 = 0.f;
+    double diff_speed_3 = 0.f;
+    double diff_speed_2 = 0.f;
+    double diff_speed_1 = 0.f;
+    double time_1 = 0.f;
+    double time_2 = 0.f;
+    double time_3 = 0.f;
+    double time_4 = 0.f;
+    double time_5 = 0.f;
+    double total_time = 0.f;
+
+    double error_speed = 0.f;
+
+    //拟合成功标志位
+    bool fitting_success = false;
+
+    //判断最低点的标志位
+    int first_correct_flag = 0;
+    int second_correct_flag = 0;
+    int last_correct_flag = 0;
+
+    int delay_fitting = 0;
 
     //切换与重置的标识符
     bool _filter_flag = false;
@@ -396,8 +434,8 @@ private://大神符加速函数
     double pre_speed = 0;
     double pre_time = 0;
     //当前帧
-    double current_speed = 0;
-    double current_time = 0;
+    double current_speed = 0.f;
+    double current_time = 0.f;
 
 };
 

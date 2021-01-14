@@ -62,7 +62,7 @@ void BuffDetector::imageProcess(Mat & frame,int my_color){
             threshold(bin_img_color_2, bin_img_color_2, COLOR_TH_RED, 255, THRESH_BINARY);
             imshow("trackbar_img",trackbar_img);
         #else
-            int th = int((GRAY_TH_RED + GRAY_TH_RED)*0.5);
+            int th = int((THRESHOLD_GRAY_TH_BLUE + THRESHOLD_GRAY_TH_RED)*0.5);
             threshold(gray_img, bin_img_gray, th, 255, THRESH_BINARY);
             threshold(bin_img_color_1, bin_img_color_1, THRESHOLD_BUFF_BLUE, 255, THRESH_BINARY);
             threshold(bin_img_color_2, bin_img_color_2, THRESHOLD_BUFF_RED, 255, THRESH_BINARY);
@@ -267,7 +267,7 @@ bool BuffDetector::findCenter_R(Mat &bin_img, Mat &frame){
             rect_ratio = (double)temp_circle_rect.size.height/(double)temp_circle_rect.size.width;
         }
 
-       cout<<"rect_ratio["<<j<<"]="<<rect_ratio<<endl;
+    //    cout<<"rect_ratio["<<j<<"]="<<rect_ratio<<endl;
 
         //比例适度要修正.原来为1.1f
         if(rect_ratio > 0.9f && rect_ratio < 1.12f){
@@ -424,86 +424,10 @@ int BuffDetector::buffDetect_Task(Mat &frame,int my_color){
                 find_cnt_ = 0;
         }
 
+
         if(1)//大神符加速函数 隔帧进行处理
         {
-            //  cout<<"direction_tmp_:"<<direction_tmp_<<endl;
-            //修正角度在360°的突变
-
-            diff_angle_large = buff_angle_ - last_angle_large;//有bug 一直有规律的变为0
-            cout<<"diff_angle_large="<<diff_angle_large<<endl;
-
-            if(diff_angle_large > 180)
-            {
-                diff_angle_large -= 360;
-            }
-            else if (diff_angle_large < -180)
-            {
-                diff_angle_large += 360;
-            }
-            diff_angle_large = fabs(diff_angle_large);
-            cout<<"diff_angle_large="<<diff_angle_large<<endl<<" ---------- "<<endl;
-
-            //限制从0到360的跳变
-
-            // cout<<"buff_angle_="<<buff_angle_<<endl;
-            // cout<<"last_angle="<<last_angle_large<<endl;
-            // cout<<"diff_angle_large="<<diff_angle_large<<endl;
-
-            //检测装甲板的切换
-            timing_point_1 = getTickCount();
-            bool _is_change_target = false;
-            //角度范围可以修改
-            if(fabs(diff_angle_large) > 40  && fabs(diff_angle_large) < 350){
-                _filter_flag = true;
-            }
-            else{
-                if(_filter_flag == true){
-                    _is_change_target = true;
-                    _filter_flag = false;
-                }
-            }
-            //是否切换叶片
-            if(_filter_flag != true )
-            {
-                double spt_t = (timing_point_1 - timing_point_2)/ getTickFrequency();//现在的单位为秒
-                timing_point_2 = getTickCount();
-
-                pre_time = last_time + spt_t;
-                //  如果大于2π不行的话再加上以下
-                //  if(pre_time > 2*CV_PI)
-                //  {
-                //  pre_time = pre_time - 2*CV_PI;
-                //  }
-                pre_speed = 0.785*sin(1.884*pre_time)+1.305;
-                if(pre_speed < 0.785*sin(1.884*(pre_time+(pre_time-last_time)))+1.305)
-                {
-                    //线性处理,可以根据加速度来确定
- 
-                }
-
-                // cout<<"timing_point_1=="<<timing_point_1<<endl;
-
-                last_angle_large = buff_angle_;
-
-                // cout<<"当前帧数为:"<<spt_t<<endl;
-                // current_speed = diff_angle_large/spt_t*CV_PI/180;//变为弧度
-                current_speed = diff_angle_large/spt_t;
-
-                // cout<<"current_speed="<<current_speed<<endl;
-                last_speed = current_speed;
-                //  cout<<"asin里="<<(current_speed-1.305)/0.785<<endl;
-
-                current_time =  asin((current_speed-1.305)/0.785)/1.884;
-                last_time = current_time;
-                // cout<<"current_time="<<current_time<<endl;
-            }
-            else
-            {
-                timing_point_2 = getTickCount();
-                last_angle_large = buff_angle_;
-                // cout<<"切换完成"<<endl;
-            }
-
+            pre_angle_large = preangleoflargeBuff();
         }
 
         bool is_circle = findCenter_R(result_img, roi_img);
@@ -513,7 +437,7 @@ int BuffDetector::buffDetect_Task(Mat &frame,int my_color){
             //小轮廓圆心和R的斜率的反正切，得到一个角
             double theta = atan(double(target_center.y - circle_center.y) / (target_center.x - circle_center.x));
             if(direction_tmp_ != 0){
-                total = direction_tmp_*(PRE_ANGLE+theta)*CV_PI/180;//转换为弧度 ！！！此处加上大神符加速函数
+                total = direction_tmp_*(PRE_ANGLE+theta+pre_angle_large)*CV_PI/180;//转换为弧度 ！！！此处加上大神符加速函数
 //                cout<<"total:"<<total<<endl;
             }
             else {
@@ -609,7 +533,7 @@ int BuffDetector::getState(){
     last_angle = buff_angle_;
     if(fabs(diff_angle_)<10 && fabs(diff_angle_)>1e-6){
         d_angle_ = (1 - REVISE) * d_angle_ + REVISE * diff_angle_;
-        cout<<"d_angle_="<<d_angle_<<endl;
+        // cout<<"d_angle_="<<d_angle_<<endl;
     }
     //cout << "d_angle_:" << d_angle_ << endl;
     if(d_angle_ > 1.5)
@@ -689,4 +613,177 @@ int getRect_Intensity(const Mat &frame, Rect rect){
     return average_intensity;
 }
 
+/**
+ * @brief 大能量机关预测量计算
+ * 
+ * @return double 弧度单位的提前变化量
+ */
+double BuffDetector::preangleoflargeBuff(){
 
+    double pre_angle = 0.f;
+
+    //修正角度在360°的突变
+    diff_angle_large = buff_angle_ - last_angle_large;
+    //过零处理
+    if(diff_angle_large > 180)
+    {
+        diff_angle_large -= 360;
+    }
+    else if (diff_angle_large < -180)
+    {
+        diff_angle_large += 360;
+    }
+
+    diff_angle_large = fabs(diff_angle_large);
+    // cout<<"diff_angle_large="<<diff_angle_large<<endl<<" ---------- "<<endl;
+    // cout<<"buff_angle_="<<buff_angle_<<endl;
+    // cout<<"last_angle="<<last_angle_large<<endl;
+    // cout<<"diff_angle_large="<<diff_angle_large<<endl;
+
+    
+    //检测装甲板的切换
+    bool _is_change_target = false;
+    //角度范围可以修改
+    if(fabs(diff_angle_large) > 40 ){
+        _filter_flag = true;
+        a += 1;
+    }
+    else{
+        if(_filter_flag == true){
+            _is_change_target = true;
+            _filter_flag = false;
+        }
+    }
+
+     cout<<"a = "<<a<<endl;
+     
+    //计算时间
+    timing_point_1 = getTickCount();
+
+    delay_fitting -= 1;
+    if( delay_fitting < 0 ){
+        delay_fitting = 0;
+    }
+
+    //是否切换叶片
+    if( _filter_flag = false )
+    {
+        spt_t = (timing_point_1 - timing_point_2)/ getTickFrequency();//现在的单位为秒
+        timing_point_2 = getTickCount();
+
+        updateData();
+
+        if(fitting_success == true)
+        {
+            pre_time = last_time + spt_t;
+            pre_speed = 0.785*sin( 1.884*( pre_time + 2.501268136 ))+1.305;
+            
+            //对比当前速度和预测的速度
+            error_speed = pre_speed - speed_5;
+            if( fabs(error_speed) < 0.5 )//误差待测
+            {
+                //三角函数增加提前量
+                pre_angle_large = sin( 1.884*( pre_time + 2.501268136 ));
+            }
+        }
+
+        if( delay_fitting <= 0){
+            //对频，标志位判断
+            if( diff_speed_1 < 0 && diff_speed_4 > 0 && diff_speed_2 < 0 && diff_speed_3 > 0 ){
+                first_correct_flag += 1;
+            }
+            else if( diff_speed_1 < 0 && diff_speed_4 > 0 ){
+                first_correct_flag += 1;
+            }
+            else if ( diff_speed_2 < 0 && diff_speed_3 > 0 && diff_speed_1 > 0 && diff_speed_4 < 0 )
+            {
+                second_correct_flag += 1;
+            }
+            else if ( diff_speed_2 < 0 && diff_speed_3 > 0 && diff_speed_1 > 0 && diff_speed_4 > 0 )
+            {
+                last_correct_flag = first_correct_flag + second_correct_flag + 1;
+            }
+            
+            if( (first_correct_flag == 1 && second_correct_flag == 1) || last_correct_flag == 4 || first_correct_flag == 2){
+                first_correct_flag = 0;
+                second_correct_flag = 0;
+                last_correct_flag = 0;
+
+
+                if( first_correct_flag == 1 && second_correct_flag == 1 )
+                {
+                    //第三号目标为函数的最低值
+                    total_time = time_4 + time_5;
+                }
+                else if ( last_correct_flag ==4 )
+                {
+                    //第一号目标为函数的最低值
+                    total_time = time_2 + time_3 + time_4 + time_5;
+                }
+                else
+                {   
+                    //第二号目标为函数的最低值
+                    total_time = time_3 + time_4 + time_5;
+                }
+                
+            }
+
+            //对频成功后将周期函数从最低点开始进行计时
+            current_speed = 0.785*sin( 1.884*( total_time + 2.501268136 ))+1.305;
+            error_speed = current_speed - speed_5;
+
+            if( fabs(error_speed) < 0.5)//误差待测
+            {
+                //对频成功
+                //标志位置为 true
+                fitting_success = true;
+                last_speed = current_speed;
+                //开始计时
+                if(current_time == 0){
+                    current_time += total_time;//仅第一次初始化时间池，可能会有bug
+                }
+                current_time = total_time;//可能会有bug
+                last_time = current_time;
+                delay_fitting = 10;//对频成功后延迟多少帧重新对频，待测试
+            }
+            else
+            {
+                //对频失败
+                //标志位置为 false
+                fitting_success = false;
+                current_time = 0;
+            }
+        }
+    }
+    else
+            {
+                last_angle_large = buff_angle_;
+                // cout<<"切换完成"<<endl;
+            }
+
+    return pre_angle;
+}
+
+void BuffDetector::updateData(){
+    
+    speed_1 = speed_2;
+    speed_2 = speed_3;
+    speed_3 = speed_4;
+    speed_4 = speed_5;
+
+    time_1 = time_2;
+    time_2 = time_3;
+    time_3 = time_4;
+    time_4 = time_5;
+
+    time_5 = spt_t;
+    speed_5 = diff_angle_large / spt_t; 
+
+    diff_speed_1 = speed_2 - speed_1;
+    diff_speed_2 = speed_3 - speed_2;
+    diff_speed_3 = speed_4 - speed_3;
+    diff_speed_4 = speed_5 - speed_4;
+
+
+
+}
