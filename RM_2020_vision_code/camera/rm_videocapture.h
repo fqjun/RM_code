@@ -39,13 +39,13 @@ public:
     int cameraSet();
 
 public:
-    int b_gain = 107;
-    int g_gain = 161;
-    int r_gain = 88;
-    int gamma = 97;
-    int contrast = 136;
-    int saturation = 100;
-    int exposuretime = 1200;
+    int b_gain = 113;
+    int g_gain = 92;
+    int r_gain = 70;
+    int gamma = 93;
+    int contrast = 108;
+    int saturation = 115;
+    int exposuretime = 359;
 };
 
 #endif // RM_VIDEOCAPTURE_H

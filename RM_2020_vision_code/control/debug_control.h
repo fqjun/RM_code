@@ -1,7 +1,7 @@
 #ifndef DEBUG_CONTROL_H
 #define DEBUG_CONTROL_H
 
-#define CAMERA_OR_VEDIO 1
+#define CAMERA_OR_VEDIO 0
 /**
  * @brief 使用相机或者视频
  * @param: 0      相机
@@ -15,8 +15,8 @@
   @param: PB_MODEL_PATH pb文件路径
 */
 
-// #define CAMERA_PARAM_FILE "./camera/param/cameraParams_last.xml"
-#define CAMERA_PARAM_FILE "/home/jun/workplace/Github/RM_code/RM_2020_vision_code/camera/param/cameraParams_last.xml"
+#define CAMERA_PARAM_FILE "./camera/param/cameraParams_last.xml"
+// #define CAMERA_PARAM_FILE "/home/jun/workplace/Github/RM_code/RM_2020_vision_code/camera/param/cameraParams_last.xml"
 /**
   @brief: 相机标定文件路径
   记得改路径
@@ -51,7 +51,7 @@
 // #define USB_CAPTURE_DEFULT "/home/nuc/workspace/vedio/camera_MaxBuff01.avi"
 #endif
 
-#define CAMERA_EXPOSURETIME 1200 //800 400大神符 1200
+#define CAMERA_EXPOSURETIME 100 //800 400大神符 1200
 #define CAMERA_RESOLUTION_COLS 1280
 #define CAMERA_RESOLUTION_ROWS 800
 #define CAMERA_RESOLUTION_COLS_FOV ((1280 - CAMERA_RESOLUTION_COLS) * 0.5)
@@ -67,7 +67,7 @@
 */
 /*---------------------------------------------------*/
 
-#define MY_COLOR 1
+#define MY_COLOR 2
 /**
   @brief: 选择己方阵营
   @param: 0     不限制颜色
@@ -162,7 +162,7 @@
   @param: 0     不打印
   @param: 1     打印
 */
-#define IS_PARAM_ADJUSTMENT 0
+#define IS_PARAM_ADJUSTMENT 1
 /**
   @brief: 是否进入调参模式
   @param: 0     否

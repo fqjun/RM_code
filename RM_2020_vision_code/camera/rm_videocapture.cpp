@@ -53,22 +53,22 @@ RM_VideoCapture::~RM_VideoCapture()
 bool RM_VideoCapture::isindustryimgInput()
 {    
     /* -----设置伽马值----- */
-    // namedWindow("Camera");
-    // createTrackbar("BLUE_gain","Camera", &b_gain, 400,nullptr);
-    // createTrackbar("GREEN_gain","Camera", &g_gain, 400,nullptr);
-    // createTrackbar("RED_gain","Camera", &r_gain, 400,nullptr);
-    // createTrackbar("Gamma","Camera", &gamma, 240,nullptr);
-    // createTrackbar("Contrast","Camera", &contrast, 200,nullptr);
-    // createTrackbar("Saturation","Camera", &saturation, 190,nullptr);
-    // createTrackbar("EXPOSURETIME","Camera", &exposuretime, 10000,nullptr);
+    namedWindow("Camera");
+    createTrackbar("BLUE_gain","Camera", &b_gain, 400,nullptr);
+    createTrackbar("GREEN_gain","Camera", &g_gain, 400,nullptr);
+    createTrackbar("RED_gain","Camera", &r_gain, 400,nullptr);
+    createTrackbar("Gamma","Camera", &gamma, 240,nullptr);
+    createTrackbar("Contrast","Camera", &contrast, 200,nullptr);
+    createTrackbar("Saturation","Camera", &saturation, 190,nullptr);
+    createTrackbar("EXPOSURETIME","Camera", &exposuretime, 10000,nullptr);
 
 
 
-    // CameraSetGain(hCamera,r_gain,g_gain,b_gain);
-    // CameraSetGamma(hCamera,gamma);
-    // CameraSetContrast(hCamera,contrast);
-    // CameraSetSaturation(hCamera,saturation);
-    // CameraSetExposureTime(hCamera, exposuretime);
+    CameraSetGain(hCamera,r_gain,g_gain,b_gain);
+    CameraSetGamma(hCamera,gamma);
+    CameraSetContrast(hCamera,contrast);
+    CameraSetSaturation(hCamera,saturation);
+    CameraSetExposureTime(hCamera, exposuretime);
 
 
     /* -----设置伽马值----- */

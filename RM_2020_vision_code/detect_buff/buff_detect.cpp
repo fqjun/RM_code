@@ -251,14 +251,27 @@ bool BuffDetector::findCenter_R(Mat &bin_img, Mat &frame){
 
     findContours(bin_img, contours, hierarchy, 0, CHAIN_APPROX_NONE);
 
-//    cout<<"轮廓数目："<<contours.size()<<endl;
+   cout<<"轮廓数目："<<contours.size()<<endl;
 
     for(int j = 0; j < (int)contours.size(); ++j){
         double circle_area = contourArea(contours[j]);
 
-        if(circle_area > 6000 || circle_area < 500)//原来为30 有bug
+        if(circle_area > 2000 || circle_area < 500)//原来为30 有bug
             continue;
         RotatedRect temp_circle_rect = fitEllipse(contours[j]);
+        
+
+        // cout<<"temp_circle_rect.boundingRect().area() = "<<temp_circle_rect.boundingRect().area() <<endl;
+        // cout<<"hierarchy["<<j<<"]="<<hierarchy[j]<<endl;
+        if(temp_circle_rect.boundingRect().area() >2500 || temp_circle_rect.boundingRect().area() <500 || hierarchy[j][3] != -1){
+            continue;
+        }
+
+        // temp_circle_rect.points(circle_r);
+        // for(int k = 0;k<4;k++)
+        // {
+        //     line(frame, circle_r[k],circle_r[(k+1)%4], Scalar(0, 255, 0), 3);
+        // }
 
         if((double)temp_circle_rect.size.width > (double)temp_circle_rect.size.height){
             rect_ratio = (double)temp_circle_rect.size.width/(double)temp_circle_rect.size.height;
@@ -267,19 +280,20 @@ bool BuffDetector::findCenter_R(Mat &bin_img, Mat &frame){
             rect_ratio = (double)temp_circle_rect.size.height/(double)temp_circle_rect.size.width;
         }
 
-    //    cout<<"rect_ratio["<<j<<"]="<<rect_ratio<<endl;
+        cout<<"temp_circle_rect.size["<<j<<"]="<<temp_circle_rect.size.area()<<endl;
+        cout<<"rect_ratio["<<j<<"]="<<rect_ratio<<endl;
 
-        //比例适度要修正.原来为1.1f
-        if(rect_ratio > 0.9f && rect_ratio < 1.12f){
+        // 比例适度要修正.原来为1.1f 1.12f
+        if(rect_ratio > 0.9f && rect_ratio < 1.2f){
             first_screen.push_back(temp_circle_rect);
         }
     }
 
-//    cout<<"符合比例条件的:"<<first_screen.size()<<endl;
+   cout<<"符合比例条件的:"<<first_screen.size()<<endl;
     for(std::size_t i = 0; i < first_screen.size(); ++ i )
     {
         distance_target = pointDistance(first_screen[i].center,frame_center);
-        if(distance_target < last_min_distance_target)
+        if( distance_target < last_min_distance_target )
         {
                 last_min_distance_target = distance_target;
                 circle_rect = first_screen[i];
@@ -347,7 +361,7 @@ int BuffDetector::buffDetect_Task(Mat &frame,int my_color){
                 roi_center.y = frame.rows - 1;
             }
         }
-        RotatedRect roi_R(roi_center, Size(90,90),0);//画出假定圆心的roi矩形
+        RotatedRect roi_R(roi_center, Size(100,100),0);//画出假定圆心的roi矩形
         Rect roi = roi_R.boundingRect();
         //roi安全条件
         if(roi.tl().x < 0 || roi.tl().y < 0|| roi.br().x > frame.cols || roi.br().y > frame.rows){
