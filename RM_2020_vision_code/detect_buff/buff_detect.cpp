@@ -251,7 +251,7 @@ bool BuffDetector::findCenter_R(Mat &bin_img, Mat &frame){
 
     findContours(bin_img, contours, hierarchy, 0, CHAIN_APPROX_NONE);
 
-   cout<<"轮廓数目："<<contours.size()<<endl;
+//    cout<<"轮廓数目："<<contours.size()<<endl;
 
     for(int j = 0; j < (int)contours.size(); ++j){
         double circle_area = contourArea(contours[j]);
@@ -280,8 +280,8 @@ bool BuffDetector::findCenter_R(Mat &bin_img, Mat &frame){
             rect_ratio = (double)temp_circle_rect.size.height/(double)temp_circle_rect.size.width;
         }
 
-        cout<<"temp_circle_rect.size["<<j<<"]="<<temp_circle_rect.size.area()<<endl;
-        cout<<"rect_ratio["<<j<<"]="<<rect_ratio<<endl;
+        // cout<<"temp_circle_rect.size["<<j<<"]="<<temp_circle_rect.size.area()<<endl;
+        // cout<<"rect_ratio["<<j<<"]="<<rect_ratio<<endl;
 
         // 比例适度要修正.原来为1.1f 1.12f
         if(rect_ratio > 0.9f && rect_ratio < 1.2f){
@@ -289,7 +289,7 @@ bool BuffDetector::findCenter_R(Mat &bin_img, Mat &frame){
         }
     }
 
-   cout<<"符合比例条件的:"<<first_screen.size()<<endl;
+//    cout<<"符合比例条件的:"<<first_screen.size()<<endl;
     for(std::size_t i = 0; i < first_screen.size(); ++ i )
     {
         distance_target = pointDistance(first_screen[i].center,frame_center);
@@ -699,8 +699,12 @@ double BuffDetector::preangleoflargeBuff(){
                 //三角函数增加提前量
                 pre_angle_large = sin( 1.884*( pre_time + 2.501268136 ));
             }
+        }else
+        {
+            cout<<"未进入预测"<<endl;
         }
-
+        
+        cout<<"delay_fitting = "<<delay_fitting<<endl;
         if( delay_fitting <= 0){
             //对频，标志位判断
             if( diff_speed_1 < 0 && diff_speed_4 > 0 && diff_speed_2 < 0 && diff_speed_3 > 0 ){
@@ -772,7 +776,7 @@ double BuffDetector::preangleoflargeBuff(){
     else
             {
                 last_angle_large = buff_angle_;
-                // cout<<"切换完成"<<endl;
+                cout<<"切换完成"<<endl;
             }
 
     return pre_angle;

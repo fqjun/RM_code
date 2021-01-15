@@ -51,11 +51,17 @@
 // #define USB_CAPTURE_DEFULT "/home/nuc/workspace/vedio/camera_MaxBuff01.avi"
 #endif
 
-#define CAMERA_EXPOSURETIME 100 //800 400大神符 1200
+#define CAMERA_EXPOSURETIME 359 //800 400大神符 1200
 #define CAMERA_RESOLUTION_COLS 1280
 #define CAMERA_RESOLUTION_ROWS 800
 #define CAMERA_RESOLUTION_COLS_FOV ((1280 - CAMERA_RESOLUTION_COLS) * 0.5)
 #define CAMERA_RESOLUTION_ROWS_FOV ((1024 - CAMERA_RESOLUTION_ROWS) * 0.5)
+#define CAMERA_BLUE_GAIN 113
+#define CAMERA_GREEN_GAIN 92
+#define CAMERA_RED_GAIN 70
+#define CAMERA_GAMMA 93
+#define CAMERA_CONTRAST 108
+#define CAMERA_SATURATION 115
 /**
   @brief: 设置相机的分辨率
   @param: CAMERA_EXPOSURETIME   相机曝光时间
@@ -162,7 +168,7 @@
   @param: 0     不打印
   @param: 1     打印
 */
-#define IS_PARAM_ADJUSTMENT 1
+#define IS_PARAM_ADJUSTMENT 0
 /**
   @brief: 是否进入调参模式
   @param: 0     否
@@ -206,7 +212,7 @@
 
 /*--------------------------能量机关-------------------------*/
 //二值化阈值
-#define THRESHOLD_BUFF_BLUE 35
+#define THRESHOLD_BUFF_BLUE 66//35
 #define THRESHOLD_GRAY_TH_BLUE 80
 
 #define THRESHOLD_BUFF_RED 66 //38

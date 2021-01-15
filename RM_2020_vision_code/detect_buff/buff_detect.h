@@ -49,22 +49,22 @@ public:
         if(wait_action_flag == true ){// 重复激活
             if(is_change_target){
                 wait_action_flag = false;
-//                cout<<"改变完目标了"<<endl;
+                //cout<<"改变完目标了"<<endl;
             }else{
                 double t2 = getTickCount();
                 double t = (t2 - change_time)*1000 / getTickFrequency();
                 if(t > repeat_time){
-//                  cout<<"重复激活"<<endl;
+                    // cout<<"重复激活"<<endl;
                     change_time = getTickCount();
-#ifndef NO_REPEAT_FIRE
+                    #ifndef NO_REPEAT_FIRE
                     if(repeat_fire_flag == 1){
                         shoot_chance_ = true;
-//                        cout<<"repeat"<<endl;
+                        // cout<<"repeat"<<endl;
                     }else{
                         shoot_chance_ = false;
-//                        cout<<"repeat-default"<<endl;
+                    // cout<<"repeat-default"<<endl;
                     }
-#endif
+                    #endif
                 }
             }
         }

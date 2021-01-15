@@ -53,6 +53,7 @@ RM_VideoCapture::~RM_VideoCapture()
 bool RM_VideoCapture::isindustryimgInput()
 {    
     /* -----设置伽马值----- */
+    #if IS_PARAM_ADJUSTMENT == 1
     namedWindow("Camera");
     createTrackbar("BLUE_gain","Camera", &b_gain, 400,nullptr);
     createTrackbar("GREEN_gain","Camera", &g_gain, 400,nullptr);
@@ -61,16 +62,12 @@ bool RM_VideoCapture::isindustryimgInput()
     createTrackbar("Contrast","Camera", &contrast, 200,nullptr);
     createTrackbar("Saturation","Camera", &saturation, 190,nullptr);
     createTrackbar("EXPOSURETIME","Camera", &exposuretime, 10000,nullptr);
-
-
-
     CameraSetGain(hCamera,r_gain,g_gain,b_gain);
     CameraSetGamma(hCamera,gamma);
     CameraSetContrast(hCamera,contrast);
     CameraSetSaturation(hCamera,saturation);
     CameraSetExposureTime(hCamera, exposuretime);
-
-
+    #endif
     /* -----设置伽马值----- */
 
     bool isindustry_camera_open = false;
@@ -148,7 +145,14 @@ int RM_VideoCapture::cameraSet()
     }
     /*--------设置曝光时间---------*/
 
-
+    /*----- 伽马值、饱和度、对比度、颜色增益 -----*/
+    #if IS_PARAM_ADJUSTMENT == 0
+    CameraSetGain(hCamera,r_gain,g_gain,b_gain);
+    CameraSetGamma(hCamera,gamma);
+    CameraSetContrast(hCamera,contrast);
+    CameraSetSaturation(hCamera,saturation);
+    #endif
+    /*----- 伽马值、饱和度、对比度、颜色增益 -----*/
 
     /*让SDK进入工作模式，开始接收来自相机发送的图像数据。
      *如果当前相机是触发模式，则需要接收到触发帧以后才会更新图像*/
