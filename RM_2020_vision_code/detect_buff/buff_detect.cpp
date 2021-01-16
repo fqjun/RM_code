@@ -636,8 +636,14 @@ double BuffDetector::preangleoflargeBuff(){
 
     double pre_angle = 0.f;
 
+    solve_rect_center = solve_rect.center;
+    diff_center = pointDistance(solve_rect_center,last_solve_rect_center);
+    last_solve_rect_center = solve_rect_center;
+
     //修正角度在360°的突变
     diff_angle_large = buff_angle_ - last_angle_large;
+
+    
     //过零处理
     if(diff_angle_large > 180)
     {
@@ -660,6 +666,7 @@ double BuffDetector::preangleoflargeBuff(){
     //角度范围可以修改
     if(fabs(diff_angle_large) > 40 ){
         _filter_flag = true;
+        cout<<"diff_angle_large = "<<diff_angle_large<<endl;
         a += 1;
     }
     else{
@@ -668,8 +675,7 @@ double BuffDetector::preangleoflargeBuff(){
             _filter_flag = false;
         }
     }
-
-     cout<<"a = "<<a<<endl;
+    //  cout<<"a = "<<a<<endl;
      
     //计算时间
     timing_point_1 = getTickCount();
@@ -679,14 +685,20 @@ double BuffDetector::preangleoflargeBuff(){
         delay_fitting = 0;
     }
 
+    // if(diff_center<=0.5f){
+    //     cout<<"diff_center = "<<diff_center<<endl;
+
+    // }
+
     //是否切换叶片
-    if( _filter_flag == false )
-    {
+    if( _filter_flag == false && diff_center > 0.5f )
+    {        
         spt_t = (timing_point_1 - timing_point_2)/ getTickFrequency();//现在的单位为秒
         timing_point_2 = getTickCount();
 
         updateData();
 
+        /* -----预测部分----- */
         if(fitting_success == true)
         {
             pre_time = last_time + spt_t;
@@ -696,10 +708,11 @@ double BuffDetector::preangleoflargeBuff(){
                 current_time_ -= CV_2PI;
             }
             pre_speed = 0.785*sin(current_time_)+1.305;
-            cout<<"pre_speed = "<<pre_speed<<endl;
+            // cout<<"pre_speed = "<<pre_speed<<endl;
 
             //对比当前速度和预测的速度
             error_speed = pre_speed - speed_5;
+
             if( fabs(error_speed) < 0.5 )//误差待测 0.5->滑动条
             {
                 //三角函数增加提前量
@@ -709,11 +722,13 @@ double BuffDetector::preangleoflargeBuff(){
             }
                 pre_angle_large = sin(current_time_);
             }
-        }else
-        {
-            cout<<"未进入预测"<<endl;
         }
-        
+        else
+        {
+            // cout<<"未进入预测"<<endl;
+        }
+        /* -----预测部分----- */
+
         cout<<"delay_fitting = "<<delay_fitting<<endl;
         if( delay_fitting <= 0){
             //对频，标志位判断
@@ -742,30 +757,40 @@ double BuffDetector::preangleoflargeBuff(){
                 {
                     //第三号目标为函数的最低值
                     total_time = time_4 + time_5;
+                    cout<<"--- 3 ---"<<endl;
                 }
                 else if ( last_correct_flag ==4 )
                 {
                     //第一号目标为函数的最低值
                     total_time = time_2 + time_3 + time_4 + time_5;
+                    cout<<"--- 1 ---"<<endl;
                 }
                 else
                 {   
                     //第二号目标为函数的最低值
                     total_time = time_3 + time_4 + time_5;
+                    cout<<"--- 2 ---"<<endl;
+
                 }
                 
             }
 
             //对频成功后将周期函数从最低点开始进行计时
             current_time_ = 1.884*(total_time+2.501268136);
+            // cout<<"current_time_ = "<<current_time_<<endl;
+            cout<<"total_time = "<<total_time<<endl;
+
             while (current_time_ > CV_2PI){
                 current_time_ -= CV_2PI;
             }
 
             current_speed = 0.785*sin(current_time_)+1.305;
             error_speed = current_speed - speed_5;
+            // cout<<"current_speed = "<<current_speed<<endl;
+            // cout<<"speed_5 = "<<speed_5<<endl;
+            // cout<<"error_speed = "<<error_speed<<endl;
 
-            if( fabs(error_speed) < 0.5)//误差待测 0.5->滑动条
+            if( fabs(error_speed) < 0.5 && fabs(speed_5) != 0 )//误差待测 0.5->滑动条
             {
                 //对频成功
                 //标志位置为 true
@@ -782,6 +807,7 @@ double BuffDetector::preangleoflargeBuff(){
             else
             {
                 //对频失败
+                // cout<<"对频失败"<<endl;
                 //标志位置为 false
                 fitting_success = false;
                 current_time = 0;
@@ -789,11 +815,13 @@ double BuffDetector::preangleoflargeBuff(){
         }
     }
     else
-            {
-                last_angle_large = buff_angle_;
-                cout<<"切换完成"<<endl;
-            }
+    {
+        cout<<"切换完成"<<endl;
+    }
 
+    last_angle_large = buff_angle_;
+    // cout<<"pre_angle = "<<pre_angle<<endl;
+    cout<<"======================"<<endl;
     return pre_angle;
 }
 
@@ -804,13 +832,37 @@ void BuffDetector::updateData(){
     speed_3 = speed_4;
     speed_4 = speed_5;
 
+    // cout<<"speed_1 = "<<speed_1<<"  speed_2 = "<<speed_2<<"  speed_3 = "<<speed_3<<"  speed_4 = "<<speed_4;
+
+
     time_1 = time_2;
     time_2 = time_3;
     time_3 = time_4;
     time_4 = time_5;
 
-    time_5 = spt_t;
-    speed_5 = diff_angle_large / spt_t; 
+    time_cnt += 1;
+
+    if(spt_t < 1)
+    {
+        time_total += spt_t;
+    }else
+    {
+        time_total += time_5;
+    }
+
+    time_average = time_total/time_cnt;
+    
+    // time_5 = spt_t;
+    time_5 = time_average;
+ 
+    
+
+    // speed_5 = diff_angle_large / spt_t; 
+    speed_5 = (diff_angle_large / time_average)*CV_PI/180; 
+
+    // cout<<"  speed_5 = "<<speed_5<<endl;
+    // cout<<"diff_angle_large = "<<diff_angle_large<<endl;
+    // cout<<"time_5 = "<<time_5<<endl;
 
     diff_speed_1 = speed_2 - speed_1;
     diff_speed_2 = speed_3 - speed_2;

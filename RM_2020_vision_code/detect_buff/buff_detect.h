@@ -390,6 +390,10 @@ private://大神符加速函数
 
     int a = 0;//切换次数
 
+    Point2f solve_rect_center = Point2f(0,0);
+    Point2f last_solve_rect_center = Point2f(0,0);
+    float diff_center = 0.f;
+
     float diff_angle_large = 0.f;
     float last_angle_large = 0.f;
     double timing_point_1 = 0.f;
@@ -411,6 +415,9 @@ private://大神符加速函数
     double time_3 = 0.f;
     double time_4 = 0.f;
     double time_5 = 0.f;
+    double time_average = 0.f;
+    double time_total = 0.f;
+    int time_cnt = 0;
     double total_time = 0.f;
 
     double error_speed = 0.f;
