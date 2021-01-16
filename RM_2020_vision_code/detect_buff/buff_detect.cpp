@@ -666,7 +666,7 @@ double BuffDetector::preangleoflargeBuff(){
     //角度范围可以修改
     if(fabs(diff_angle_large) > 40 ){
         _filter_flag = true;
-        cout<<"diff_angle_large = "<<diff_angle_large<<endl;
+        // cout<<"diff_angle_large = "<<diff_angle_large<<endl;
         a += 1;
     }
     else{
@@ -730,7 +730,11 @@ double BuffDetector::preangleoflargeBuff(){
         /* -----预测部分----- */
 
         cout<<"delay_fitting = "<<delay_fitting<<endl;
-        if( delay_fitting <= 0){
+        cout<<"diff_center = "<<diff_center<<endl;
+        cout<<"diff_angle_large = "<<diff_angle_large<<endl;
+
+
+        if( delay_fitting <= 0 && diff_center < 3){
             //对频，标志位判断
             if( diff_speed_1 < 0 && diff_speed_2 < 0 && diff_speed_3 > 0 && diff_speed_4 > 0 ){
                 first_correct_flag += 1;
@@ -778,7 +782,7 @@ double BuffDetector::preangleoflargeBuff(){
             //对频成功后将周期函数从最低点开始进行计时
             current_time_ = 1.884*(total_time+2.501268136);
             // cout<<"current_time_ = "<<current_time_<<endl;
-            cout<<"total_time = "<<total_time<<endl;
+            // cout<<"total_time = "<<total_time<<endl;
 
             while (current_time_ > CV_2PI){
                 current_time_ -= CV_2PI;
@@ -802,7 +806,7 @@ double BuffDetector::preangleoflargeBuff(){
                 }
                 current_time = total_time;//可能会有bug
                 last_time = current_time;
-                delay_fitting = 10;//对频成功后延迟多少帧重新对频，待测试
+                delay_fitting = 40;//对频成功后延迟多少帧重新对频，待测试
             }
             else
             {
@@ -816,7 +820,7 @@ double BuffDetector::preangleoflargeBuff(){
     }
     else
     {
-        cout<<"切换完成"<<endl;
+        // cout<<"切换完成"<<endl;
     }
 
     last_angle_large = buff_angle_;
