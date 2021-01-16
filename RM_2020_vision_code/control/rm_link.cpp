@@ -12,8 +12,6 @@ RM_Vision_Init::RM_Vision_Init():capture(USB_CAPTURE_DEFULT),cap(ISOPEN_INDUSTRY
  *
  */
 RM_Vision_Init::~RM_Vision_Init(){
-    destroyAllWindows();
-
 }
 
 void RM_Vision_Init::updateControl_information(int arr[REC_BUFF_LENGTH]){

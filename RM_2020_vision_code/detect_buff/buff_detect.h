@@ -76,8 +76,8 @@ public:
         }
         // 控制发射条件
         int command = DEFAULT;
-//        cout<<"current_angle.x:"<<current_angle.x <<endl;
-//        cout<<"current_angle.y:"<<current_angle.y <<endl;
+            //        cout<<"current_angle.x:"<<current_angle.x <<endl;
+            //        cout<<"current_angle.y:"<<current_angle.y <<endl;
         //每帧之间的最大偏差量，可以修改
         if(fabs(current_angle.x) < limit_angle_x_
                 && fabs(current_angle.y) < limit_angle_y_)
@@ -86,7 +86,7 @@ public:
             cnt_ ++;
             time ++;
             // cout<<"第"<<time<<"帧"<<endl;
-//            cout<<"时间量："<<cnt_<<endl;
+            //            cout<<"时间量："<<cnt_<<endl;
         }else {
             // 不满足条件加速减时间，可以修改
             cnt_ -= 3;
@@ -100,20 +100,20 @@ public:
             cnt_ = 0;
             if(shoot_chance_ == true)
             {
-#ifndef NO_FIRE
+            #ifndef NO_FIRE
                 if(fire_flag == 1){
                     command = FIRE;
-//                    cout<<"fire"<<endl;
+                    //cout<<"fire"<<endl;
                 }else{
                      command = DEFAULT;
-//                     cout<<"fire-default"<<endl;
+                    //cout<<"fire-default"<<endl;
                 }
 
-#else
+            #else
                 command = DEFAULT;
-#endif
+            #endif
                 fire_cnt++;
-//                cout<<"开火："<<fire_cnt<<endl;
+            //  cout<<"开火："<<fire_cnt<<endl;
                 shoot_chance_ = false;
             }else {
                 command = DEFAULT;
@@ -311,6 +311,7 @@ public:
         #endif
         bin_img.release();
 
+        destroyAllWindows();
     }
     int buffDetect_Task(Mat & frame,int my_color); //主逻辑函数
 
@@ -436,6 +437,7 @@ private://大神符加速函数
     //当前帧
     double current_speed = 0.f;
     double current_time = 0.f;
+    double current_time_ = 0.f;
 
 };
 

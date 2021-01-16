@@ -680,7 +680,7 @@ double BuffDetector::preangleoflargeBuff(){
     }
 
     //是否切换叶片
-    if( _filter_flag = false )
+    if( _filter_flag == false )
     {
         spt_t = (timing_point_1 - timing_point_2)/ getTickFrequency();//现在的单位为秒
         timing_point_2 = getTickCount();
@@ -690,14 +690,24 @@ double BuffDetector::preangleoflargeBuff(){
         if(fitting_success == true)
         {
             pre_time = last_time + spt_t;
-            pre_speed = 0.785*sin( 1.884*( pre_time + 2.501268136 ))+1.305;
-            
+
+            current_time_ = 1.884*(pre_time+2.501268136);
+            while (current_time_ > CV_2PI){
+                current_time_ -= CV_2PI;
+            }
+            pre_speed = 0.785*sin(current_time_)+1.305;
+            cout<<"pre_speed = "<<pre_speed<<endl;
+
             //对比当前速度和预测的速度
             error_speed = pre_speed - speed_5;
-            if( fabs(error_speed) < 0.5 )//误差待测
+            if( fabs(error_speed) < 0.5 )//误差待测 0.5->滑动条
             {
                 //三角函数增加提前量
-                pre_angle_large = sin( 1.884*( pre_time + 2.501268136 ));
+                current_time_ =  1.884*( pre_time + 2.501268136 );
+                while (current_time_ > CV_2PI){
+                current_time_ -= CV_2PI;
+            }
+                pre_angle_large = sin(current_time_);
             }
         }else
         {
@@ -707,17 +717,17 @@ double BuffDetector::preangleoflargeBuff(){
         cout<<"delay_fitting = "<<delay_fitting<<endl;
         if( delay_fitting <= 0){
             //对频，标志位判断
-            if( diff_speed_1 < 0 && diff_speed_4 > 0 && diff_speed_2 < 0 && diff_speed_3 > 0 ){
+            if( diff_speed_1 < 0 && diff_speed_2 < 0 && diff_speed_3 > 0 && diff_speed_4 > 0 ){
                 first_correct_flag += 1;
             }
             else if( diff_speed_1 < 0 && diff_speed_4 > 0 ){
                 first_correct_flag += 1;
             }
-            else if ( diff_speed_2 < 0 && diff_speed_3 > 0 && diff_speed_1 > 0 && diff_speed_4 < 0 )
+            else if ( diff_speed_1 > 0 && diff_speed_2 < 0 && diff_speed_3 > 0 && diff_speed_4 < 0 )
             {
                 second_correct_flag += 1;
             }
-            else if ( diff_speed_2 < 0 && diff_speed_3 > 0 && diff_speed_1 > 0 && diff_speed_4 > 0 )
+            else if ( diff_speed_1 > 0 && diff_speed_2 < 0 && diff_speed_3 > 0 && diff_speed_4 > 0 )
             {
                 last_correct_flag = first_correct_flag + second_correct_flag + 1;
             }
@@ -747,10 +757,15 @@ double BuffDetector::preangleoflargeBuff(){
             }
 
             //对频成功后将周期函数从最低点开始进行计时
-            current_speed = 0.785*sin( 1.884*( total_time + 2.501268136 ))+1.305;
+            current_time_ = 1.884*(total_time+2.501268136);
+            while (current_time_ > CV_2PI){
+                current_time_ -= CV_2PI;
+            }
+
+            current_speed = 0.785*sin(current_time_)+1.305;
             error_speed = current_speed - speed_5;
 
-            if( fabs(error_speed) < 0.5)//误差待测
+            if( fabs(error_speed) < 0.5)//误差待测 0.5->滑动条
             {
                 //对频成功
                 //标志位置为 true
