@@ -47,11 +47,11 @@
   @param: 0     使用工业相机
   @param: 1     使用普通USB相机
 */
-#define USB_CAPTURE_DEFULT "/home/jun/workplace/录像/camera_MaxBuff01.avi" //armor_2  大小装甲-红  步兵自旋-蓝  基地步兵-蓝 camera_13 camera_17 camera_MaxBuff01
-// #define USB_CAPTURE_DEFULT "/home/nuc/workspace/vedio/camera_MaxBuff01.avi"
+#define USB_CAPTURE_DEFULT "/home/jun/workplace/录像/camera_MaxBuff02.avi" //armor_2  大小装甲-红  步兵自旋-蓝  基地步兵-蓝 camera_13 camera_17 camera_MaxBuff01
+// #define USB_CAPTURE_DEFULT "/home/nuc/workspace/录像/camera_MaxBuff01.avi"
 #endif
 
-#define CAMERA_EXPOSURETIME 359 //800 400大神符 1200
+#define CAMERA_EXPOSURETIME 1200 //800 400大神符 1200
 #define CAMERA_RESOLUTION_COLS 1280
 #define CAMERA_RESOLUTION_ROWS 800
 #define CAMERA_RESOLUTION_COLS_FOV ((1280 - CAMERA_RESOLUTION_COLS) * 0.5)
@@ -168,7 +168,7 @@
   @param: 0     不打印
   @param: 1     打印
 */
-#define IS_PARAM_ADJUSTMENT 0
+#define IS_PARAM_ADJUSTMENT 1
 /**
   @brief: 是否进入调参模式
   @param: 0     否

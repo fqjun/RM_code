@@ -344,8 +344,8 @@ private:
     #if IS_PARAM_ADJUSTMENT == 1
     Mat trackbar_img = Mat::zeros(1,1200,CV_8UC1);
 
-    int GRAY_TH_BLUE = 80;
-    int COLOR_TH_BLUE = 66;//蓝色装甲的阈值 35
+    int GRAY_TH_BLUE = 111;//80
+    int COLOR_TH_BLUE = 83;//蓝色装甲的阈值 35 66
 
     int GRAY_TH_RED = 40;
     int COLOR_TH_RED = 38;//红色装甲的阈值
