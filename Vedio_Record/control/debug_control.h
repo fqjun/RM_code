@@ -1,7 +1,7 @@
 #ifndef DEBUG_CONTROL_H
 #define DEBUG_CONTROL_H
 
-#define CAMERA_OR_VEDIO 0
+#define CAMERA_OR_VEDIO 1
 /**
  * @brief 使用相机或者视频
  * @param: 0      相机
@@ -41,11 +41,12 @@
   @param: 0     使用工业相机
   @param: 1     使用普通USB相机
 */
-#define USB_CAPTURE_DEFULT "/home/yinan/workspace/RM_2020_vision_code/camera_MaxBuff01.avi" //armor_2  大小装甲-红  步兵自旋-蓝  基地步兵-蓝 camera_13 camera_17
+// #define USB_CAPTURE_DEFULT "/home/jun/workplace/录像/camera_MaxBuff02.avi" //armor_2  大小装甲-红  步兵自旋-蓝  基地步兵-蓝 camera_13 camera_17
+#define USB_CAPTURE_DEFULT "./camera_MaxBuff06.avi" //armor_2  大小装甲-红  步兵自旋-蓝  基地步兵-蓝 camera_13 camera_17
 
 #endif
 
-#define CAMERA_EXPOSURETIME 1000 //800
+#define CAMERA_EXPOSURETIME 3000 //800
 #define CAMERA_RESOLUTION_COLS 1280
 #define CAMERA_RESOLUTION_ROWS 800
 #define CAMERA_RESOLUTION_COLS_FOV ((1280 - CAMERA_RESOLUTION_COLS) * 0.5)

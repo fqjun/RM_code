@@ -6,11 +6,11 @@
  */
 RM_Vision_Init::RM_Vision_Init():capture(USB_CAPTURE_DEFULT),cap(ISOPEN_INDUSTRY_CAPTURE){
 #if RECORD == 1
-    String out_path = "./camera_MaxBuff05.avi";//目标路径
+    String out_path = "./camera_MaxBuff06.avi";//目标路径
     Size size(1280,800);//要求与摄像头参数一致
-    int fourcc = writer.fourcc('X', 'V', 'I', 'D');   // 设置avi文件对应的编码格式
-
-    writer.open(out_path,  fourcc, 67, size, true);//66
+    // int fourcc = writer.fourcc('X', 'V', 'I', 'D');   // 设置avi文件对应的编码格式 66 67
+    int fourcc = writer.fourcc('M', 'J', 'P', 'G'); // 33 30
+    writer.open(out_path,  fourcc, 30, size, true);//CAP_DSHOW = true
     if(writer.isOpened()){
         cout<<"正在录制"<<endl;
     }
@@ -43,6 +43,7 @@ void RM_Vision_Init::Run(){
     }else{
         capture >> src_img;
     }
+
     imshow("src_img",src_img);
 
 #if RECORD == 1
@@ -85,7 +86,7 @@ bool RM_Vision_Init::is_continue()
  */
 bool RM_Vision_Init::is_exit()
 {
-    int key = waitKey(1);
+    int key = waitKey(1);//8
 
         #if RECORD == 1
         if(char(key) == 101)
