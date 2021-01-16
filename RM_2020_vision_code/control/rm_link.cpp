@@ -177,7 +177,7 @@ bool RM_Vision_Init::is_continue()
  */
 bool RM_Vision_Init::is_exit()
 {
-    int key = waitKey(1);
+    int key = waitKey(8);
     if(char(key) == 27)
         return true;
     else
