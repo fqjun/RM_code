@@ -20,7 +20,6 @@ int main()
 #if COUT_FPS == 1
         fps.displayframeRate();
 #endif
-
         #if ANALYZE_EACH_FRAME == 1
         if(run.is_continue()){
             continue;
