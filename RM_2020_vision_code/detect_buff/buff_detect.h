@@ -432,6 +432,8 @@ private://大神符加速函数
 
     int delay_fitting = 0;
 
+    int speed_cnt = 0;
+
     //切换与重置的标识符
     bool _filter_flag = false;
 

@@ -156,7 +156,7 @@ bool BuffDetector::findTarget(Mat & frame){
             if(small_rect_size_ratio>1 && small_rect_size_ratio<3 && area_ratio>0.08f && area_ratio<0.25f){
                 for(int k=0;k<4;k++){
                                     line(frame, small_point_tmp[k],small_point_tmp[(k+1)%4], Scalar(0, 0, 255), 1);
-                                // line(frame, big_point_tmp[k],big_point_tmp[(k+1)%4], Scalar(0, 0, 255), 1);
+                                line(frame, big_point_tmp[k],big_point_tmp[(k+1)%4], Scalar(0, 0, 255), 1);
                                 }
                 object.type_= ACTION;
                 //直接找出未激活状态目标（待优化）
@@ -165,13 +165,13 @@ bool BuffDetector::findTarget(Mat & frame){
                     object.smallUpdate_Order();
                     //object.bigUpdateOrder();
                     for(int k=0;k<4;k++){
-                        //  line(frame, small_point_tmp[k],small_point_tmp[(k+1)%4], Scalar(0, 0, 255), 3);
-                        //  line(frame, big_point_tmp[k],big_point_tmp[(k+1)%4], Scalar(0, 0, 255), 1);
+                         line(frame, small_point_tmp[k],small_point_tmp[(k+1)%4], Scalar(0, 0, 255), 3);
+                         line(frame, big_point_tmp[k],big_point_tmp[(k+1)%4], Scalar(0, 0, 255), 1);
                     }
                 }
-                else {//未能找出未激活目标,将识别的激活目标逐个筛选出(间接法)
+                else{//未能找出未激活目标,将识别的激活目标逐个筛选出(间接法)
                     object.smallUpdate_Order();//更新装甲板的四个角的编号
-                    object.knowYour_Self(bin_img);//用roi判断该装甲板是否已激活
+                    object.knowYour_Self(bin_img,frame);//用roi判断该装甲板是否已激活
                     if(object.type_ == INACTION){//若筛选出
                     // cout<<"小扇叶"<<endl;
                         for(int k=0;k<4;k++){
@@ -230,7 +230,7 @@ bool BuffDetector::findTarget(Mat & frame){
     vector<vector<Point>>(contours).swap(contours);
     /*----- vector 清除内容 -----*/
 
-    //imshow("src", img);
+    imshow("src", frame);
     return is_target;
 }
 
@@ -585,10 +585,10 @@ void Object::smallUpdate_Order(){
 void Object::knowYour_Self(Mat &img){
     Point2f vector_height = points_2d_.at(0) - points_2d_.at(3);
 
-    Point left_center = points_2d_.at(3) - vector_height;
-    Point right_center = points_2d_.at(2) - vector_height;
+    Point left_center = points_2d_.at(3) - vector_height ;
+    Point right_center = points_2d_.at(2) - vector_height ;
 
-    int width = 5;
+    int width = 10;
     int height = 5;
 
     Point left1 = Point(left_center.x - width, left_center.y - height);
@@ -602,8 +602,8 @@ void Object::knowYour_Self(Mat &img){
 
     int left_intensity = getRect_Intensity(img, left_rect);     //计算左边roi内灯光强度
     int right_intensity = getRect_Intensity(img, right_rect);   //计算右边roi内灯光强度
-    //cout << left_intensity << "  " << right_intensity << endl;
-    if(left_intensity <= 20 && right_intensity <= 20){
+    cout << left_intensity << "  " << right_intensity << endl;
+    if(left_intensity <= 15 && right_intensity <= 15){
         type_ = INACTION;
     }
     else {
@@ -658,7 +658,7 @@ double BuffDetector::preangleoflargeBuff(){
     // cout<<"diff_angle_large="<<diff_angle_large<<endl<<" ---------- "<<endl;
     // cout<<"buff_angle_="<<buff_angle_<<endl;
     // cout<<"last_angle="<<last_angle_large<<endl;
-    // cout<<"diff_angle_large="<<diff_angle_large<<endl;
+    cout<<"diff_angle_large="<<diff_angle_large<<endl;
 
     
     //检测装甲板的切换
@@ -692,11 +692,17 @@ double BuffDetector::preangleoflargeBuff(){
 
     //是否切换叶片
     if( _filter_flag == false && diff_center > 0.5f )
-    {        
-        spt_t = (timing_point_1 - timing_point_2)/ getTickFrequency();//现在的单位为秒
-        timing_point_2 = getTickCount();
+    {      
+        // ++ speed_cnt;
+        // if(speed_cnt%3 == 0){
+            spt_t = (timing_point_1 - timing_point_2)/ getTickFrequency();//现在的单位为秒
+            timing_point_2 = getTickCount();
 
-        updateData();
+            updateData();
+        //     if(speed_cnt == 12)
+        //         speed_cnt = 0;
+        // }
+
 
         /* -----预测部分----- */
         if(fitting_success == true)
@@ -734,7 +740,7 @@ double BuffDetector::preangleoflargeBuff(){
         cout<<"diff_angle_large = "<<diff_angle_large<<endl;
 
 
-        if( delay_fitting <= 0 && diff_center < 3){
+        if( delay_fitting = 0 && diff_center < 3){
             //对频，标志位判断
             if( diff_speed_1 < 0 && diff_speed_2 < 0 && diff_speed_3 > 0 && diff_speed_4 > 0 ){
                 first_correct_flag += 1;
@@ -783,11 +789,9 @@ double BuffDetector::preangleoflargeBuff(){
             current_time_ = 1.884*(total_time+2.501268136);
             // cout<<"current_time_ = "<<current_time_<<endl;
             // cout<<"total_time = "<<total_time<<endl;
-
             while (current_time_ > CV_2PI){
                 current_time_ -= CV_2PI;
             }
-
             current_speed = 0.785*sin(current_time_)+1.305;
             error_speed = current_speed - speed_5;
             // cout<<"current_speed = "<<current_speed<<endl;
@@ -817,11 +821,9 @@ double BuffDetector::preangleoflargeBuff(){
                 current_time = 0;
             }
         }
-    }
-    else
-    {
-        // cout<<"切换完成"<<endl;
-    }
+        }else{
+            // cout<<"切换完成"<<endl;
+        }
 
     last_angle_large = buff_angle_;
     // cout<<"pre_angle = "<<pre_angle<<endl;
@@ -862,16 +864,38 @@ void BuffDetector::updateData(){
     
 
     // speed_5 = diff_angle_large / spt_t; 
-    speed_5 = (diff_angle_large / time_average)*CV_PI/180; 
+    // speed_5 = (diff_angle_large / time_average)*CV_PI/180; 
+    speed_5 = (diff_angle_large / time_average); 
 
-    // cout<<"  speed_5 = "<<speed_5<<endl;
-    // cout<<"diff_angle_large = "<<diff_angle_large<<endl;
+
+    cout<<"  speed_5 = "<<speed_5<<endl;
+    cout<<"diff_angle_large = "<<diff_angle_large<<endl;
     // cout<<"time_5 = "<<time_5<<endl;
 
     diff_speed_1 = speed_2 - speed_1;
+    if(diff_speed_1 >0 ){
+        cout<<" 凸 ";
+    }else{
+        cout<<" 凹 ";
+    }
     diff_speed_2 = speed_3 - speed_2;
+    if(diff_speed_2 >0 ){
+        cout<<" 凸 ";
+    }else{
+        cout<<" 凹 ";
+    }
     diff_speed_3 = speed_4 - speed_3;
+    if(diff_speed_3 >0 ){
+        cout<<" 凸 ";
+    }else{
+        cout<<" 凹 ";
+    }
     diff_speed_4 = speed_5 - speed_4;
+    if(diff_speed_4 >0 ){
+        cout<<" 凸 "<<endl;
+    }else{
+        cout<<" 凹 "<<endl;
+    }
 
 
 
