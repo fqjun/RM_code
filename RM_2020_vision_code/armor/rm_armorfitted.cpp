@@ -421,7 +421,7 @@ void RM_ArmorFitted::armorFitted(){
     #endif
 
     if(kf_reset_cnt > 20){
-        kf.reset();
+        // kf.reset();
         kf_reset_cnt = 0;
 
     }

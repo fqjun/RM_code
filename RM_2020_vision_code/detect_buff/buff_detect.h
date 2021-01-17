@@ -6,6 +6,8 @@
 #include "solve_PNP/solve_pnp.h"
 #include "serial/serialport.h"
 #include "fps/fps.h"
+#include "filter/rm_kalmanfilter.h"
+
 
 #define DEFAULT 0
 #define FIRE 3
@@ -332,6 +334,7 @@ private://类的声明
     Object object_tmp;
     AutoControl auto_control;
     Fps buff_fps;
+    KF_buff kalman;
 
 private:
     void imageProcess(Mat & frame,int my_color); //预处理
@@ -359,6 +362,8 @@ private://Object object_tmp新类，用于装清洗出来的新数据 和一些�
         Point2f roi_center;//假定圆心
         Point2f circle_center;//中心R
         Point2f pre_center;
+        Point2f pre_KF_center;//卡尔曼预测点,test
+
 
         Mat src_img; //待释放
         Mat bin_img;

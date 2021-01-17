@@ -171,7 +171,7 @@ bool BuffDetector::findTarget(Mat & frame){
                 }
                 else{//未能找出未激活目标,将识别的激活目标逐个筛选出(间接法)
                     object.smallUpdate_Order();//更新装甲板的四个角的编号
-                    object.knowYour_Self(bin_img,frame);//用roi判断该装甲板是否已激活
+                    object.knowYour_Self(bin_img);//用roi判断该装甲板是否已激活
                     if(object.type_ == INACTION){//若筛选出
                     // cout<<"小扇叶"<<endl;
                         for(int k=0;k<4;k++){
@@ -466,8 +466,14 @@ int BuffDetector::buffDetect_Task(Mat &frame,int my_color){
 
             double radio = pointDistance(round_center, pre_center);
 
+            double t_ = getTickCount();
+            double temp_s = (t_ - getTickCount()) / getTickFrequency();
+            pre_KF_center = kalman.Predict(temp_s,theta,direction_tmp_,target_center,round_center);//test
+
+
             circle(frame, round_center, radio, Scalar(0,255,125),2,8,0);
             circle(frame, pre_center, 3, Scalar(255,0,0),3,8,0);
+            circle(frame,pre_KF_center,30,Scalar(0,0,255),2,8,0);//test
             line(frame, pre_center, round_center, Scalar(0,255,255),2);
         }
         else{

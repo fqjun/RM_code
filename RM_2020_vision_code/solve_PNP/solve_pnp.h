@@ -2,6 +2,8 @@
 #define SOLVE_PNP_H
 #include "configure.h"
 #include "control/debug_control.h"
+#include "filter/rm_kalmanfilter.h"
+
 
 class RM_SolveAngle{
 
