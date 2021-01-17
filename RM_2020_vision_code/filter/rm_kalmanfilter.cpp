@@ -244,6 +244,34 @@ Point2f KF_buff::Predict(/*Mat src, Point2f center, double R,*/double init_runti
 
 }
 
+KF_data::KF_data(){
+    coefficient_A = 1;
+    H_k = 1;//没有进行单位转换，不需调整
+    P_k = 0;//误差初始值(待修改)
+    Q_k = 0.05;//预测过程的误差，相当于扩大预测的误差
+    R_k = 0.5;//控制卡尔曼增益（效果未知），调大滞后性越高，但会平滑
+    coefficient_B = 0.1;//自己考虑要在预测值中混入多少控制量
+    U_k = 0;//控制量为零，这里只是对数据进行滤波处理
+    filtervalue = 2;//初始值 根据速度（° 或 rad）、位移、加速度进行设置
+    W_k = 0;//过程噪声（效果未知）
+}
+KF_data::~KF_data(){}
+
+float KF_data::data_Processing(float &new_value){
+    predictvalue = coefficient_A*filtervalue + coefficient_B*U_k + U_k;
+    P_k = coefficient_A*P_k*coefficient_A + Q_k;
+    kalmanGain = P_k*H_k / (H_k*P_k*H_k + R_k);
+
+    filtervalue = predictvalue + kalmanGain*(new_value - predictvalue);
+    // cout<<"predictvalue = "<<predictvalue<<endl;
+    // cout<<"new_value = "<<new_value<<endl;
+    // cout<<"filtervalue = "<<filtervalue<<endl;
+    
+    P_k = (1 - kalmanGain*H_k)*P_k;
+
+    return filtervalue;
+
+}
 /*************************************************/
 // RM_kalmanfilter::~RM_kalmanfilter(){
 //         cout<<"stop!!!"<<endl;

@@ -109,7 +109,7 @@
  */
 
 /*---------------------------------------------------*/
-#define IS_SERIAL_OPEN 0
+#define IS_SERIAL_OPEN 1
 /**
   @brief: 是否启用串口
   @param: 0     不启用
@@ -128,7 +128,7 @@
   @param: 0         二维＋深度
   @param: 1         云台俯仰与偏航角度
 */
-#define SHOW_SERIAL_INFORMATION 1
+#define SHOW_SERIAL_INFORMATION 0
 /**
   @brief: 是否打印串口数据信息
   @param: 0     不打印
@@ -169,7 +169,7 @@
   @param: 0     不显示
   @param: 1     显示
 */
-#define SHOW_BIN_IMG 1
+#define SHOW_BIN_IMG 0
 /**
   @brief: 是否显示二值图像
   @param: 0     不显示

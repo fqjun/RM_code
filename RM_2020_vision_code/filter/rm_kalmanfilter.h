@@ -73,7 +73,32 @@ private:
     double buff_runtime=(1e-2) + 0.005666666f;
 };
 
+class KF_data
+{
+public:
+    KF_data();
+    ~KF_data();
+    float data_Processing(float &newvalue);
 
+private:
+    cv::KalmanFilter kf_buff;
+
+    //predict
+    float filtervalue;//滤波后的值
+    float predictvalue;//预测值
+    float newvalue;//观测值
+    float coefficient_A;//状态转换矩阵，将k-1时刻的状态变到k时刻的状态
+    float U_k;//运动控制量
+    float coefficient_B;//控制运动控制量
+    float W_k;//过程噪声
+
+    //update
+    float P_k;//预测误差
+    float Q_k;//状态矩阵的方差
+    float H_k;//状态映射量
+    float kalmanGain;//卡尔曼增益
+    float R_k;//观测矩阵的方差
+};
 
 
 

@@ -155,8 +155,8 @@ bool BuffDetector::findTarget(Mat & frame){
             //再次清洗目标找出叶片
             if(small_rect_size_ratio>1 && small_rect_size_ratio<3 && area_ratio>0.08f && area_ratio<0.25f){
                 for(int k=0;k<4;k++){
-                                    line(frame, small_point_tmp[k],small_point_tmp[(k+1)%4], Scalar(0, 0, 255), 1);
-                                line(frame, big_point_tmp[k],big_point_tmp[(k+1)%4], Scalar(0, 0, 255), 1);
+                                    // line(frame, small_point_tmp[k],small_point_tmp[(k+1)%4], Scalar(0, 0, 255), 1);
+                                // line(frame, big_point_tmp[k],big_point_tmp[(k+1)%4], Scalar(0, 0, 255), 1);
                                 }
                 object.type_= ACTION;
                 //直接找出未激活状态目标（待优化）
@@ -466,14 +466,9 @@ int BuffDetector::buffDetect_Task(Mat &frame,int my_color){
 
             double radio = pointDistance(round_center, pre_center);
 
-            double t_ = getTickCount();
-            double temp_s = (t_ - getTickCount()) / getTickFrequency();
-            pre_KF_center = kalman.Predict(temp_s,theta,direction_tmp_,target_center,round_center);//test
-
 
             circle(frame, round_center, radio, Scalar(0,255,125),2,8,0);
             circle(frame, pre_center, 3, Scalar(255,0,0),3,8,0);
-            circle(frame,pre_KF_center,30,Scalar(0,0,255),2,8,0);//test
             line(frame, pre_center, round_center, Scalar(0,255,255),2);
         }
         else{
@@ -526,10 +521,16 @@ int BuffDetector::buffDetect_Task(Mat &frame,int my_color){
     // cout<<"depth="<<depth<<endl;
     // cout<<"yaw_data="<<yaw_data<<endl;
     // cout<<"pitch_data="<<pitch_data<<endl;
+
+    //测试卡尔曼滤波器
+    yaw_data = filter_speed_5;//red
+    pitch_data = new_speed_5;//white diff_speed_4 new_speed_5
+    _yaw_data = 0;
+    _pitch_data = 0;
     //发送串口数据
     #if IS_SERIAL_OPEN == 1
     #if SERIAL_COMMUNICATION_PLAN == 1
-    SerialPort::RMserialWrite(_yaw_data,fabs(yaw_data)*1000,_pitch_data,fabs(pitch_data)*1000, depth, is_target, common);
+    SerialPort::RMserialWrite(_yaw_data,fabs(yaw_data)*100,_pitch_data,fabs(pitch_data)*100, depth, is_target, common);
     #else
     SerialPort::RMserialWrite(_yaw_data,yaw_data,_pitch_data,pitch_data, depth, is_target, common);
     #endif
@@ -608,7 +609,7 @@ void Object::knowYour_Self(Mat &img){
 
     int left_intensity = getRect_Intensity(img, left_rect);     //计算左边roi内灯光强度
     int right_intensity = getRect_Intensity(img, right_rect);   //计算右边roi内灯光强度
-    cout << left_intensity << "  " << right_intensity << endl;
+    // cout << left_intensity << "  " << right_intensity << endl;
     if(left_intensity <= 15 && right_intensity <= 15){
         type_ = INACTION;
     }
@@ -648,7 +649,7 @@ double BuffDetector::preangleoflargeBuff(){
 
     //修正角度在360°的突变
     diff_angle_large = buff_angle_ - last_angle_large;
-
+    cout<<"buff_angle_ = "<<buff_angle_<<endl;
     
     //过零处理
     if(diff_angle_large > 180)
@@ -741,9 +742,9 @@ double BuffDetector::preangleoflargeBuff(){
         }
         /* -----预测部分----- */
 
-        cout<<"delay_fitting = "<<delay_fitting<<endl;
-        cout<<"diff_center = "<<diff_center<<endl;
-        cout<<"diff_angle_large = "<<diff_angle_large<<endl;
+        // cout<<"delay_fitting = "<<delay_fitting<<endl;
+        // cout<<"diff_center = "<<diff_center<<endl;
+        // cout<<"diff_angle_large = "<<diff_angle_large<<endl;
 
 
         if( delay_fitting = 0 && diff_center < 3){
@@ -871,11 +872,31 @@ void BuffDetector::updateData(){
 
     // speed_5 = diff_angle_large / spt_t; 
     // speed_5 = (diff_angle_large / time_average)*CV_PI/180; 
-    speed_5 = (diff_angle_large / time_average); 
+    if(time_average != 0){
+        speed_5 = (diff_angle_large / time_average); 
+    }else
+    {
+        speed_5 = (diff_angle_large / 0.02); 
+    }
 
+    if(speed_5 - speed_4 > 20 && times_cnt > 10){
+        
+        speed_5 = speed_4 + 3;
+
+    }else if(speed_5 - speed_4 > 20 && times_cnt > 10){
+        
+        speed_5 = speed_4 - 3;
+
+    }
+    times_cnt += 1;
+    
+
+    new_speed_5 = speed_5;
+    filter_speed_5 = data_kf.data_Processing(new_speed_5);
+    // speed_5 = filter_speed_5;
 
     cout<<"  speed_5 = "<<speed_5<<endl;
-    cout<<"diff_angle_large = "<<diff_angle_large<<endl;
+    // cout<<"diff_angle_large = "<<diff_angle_large<<endl;
     // cout<<"time_5 = "<<time_5<<endl;
 
     diff_speed_1 = speed_2 - speed_1;

@@ -334,6 +334,7 @@ private://类的声明
     Object object_tmp;
     AutoControl auto_control;
     Fps buff_fps;
+    KF_data data_kf;
     KF_buff kalman;
 
 private:
@@ -424,8 +425,13 @@ private://大神符加速函数
     double time_total = 0.f;
     int time_cnt = 0;
     double total_time = 0.f;
+    int times_cnt = 0;//防止在开启的神奇bug
 
     double error_speed = 0.f;
+
+    //测试卡尔曼滤波器
+    float filter_speed_5;
+    float new_speed_5;
 
     //拟合成功标志位
     bool fitting_success = false;
@@ -458,3 +464,4 @@ private://大神符加速函数
 #endif // BUFF_DETECT_H
 double pointDistance(Point2f & p1, Point2f & p2);//计算两点之间距离
 int getRect_Intensity(const Mat &frame, Rect rect);//创建两小roi，判断叶片是否为未激活状态
+
