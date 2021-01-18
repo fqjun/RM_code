@@ -430,7 +430,6 @@ int BuffDetector::buffDetect_Task(Mat &frame,int my_color){
         frame(roi).copyTo(roi_img);
         rectangle(frame,roi,Scalar(0,255,200),2,8,0);      //画出roi区域(在frame)
 
-
         ++find_cnt_;
         if(find_cnt_%2 == 0){//隔帧读数据
             direction_tmp_ = getState();//判断旋转方向 1顺时针,-1逆时针
@@ -504,18 +503,19 @@ int BuffDetector::buffDetect_Task(Mat &frame,int my_color){
         #endif 
         _yaw_data = (yaw_data >=0 ? 0:1);
         _pitch_data = (pitch_data >=0 ? 0:1);
-    }else{
-        #if SERIAL_COMMUNICATION_PLAN == 0
-        /* 二维＋深度 */
-        yaw_data = int(frame.cols*0.5);
-        pitch_data = int(frame.rows*0.5);
-        #else
-        yaw_data = 0;
-        pitch_data = 0;
-        #endif
-        _yaw_data = 0;
-        _pitch_data = 0;
-    }
+}else{
+
+    #if SERIAL_COMMUNICATION_PLAN == 0
+    /* 二维＋深度 */
+    yaw_data = int(frame.cols*0.5);
+    pitch_data = int(frame.rows*0.5);
+    #else
+    yaw_data = 0;
+    pitch_data = 0;
+    #endif
+    _yaw_data = 0;
+    _pitch_data = 0;
+}
     
     // cout <<"current common is:"<<common<<endl;
     // cout<<"depth="<<depth<<endl;
@@ -523,8 +523,8 @@ int BuffDetector::buffDetect_Task(Mat &frame,int my_color){
     // cout<<"pitch_data="<<pitch_data<<endl;
 
     //测试卡尔曼滤波器
-    yaw_data = filter_speed_5;//red
-    pitch_data = new_speed_5;//white diff_speed_4 new_speed_5
+    yaw_data = red_box;//red
+    pitch_data = white_box;//white diff_speed_4 new_speed_5
     _yaw_data = 0;
     _pitch_data = 0;
     //发送串口数据
@@ -649,7 +649,7 @@ double BuffDetector::preangleoflargeBuff(){
 
     //修正角度在360°的突变
     diff_angle_large = buff_angle_ - last_angle_large;
-    cout<<"buff_angle_ = "<<buff_angle_<<endl;
+    // cout<<"buff_angle_ = "<<buff_angle_<<endl;
     
     //过零处理
     if(diff_angle_large > 180)
@@ -665,24 +665,25 @@ double BuffDetector::preangleoflargeBuff(){
     // cout<<"diff_angle_large="<<diff_angle_large<<endl<<" ---------- "<<endl;
     // cout<<"buff_angle_="<<buff_angle_<<endl;
     // cout<<"last_angle="<<last_angle_large<<endl;
-    cout<<"diff_angle_large="<<diff_angle_large<<endl;
+    // cout<<"diff_angle_large="<<diff_angle_large<<endl;
 
     
     //检测装甲板的切换
-    bool _is_change_target = false;
+    _is_change_target = false;
     //角度范围可以修改
     if(fabs(diff_angle_large) > 40 ){
         _filter_flag = true;
+
         // cout<<"diff_angle_large = "<<diff_angle_large<<endl;
-        a += 1;
     }
     else{
         if(_filter_flag == true){
             _is_change_target = true;
             _filter_flag = false;
+            change_target_cnt += 1;
+
         }
     }
-    //  cout<<"a = "<<a<<endl;
      
     //计算时间
     timing_point_1 = getTickCount();
@@ -698,12 +699,12 @@ double BuffDetector::preangleoflargeBuff(){
     // }
 
     //是否切换叶片
-    if( _filter_flag == false && diff_center > 0.5f )
-    {      
+    if( _filter_flag == false && diff_center > 0.5f ){ 
+        // cout<<"change_target_cnt = "<<change_target_cnt<<endl;
+
         // ++ speed_cnt;
         // if(speed_cnt%3 == 0){
             spt_t = (timing_point_1 - timing_point_2)/ getTickFrequency();//现在的单位为秒
-            timing_point_2 = getTickCount();
 
             updateData();
         //     if(speed_cnt == 12)
@@ -732,7 +733,7 @@ double BuffDetector::preangleoflargeBuff(){
                 current_time_ =  1.884*( pre_time + 2.501268136 );
                 while (current_time_ > CV_2PI){
                 current_time_ -= CV_2PI;
-            }
+                }
                 pre_angle_large = sin(current_time_);
             }
         }
@@ -747,8 +748,8 @@ double BuffDetector::preangleoflargeBuff(){
         // cout<<"diff_angle_large = "<<diff_angle_large<<endl;
 
 
-        if( delay_fitting = 0 && diff_center < 3){
-            //对频，标志位判断
+        //对频，标志位判断
+        if( delay_fitting = 0 && diff_center < 3 ){
             if( diff_speed_1 < 0 && diff_speed_2 < 0 && diff_speed_3 > 0 && diff_speed_4 > 0 ){
                 first_correct_flag += 1;
             }
@@ -765,11 +766,7 @@ double BuffDetector::preangleoflargeBuff(){
             }
             
             if( (first_correct_flag == 1 && second_correct_flag == 1) || last_correct_flag == 4 || first_correct_flag == 2){
-                first_correct_flag = 0;
-                second_correct_flag = 0;
-                last_correct_flag = 0;
-
-
+                
                 if( first_correct_flag == 1 && second_correct_flag == 1 )
                 {
                     //第三号目标为函数的最低值
@@ -789,7 +786,11 @@ double BuffDetector::preangleoflargeBuff(){
                     cout<<"--- 2 ---"<<endl;
 
                 }
-                
+
+                first_correct_flag = 0;
+                second_correct_flag = 0;
+                last_correct_flag = 0;
+
             }
 
             //对频成功后将周期函数从最低点开始进行计时
@@ -828,10 +829,14 @@ double BuffDetector::preangleoflargeBuff(){
                 current_time = 0;
             }
         }
-        }else{
+        //对频，标志位判断
+    }
+    else
+    {
             // cout<<"切换完成"<<endl;
-        }
-
+    }
+    
+    timing_point_2 = getTickCount();
     last_angle_large = buff_angle_;
     // cout<<"pre_angle = "<<pre_angle<<endl;
     cout<<"======================"<<endl;
@@ -847,7 +852,6 @@ void BuffDetector::updateData(){
 
     // cout<<"speed_1 = "<<speed_1<<"  speed_2 = "<<speed_2<<"  speed_3 = "<<speed_3<<"  speed_4 = "<<speed_4;
 
-
     time_1 = time_2;
     time_2 = time_3;
     time_3 = time_4;
@@ -855,74 +859,83 @@ void BuffDetector::updateData(){
 
     time_cnt += 1;
 
-    if(spt_t < 1)
+    if(spt_t > 0.46 && _is_change_target == false)
     {
-        time_total += spt_t;
-    }else
-    {
-        time_total += time_5;
+        spt_t = 0.25;
+        cout<<"太大"<<endl;
     }
 
-    time_average = time_total/time_cnt;
-    
+    // time_total += spt_t;
+    // time_average = time_total/time_cnt;
+
     // time_5 = spt_t;
     time_5 = time_average;
  
     
+ 
 
-    // speed_5 = diff_angle_large / spt_t; 
-    // speed_5 = (diff_angle_large / time_average)*CV_PI/180; 
-    if(time_average != 0){
-        speed_5 = (diff_angle_large / time_average); 
-    }else
-    {
-        speed_5 = (diff_angle_large / 0.02); 
-    }
 
-    if(speed_5 - speed_4 > 20 && times_cnt > 10){
+    // speed_5 = (diff_angle_large / spt_t)*CV_PI/180; 
+    speed_5 = (diff_angle_large / spt_t)*100;
+    //角度 200 弧度 
+    // if(speed_5 > 2){
+    //     speed_5 = speed_4;
+    // }
+
+    // if(time_average != 0){
+    //     speed_5 = (diff_angle_large / time_average); 
+    // }else
+    // {
+    //     speed_5 = (diff_angle_large / 0.02); 
+    // }
+
+    // if(speed_5 - speed_4 > 100 && times_cnt > 10){
         
-        speed_5 = speed_4 + 3;
+    //     speed_5 = speed_4 + 10;
 
-    }else if(speed_5 - speed_4 > 20 && times_cnt > 10){
+    // }else if(speed_5 - speed_4 < 100 && times_cnt > 10){
         
-        speed_5 = speed_4 - 3;
+    //     speed_5 = speed_4 - 10;
 
-    }
+    // }
+    white_box = diff_angle_large;
+
     times_cnt += 1;
     
 
-    new_speed_5 = speed_5;
-    filter_speed_5 = data_kf.data_Processing(new_speed_5);
+    // white_box = speed_5;
+    red_box = data_kf.data_Processing(white_box);
+    red_box = data_kf_2.data_Processing_second(red_box);
     // speed_5 = filter_speed_5;
 
-    cout<<"  speed_5 = "<<speed_5<<endl;
+    cout<<"  red_box = "<<red_box<<endl;
     // cout<<"diff_angle_large = "<<diff_angle_large<<endl;
     // cout<<"time_5 = "<<time_5<<endl;
 
     diff_speed_1 = speed_2 - speed_1;
-    if(diff_speed_1 >0 ){
-        cout<<" 凸 ";
-    }else{
-        cout<<" 凹 ";
-    }
+    // if(diff_speed_1 >0 ){
+    //     cout<<" 凸 ";
+    // }else{
+    //     cout<<" 凹 ";
+    // }
     diff_speed_2 = speed_3 - speed_2;
-    if(diff_speed_2 >0 ){
-        cout<<" 凸 ";
-    }else{
-        cout<<" 凹 ";
-    }
+    // if(diff_speed_2 >0 ){
+        // cout<<" 凸 ";
+    // }else{
+        // cout<<" 凹 ";
+    // }
     diff_speed_3 = speed_4 - speed_3;
-    if(diff_speed_3 >0 ){
-        cout<<" 凸 ";
-    }else{
-        cout<<" 凹 ";
-    }
+    // if(diff_speed_3 >0 ){
+    //     cout<<" 凸 ";
+    // }else{
+    //     cout<<" 凹 ";
+    // }
     diff_speed_4 = speed_5 - speed_4;
-    if(diff_speed_4 >0 ){
-        cout<<" 凸 "<<endl;
-    }else{
-        cout<<" 凹 "<<endl;
-    }
+    // if(diff_speed_4 >0 ){
+    //     cout<<" 凸 "<<endl;
+    // }else{
+    //     cout<<" 凹 "<<endl;
+    // }
 
 
 

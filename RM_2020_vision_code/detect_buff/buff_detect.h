@@ -335,6 +335,7 @@ private://类的声明
     AutoControl auto_control;
     Fps buff_fps;
     KF_data data_kf;
+    KF_data data_kf_2;
     KF_buff kalman;
 
 private:
@@ -394,7 +395,8 @@ private://能量机关顺逆时针判断
 private://大神符加速函数
     double pre_angle_large = 0.f;//最终得到的提前量
 
-    int a = 0;//切换次数
+    bool _is_change_target;
+    int change_target_cnt = 0;//切换次数
 
     Point2f solve_rect_center = Point2f(0,0);
     Point2f last_solve_rect_center = Point2f(0,0);
@@ -430,8 +432,8 @@ private://大神符加速函数
     double error_speed = 0.f;
 
     //测试卡尔曼滤波器
-    float filter_speed_5;
-    float new_speed_5;
+    float white_box;
+    float red_box;
 
     //拟合成功标志位
     bool fitting_success = false;

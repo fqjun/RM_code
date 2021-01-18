@@ -47,8 +47,8 @@
   @param: 0     使用工业相机
   @param: 1     使用普通USB相机
 */
-#define USB_CAPTURE_DEFULT "/home/jun/workplace/录像/camera_MaxBuff07.avi" //armor_2  大小装甲-红  步兵自旋-蓝  基地步兵-蓝 camera_13 camera_17 camera_MaxBuff01
-// #define USB_CAPTURE_DEFULT "/home/nuc/workspace/录像/camera_MaxBuff01.avi"
+// #define USB_CAPTURE_DEFULT "/home/jun/workplace/录像/camera_MaxBuff07.avi" //armor_2  大小装甲-红  步兵自旋-蓝  基地步兵-蓝 camera_13 camera_17 camera_MaxBuff01
+#define USB_CAPTURE_DEFULT "/home/nuc/workspace/vedio/camera_MaxBuff07.avi"
 // #define USB_CAPTURE_DEFULT "/home/jun/workplace/Github/RM_code/Vedio_Record/camera_MaxBuff06.avi"
 // #define USB_CAPTURE_DEFULT "/home/jun/workplace/Github/jun/xieyifa_code/RM_2020_vision_code/camera_MaxBuff02.avi"
 #endif

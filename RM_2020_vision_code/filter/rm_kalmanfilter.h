@@ -79,6 +79,8 @@ public:
     KF_data();
     ~KF_data();
     float data_Processing(float &newvalue);
+    float data_Processing_second(float &new_value);
+
 
 private:
     cv::KalmanFilter kf_buff;
@@ -98,6 +100,16 @@ private:
     float H_k;//状态映射量
     float kalmanGain;//卡尔曼增益
     float R_k;//观测矩阵的方差
+        
+    int tf_Q_k = 100;//746
+    int tf_R_k = 9890;//9255
+    int tf_coefficient_B = 1;//自己考虑要在预测值中混入多少控制量
+    int tf_U_k = 0;//控制量为零，这里只是对数据进行滤波处理
+    int tf_filtervalue = 20;//初始值 根据速度（° 或 rad）、位移、加速度进行设置
+    int tf_W_k = 0;//过程噪声（效果未知）
+
+    Mat kalman_img = Mat::zeros(1,1200,CV_8UC1);
+
 };
 
 
