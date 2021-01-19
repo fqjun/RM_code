@@ -448,14 +448,19 @@ int BuffDetector::buffDetect_Task(Mat &frame,int my_color){
         if(is_circle == true){
             double total;
             //小轮廓圆心和R的斜率的反正切，得到一个角
-            double theta = atan(double(target_center.y - circle_center.y) / (target_center.x - circle_center.x));
+            // double theta = atan(double(target_center.y - circle_center.y) / (target_center.x - circle_center.x));
+            double theta = atan2(double(target_center.y - circle_center.y) , (target_center.x - circle_center.x));
+
+            //计算预测量
             if(direction_tmp_ != 0){
                 total = direction_tmp_*(PRE_ANGLE+theta+pre_angle_large)*CV_PI/180;//转换为弧度 ！！！此处加上大神符加速函数
-//                cout<<"total:"<<total<<endl;
+                // cout<<"total:"<<total<<endl;
             }
             else {
                 total = theta*CV_PI/180;
             }
+
+
             double sin_calcu = sin(total);
             double cos_calcu = cos(total);
             Point2f round_center(circle_center.x+roi.tl().x, circle_center.y+roi.tl().y);
@@ -527,6 +532,8 @@ int BuffDetector::buffDetect_Task(Mat &frame,int my_color){
     pitch_data = white_box;//white diff_speed_4 new_speed_5
     _yaw_data = 0;
     _pitch_data = 0;
+
+
     //发送串口数据
     #if IS_SERIAL_OPEN == 1
     #if SERIAL_COMMUNICATION_PLAN == 1
@@ -858,7 +865,7 @@ void BuffDetector::updateData(){
     time_4 = time_5;
 
     time_cnt += 1;
-
+    white_box = diff_angle_large;
     if(spt_t > 0.46 && _is_change_target == false)
     {
         spt_t = 0.25;
@@ -898,15 +905,19 @@ void BuffDetector::updateData(){
     //     speed_5 = speed_4 - 10;
 
     // }
-    white_box = diff_angle_large;
+    // white_box = diff_angle_large;
 
-    times_cnt += 1;
+    times_cnt += 1; 
     
 
     // white_box = speed_5;
-    red_box = data_kf.data_Processing(white_box);
+    red_box = data_kf.data_Processing(diff_angle_large);
     red_box = data_kf_2.data_Processing_second(red_box);
     // speed_5 = filter_speed_5;
+
+    //记录数据
+    float cnt = times_cnt;
+    record_data.getvalueAutomatically(cnt,red_box);
 
     cout<<"  red_box = "<<red_box<<endl;
     // cout<<"diff_angle_large = "<<diff_angle_large<<endl;

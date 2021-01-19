@@ -6,7 +6,7 @@
  */
 RM_Vision_Init::RM_Vision_Init():capture(USB_CAPTURE_DEFULT),cap(ISOPEN_INDUSTRY_CAPTURE){
 #if RECORD == 1
-    String out_path = "./camera_MaxBuff09.avi";//目标路径
+    String out_path = "./camera_MaxBuff10.avi";//目标路径
     Size size(1280,800);//要求与摄像头参数一致
     // int fourcc = writer.fourcc('X', 'V', 'I', 'D');   // 设置avi文件对应的编码格式 66 67
     int fourcc = writer.fourcc('M', 'J', 'P', 'G'); // 33 30 48

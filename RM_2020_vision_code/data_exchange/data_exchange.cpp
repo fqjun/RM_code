@@ -8,11 +8,27 @@
  */
 void Data_exchange::getvalueAutomatically(float &x_value,float &y_value){
 
-    
-    xvalue.push_back(x_value);
-    yvalue.push_back(y_value);
+    //按s开始
+    if(waitKey(1) == 115){
+        record_flag = true;
+        for(auto i = 0;i<5;++i){cout<<"---- 记录开始 ----"<<endl;}
 
-    for(auto i = 0;i<5;++i){cout<<"---------写入成功---------"<<endl;}
+    }
+
+    //按e结束
+    if(waitKey(1) == 101){
+        record_flag = false;
+        for(auto i = 0;i<5;++i){cout<<"---- 记录结束 ----"<<endl;}
+    }
+
+    if(record_flag == true){
+
+        xvalue.push_back(x_value);
+        yvalue.push_back(y_value);
+
+    }
+
+
     
 }
 
@@ -23,6 +39,7 @@ void Data_exchange::getvalueAutomatically(float &x_value,float &y_value){
  */
 void Data_exchange::getvalueManually(float &x_value){
 
+    //按键g
     if(waitKey(1) == 103){
         xvalue.push_back(x_value);
 
@@ -43,6 +60,7 @@ void Data_exchange::getvalueManually(float &x_value){
  * 
  */
 void Data_exchange::writeinCSV(){
+    //按键w
     if(waitKey(1) == 119){
         data_csv = Mat(xvalue.size(),2,CV_32F);
 

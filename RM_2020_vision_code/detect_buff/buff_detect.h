@@ -7,6 +7,7 @@
 #include "serial/serialport.h"
 #include "fps/fps.h"
 #include "filter/rm_kalmanfilter.h"
+#include "data_exchange/data_exchange.h"
 
 
 #define DEFAULT 0
@@ -337,6 +338,7 @@ private://类的声明
     KF_data data_kf;
     KF_data data_kf_2;
     KF_buff kalman;
+    Data_exchange record_data;
 
 private:
     void imageProcess(Mat & frame,int my_color); //预处理
