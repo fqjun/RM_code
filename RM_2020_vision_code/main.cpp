@@ -12,14 +12,21 @@ int main()
 //    g_Ctrl.now_run_mode = DEFAULT_MODE;
     for(;;)
     {
+        run.g_time_1 = getTickCount();
+        run.g_time = (run.g_time_1 - run.g_time_2)/getTickFrequency();
+        run.g_time_2 = getTickCount();
+        run.buff.g_time = run.g_time;
+
         fps.starttheTime();
         /** run **/
         run.Run();
         fps.endtheTime();
         run.armor._t = fps.time;
-#if COUT_FPS == 1
+        
+        #if COUT_FPS == 1
         fps.displayframeRate();
-#endif
+        #endif
+        
         #if ANALYZE_EACH_FRAME == 1
         if(run.is_continue()){
             continue;
