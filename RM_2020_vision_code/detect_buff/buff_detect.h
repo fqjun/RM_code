@@ -326,7 +326,8 @@ public:
 
     //自动控制 类申明
 
-
+    //全局时间
+    double g_time = 0.f;
 
 private://类的声明
     RM_SolveAngle solve_buff;
@@ -352,11 +353,11 @@ private:
     #if IS_PARAM_ADJUSTMENT == 1
     Mat trackbar_img = Mat::zeros(1,1200,CV_8UC1);
 
-    int GRAY_TH_BLUE = 111;//80
-    int COLOR_TH_BLUE = 83;//蓝色装甲的阈值 35 66
+    int GRAY_TH_BLUE = DEBUG_GRAY_TH_BLUE;
+    int COLOR_TH_BLUE = DEBUG_COLOR_TH_BLUE;
 
-    int GRAY_TH_RED = 40;
-    int COLOR_TH_RED = 38;//红色装甲的阈值
+    int GRAY_TH_RED = DEBUG_GRAY_TH_RED;
+    int COLOR_TH_RED = DEBUG_COLOR_TH_RED;
     #endif
 
 private://Object object_tmp新类，用于装清洗出来的新数据 和一些需要公用的数据

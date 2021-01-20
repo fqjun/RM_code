@@ -1,7 +1,7 @@
 #ifndef DEBUG_CONTROL_H
 #define DEBUG_CONTROL_H
 
-#define CAMERA_OR_VEDIO 1
+#define CAMERA_OR_VEDIO 0
 /**
  * @brief 使用相机或者视频
  * @param: 0      相机
@@ -48,7 +48,7 @@
   @param: 1     使用普通USB相机
 */
 // #define USB_CAPTURE_DEFULT "/home/jun/workplace/录像/camera_MaxBuff07.avi" //armor_2  大小装甲-红  步兵自旋-蓝  基地步兵-蓝 camera_13 camera_17 camera_MaxBuff01
-#define USB_CAPTURE_DEFULT "/home/nuc/workspace/vedio/camera_MaxBuff08.avi"
+#define USB_CAPTURE_DEFULT "/home/nuc/workspace/vedio/camera_MaxBuff07.avi"
 // #define USB_CAPTURE_DEFULT "/home/jun/workplace/Github/RM_code/Vedio_Record/camera_MaxBuff06.avi"
 // #define USB_CAPTURE_DEFULT "/home/jun/workplace/Github/jun/xieyifa_code/RM_2020_vision_code/camera_MaxBuff02.avi"
 #endif
@@ -175,7 +175,7 @@
   @param: 0     不显示
   @param: 1     显示
 */
-#define COUT_FPS 1
+#define COUT_FPS 0
 /**
   @brief: 是否打印帧率
   @param: 0     不打印
@@ -225,12 +225,18 @@
 
 /*--------------------------能量机关-------------------------*/
 //二值化阈值
-#define THRESHOLD_BUFF_BLUE 66//35
-#define THRESHOLD_GRAY_TH_BLUE 80
+#define THRESHOLD_BUFF_BLUE 42//35 66 42
+#define THRESHOLD_GRAY_TH_BLUE 83//80
 
-#define THRESHOLD_BUFF_RED 66 //38
-#define THRESHOLD_GRAY_TH_RED 40
+#define THRESHOLD_BUFF_RED 66 //38 66
+#define THRESHOLD_GRAY_TH_RED 40//40
 
+//debug threshold
+#define DEBUG_GRAY_TH_BLUE 111//80 下午 86 晚上 42
+#define DEBUG_COLOR_TH_BLUE 83//蓝色装甲的阈值 35 66 下午23
+
+#define DEBUG_GRAY_TH_RED 40
+#define DEBUG_COLOR_TH_RED 38//红色装甲的阈值
 
 //model 1固定模型 0实时测距
 #define MODEL 1

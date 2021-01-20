@@ -80,7 +80,7 @@ public:
     ~KF_data();
     float data_Processing(float &newvalue);
     float data_Processing_second(float &new_value);
-
+    float data_Predict(float &value);
 
 private:
     cv::KalmanFilter kf_buff;
@@ -94,6 +94,11 @@ private:
     float coefficient_B;//控制运动控制量
     float W_k;//过程噪声
 
+    //predict second
+    float filtervalue_2;//滤波后的值
+    float predictvalue_2;//预测值
+    float newvalue_2;//观测值
+
     //update
     float P_k;//预测误差
     float Q_k;//状态矩阵的方差
@@ -101,14 +106,28 @@ private:
     float kalmanGain;//卡尔曼增益
     float R_k;//观测矩阵的方差
         
-    int tf_Q_k = 100;//746
-    int tf_R_k = 9890;//9255
+    //update second
+    float P_k_2;//预测误差
+    float Q_k_2;//状态矩阵的方差
+    float H_k_2;//状态映射量
+    float kalmanGain_2;//卡尔曼增益
+    float R_k_2;//观测矩阵的方差
+
+    int tf_Q_k = 337;//746
+    int tf_R_k = 1348;//9255
     int tf_coefficient_B = 1;//自己考虑要在预测值中混入多少控制量
     int tf_U_k = 0;//控制量为零，这里只是对数据进行滤波处理
     int tf_filtervalue = 20;//初始值 根据速度（° 或 rad）、位移、加速度进行设置
     int tf_W_k = 0;//过程噪声（效果未知）
 
+    int tf_Q_k_2 = 506;//746
+    int tf_R_k_2 = 1738;//9255
+
     Mat kalman_img = Mat::zeros(1,1200,CV_8UC1);
+    Mat kalman_img_2 = Mat::zeros(1,1200,CV_8UC1);
+
+    //输出预测值
+    float pre_data = 0.f;
 
 };
 

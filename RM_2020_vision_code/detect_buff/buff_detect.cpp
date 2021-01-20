@@ -243,7 +243,9 @@ bool BuffDetector::findCenter_R(Mat &bin_img, Mat &frame){
     Point2f frame_center(frame.cols/2,frame.rows/2);
 
     float last_min_distance_target =frame.rows;
+    int last_min_area_target = frame.size().area();
     float distance_target = 0;
+    int area_target = 0;
     double rect_ratio;//比较宽/高
     Point2f circle_r[4];//圆心R的点
 
@@ -263,15 +265,15 @@ bool BuffDetector::findCenter_R(Mat &bin_img, Mat &frame){
 
         // cout<<"temp_circle_rect.boundingRect().area() = "<<temp_circle_rect.boundingRect().area() <<endl;
         // cout<<"hierarchy["<<j<<"]="<<hierarchy[j]<<endl;
-        if(temp_circle_rect.boundingRect().area() >2500 || temp_circle_rect.boundingRect().area() <500 || hierarchy[j][3] != -1){
+        if((temp_circle_rect.boundingRect().area() >2500 || temp_circle_rect.boundingRect().area() <500) && hierarchy[j][3] != -1){
             continue;
         }
 
         // temp_circle_rect.points(circle_r);
-        // for(int k = 0;k<4;k++)
-        // {
-        //     line(frame, circle_r[k],circle_r[(k+1)%4], Scalar(0, 255, 0), 3);
-        // }
+        for(int k = 0;k<4;k++)
+        {
+            line(frame, circle_r[k],circle_r[(k+1)%4], Scalar(0, 255, 0), 3);
+        }
 
         if((double)temp_circle_rect.size.width > (double)temp_circle_rect.size.height){
             rect_ratio = (double)temp_circle_rect.size.width/(double)temp_circle_rect.size.height;
@@ -293,9 +295,11 @@ bool BuffDetector::findCenter_R(Mat &bin_img, Mat &frame){
     for(std::size_t i = 0; i < first_screen.size(); ++ i )
     {
         distance_target = pointDistance(first_screen[i].center,frame_center);
-        if( distance_target < last_min_distance_target )
+        area_target = first_screen[i].size.area();
+        if( distance_target < last_min_distance_target && area_target < last_min_area_target )
         {
                 last_min_distance_target = distance_target;
+                last_min_area_target = area_target;
                 circle_rect = first_screen[i];
         }
     }
@@ -441,6 +445,7 @@ int BuffDetector::buffDetect_Task(Mat &frame,int my_color){
         if(1)//大神符加速函数 隔帧进行处理
         {
             pre_angle_large = preangleoflargeBuff();
+            pre_angle_large = red_box - 2;
         }
 
         bool is_circle = findCenter_R(result_img, roi_img);
@@ -451,22 +456,34 @@ int BuffDetector::buffDetect_Task(Mat &frame,int my_color){
             // double theta = atan(double(target_center.y - circle_center.y) / (target_center.x - circle_center.x));
             double theta = atan2(double(target_center.y - circle_center.y) , (target_center.x - circle_center.x));
 
+            double test_total;//test
             //计算预测量
             if(direction_tmp_ != 0){
-                total = direction_tmp_*(PRE_ANGLE+theta+pre_angle_large)*CV_PI/180;//转换为弧度 ！！！此处加上大神符加速函数
+                total = direction_tmp_*(PRE_ANGLE+theta)*CV_PI/180;//转换为弧度 ！！！此处加上大神符加速函数
+                test_total = direction_tmp_*(PRE_ANGLE+theta+pre_angle_large)*CV_PI/180;// test
+
                 // cout<<"total:"<<total<<endl;
             }
             else {
                 total = theta*CV_PI/180;
+                test_total = theta*CV_PI/180;//test
             }
 
 
             double sin_calcu = sin(total);
             double cos_calcu = cos(total);
+
+            double sin_calcu_test = sin(test_total);//test
+            double cos_calcu_test = cos(test_total);//test
+
             Point2f round_center(circle_center.x+roi.tl().x, circle_center.y+roi.tl().y);
 
             pre_center.x = (target_center.x-round_center.x)*cos_calcu-(target_center.y-round_center.y)*sin_calcu+round_center.x;
             pre_center.y = (target_center.x-round_center.x)*sin_calcu+(target_center.y-round_center.y)*cos_calcu+round_center.y;
+
+            Point2f pre_center_test;//test
+            pre_center_test.x = (target_center.x-round_center.x)*cos_calcu_test-(target_center.y-round_center.y)*sin_calcu_test+round_center.x;//test
+            pre_center_test.y = (target_center.x-round_center.x)*sin_calcu_test+(target_center.y-round_center.y)*cos_calcu_test+round_center.y;//test
 
             double radio = pointDistance(round_center, pre_center);
 
@@ -474,6 +491,8 @@ int BuffDetector::buffDetect_Task(Mat &frame,int my_color){
             circle(frame, round_center, radio, Scalar(0,255,125),2,8,0);
             circle(frame, pre_center, 3, Scalar(255,0,0),3,8,0);
             line(frame, pre_center, round_center, Scalar(0,255,255),2);
+            line(frame, pre_center_test, round_center, Scalar(0,255,255),2);//test
+
         }
         else{
             Point2f vector_pre = points_2d[0] - points_2d[1];
@@ -528,6 +547,7 @@ int BuffDetector::buffDetect_Task(Mat &frame,int my_color){
     // cout<<"pitch_data="<<pitch_data<<endl;
 
     //测试卡尔曼滤波器
+    // white_box = g_time*1000;
     yaw_data = red_box;//red
     pitch_data = white_box;//white diff_speed_4 new_speed_5
     _yaw_data = 0;
@@ -865,7 +885,7 @@ void BuffDetector::updateData(){
     time_4 = time_5;
 
     time_cnt += 1;
-    white_box = diff_angle_large;
+    // white_box = diff_angle_large;
     if(spt_t > 0.46 && _is_change_target == false)
     {
         spt_t = 0.25;
@@ -881,9 +901,8 @@ void BuffDetector::updateData(){
     
  
 
-
-    // speed_5 = (diff_angle_large / spt_t)*CV_PI/180; 
-    speed_5 = (diff_angle_large / spt_t)*100;
+    cout<<"g = "<<g_time<<endl;
+    // speed_5 = (diff_angle_large / g_time)*100;
     //角度 200 弧度 
     // if(speed_5 > 2){
     //     speed_5 = speed_4;
@@ -909,10 +928,17 @@ void BuffDetector::updateData(){
 
     times_cnt += 1; 
     
+    white_box = diff_angle_large;
+    diff_angle_large = data_kf.data_Processing(white_box);
+    diff_angle_large = data_kf.data_Processing_second(diff_angle_large);
 
-    // white_box = speed_5;
-    red_box = data_kf.data_Processing(diff_angle_large);
-    red_box = data_kf_2.data_Processing_second(red_box);
+    speed_5 = (diff_angle_large / g_time)*CV_PI/180*100;
+
+    diff_angle_large = data_kf.data_Predict(diff_angle_large);
+    red_box = diff_angle_large;
+
+    // red_box = data_kf_2.data_Processing(white_box);
+
     // speed_5 = filter_speed_5;
 
     //记录数据

@@ -255,33 +255,54 @@ KF_data::KF_data(){
     U_k = 0;//控制量为零，这里只是对数据进行滤波处理
     filtervalue = 2;//初始值 根据速度（° 或 rad）、位移、加速度进行设置 一般取中值
     W_k = 0;//过程噪声（效果未知）
+
+    Q_k_2 = 0.05;
+    R_k_2 = 1;
+    filtervalue_2 = 2;
+    P_k_2 = 1;
+    H_k_2 = 1;
 }
 
 
 KF_data::~KF_data(){
 
     kalman_img.release();
+    kalman_img_2.release();
 
+}
+
+float KF_data::data_Predict(float &value){
+    pre_data = coefficient_A*value + coefficient_B*U_k + U_k;
+    return pre_data;
 }
 
 float KF_data::data_Processing_second(float &new_value){
     
+    namedWindow("kalman_2");
+    createTrackbar("Q_k","kalman_2",&tf_Q_k_2,10000,nullptr);
+    createTrackbar("R_k","kalman_2",&tf_R_k_2,10000,nullptr);
+
+    Q_k_2 = tf_Q_k_2/100;
+    R_k_2 = tf_R_k_2/100;
+
+    predictvalue_2 = coefficient_A * filtervalue_2 + coefficient_B * U_k + U_k;
+    cout<<"predictvalue_2 = "<<predictvalue_2<<endl;
+
+    P_k_2 = coefficient_A * P_k_2 * coefficient_A + Q_k_2;
+    cout<<"P_k_2 = "<<P_k_2<<endl;
 
 
-    // namedWindow("kalman");
-    // createTrackbar("Q_k","kalman",&tf_Q_k,10000,nullptr);
-    // createTrackbar("R_k","kalman",&tf_R_k,10000,nullptr);
+    kalmanGain_2 = P_k_2 * H_k_2 / (H_k_2 * P_k_2 * H_k_2 + R_k_2);
+    cout<<"kalmanGain_2 = "<<kalmanGain_2<<endl;
 
-    predictvalue = coefficient_A*filtervalue + coefficient_B*U_k + U_k;
+    filtervalue_2 = predictvalue_2 + kalmanGain_2*(new_value - predictvalue_2);
+    cout<<"filtervalue_2 = "<<filtervalue_2<<endl;
 
-    P_k = coefficient_A*P_k*coefficient_A + Q_k;
+    P_k_2 = (1 - kalmanGain_2 *H_k_2)*P_k_2;
 
-    kalmanGain = P_k*H_k / (H_k*P_k*H_k + R_k);
-    filtervalue = predictvalue + kalmanGain*(new_value - predictvalue);
-    P_k = (1 - kalmanGain*H_k)*P_k;
-    // imshow("kalman",kalman_img);
+    imshow("kalman_2",kalman_img_2);
     // destroyWindow("kalman");
-    return filtervalue;
+    return filtervalue_2;
 
 }
 float KF_data::data_Processing(float &new_value){
@@ -301,19 +322,19 @@ float KF_data::data_Processing(float &new_value){
 
 
     predictvalue = coefficient_A*filtervalue + coefficient_B*U_k + U_k;
-    cout<<"predictvalue = "<<predictvalue<<endl;
+    // cout<<"predictvalue = "<<predictvalue<<endl;
 
     P_k = coefficient_A*P_k*coefficient_A + Q_k;
-    cout<<"P_k = "<<P_k<<endl;
+    // cout<<"P_k = "<<P_k<<endl;
 
     kalmanGain = P_k*H_k / (H_k*P_k*H_k + R_k);
-    cout<<"kalmanGain = "<<predictvalue<<endl;
+    // cout<<"kalmanGain = "<<predictvalue<<endl;
 
 
     filtervalue = predictvalue + kalmanGain*(new_value - predictvalue);
     // cout<<"predictvalue = "<<predictvalue<<endl;
-    cout<<"new_value = "<<new_value<<endl;
-    cout<<"filtervalue = "<<filtervalue<<endl;
+    // cout<<"new_value = "<<new_value<<endl;
+    // cout<<"filtervalue = "<<filtervalue<<endl;
     
     P_k = (1 - kalmanGain*H_k)*P_k;
     imshow("kalman",kalman_img);
@@ -321,6 +342,9 @@ float KF_data::data_Processing(float &new_value){
     return filtervalue;
 
 }
+
+
+
 /*************************************************/
 // RM_kalmanfilter::~RM_kalmanfilter(){
 //         cout<<"stop!!!"<<endl;
