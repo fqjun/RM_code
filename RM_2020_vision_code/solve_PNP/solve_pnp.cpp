@@ -54,7 +54,7 @@ void RM_SolveAngle::run_SolvePnp_Buff(RotatedRect & rect, Mat & srcImg,  float b
 
     solvePnP(object_3d, target2d, cameraMatrix, distCoeffs, rvec, tvec, false, SOLVEPNP_ITERATIVE);
 
-    draw_Coordinate(srcImg);
+    // draw_Coordinate(srcImg);
 
     Mat ptz = camera_ptz(tvec);//云台Pitch轴当前角度
     //cout << ptz << "-----" << rect.center << endl;

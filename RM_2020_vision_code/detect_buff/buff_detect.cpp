@@ -83,7 +83,9 @@ void BuffDetector::imageProcess(Mat & frame,int my_color){
     dilate(bin_img_color, bin_img_color, getStructuringElement(MORPH_RECT, Size(3,3)));    //膨胀 
     dilate(bin_img_gray, bin_img_gray, getStructuringElement(MORPH_RECT, Size(3,3)));    //膨胀 
     bitwise_and(bin_img_color, bin_img_gray, bin_img_color); 
-    dilate(bin_img_color, bin_img_color, getStructuringElement(MORPH_RECT, Size(3,3)));    //膨胀 
+    // dilate(bin_img_color, bin_img_color, getStructuringElement(MORPH_RECT, Size(3,3)));    //膨胀 晚上
+    dilate(bin_img_color, bin_img_color, getStructuringElement(MORPH_RECT, Size(5,5)));    //膨胀  早上
+
     bin_img_color.copyTo(bin_img);
     #if SHOW_BIN_IMG == 1
     imshow("bin_img_final", bin_img_color);
@@ -247,7 +249,7 @@ bool BuffDetector::findCenter_R(Mat &bin_img, Mat &frame){
     bool is_circle = false;
     vector<vector<Point>> contours;
     vector<Vec4i> hierarchy;
-    RotatedRect circle_rect = RotatedRect(Point2f(frame.cols/2,frame.rows/2),Size2f(0,0),0);
+    RotatedRect circle_rect = RotatedRect(Point2f(frame.cols,frame.rows),Size2f(0,0),0);
     Point2f frame_center(frame.cols/2,frame.rows/2);
 
     float last_min_distance_target =frame.rows;
@@ -270,6 +272,16 @@ bool BuffDetector::findCenter_R(Mat &bin_img, Mat &frame){
             continue;
         RotatedRect temp_circle_rect = fitEllipse(contours[j]);
         
+        float temp_circle_width = temp_circle_rect.size.width;
+        float temp_circle_height = temp_circle_rect.size.height;
+        float temp_circle_center_x = temp_circle_rect.center.x;
+        float temp_circle_center_y = temp_circle_rect.center.y;
+
+        // 类似roi的条件
+        if(temp_circle_center_x - temp_circle_width == 0 || temp_circle_center_y - temp_circle_height == 0 || \
+            temp_circle_center_x + temp_circle_width == bin_img.cols || temp_circle_center_y + temp_circle_height == bin_img.rows){
+                continue;
+            }
 
         // cout<<"temp_circle_rect.boundingRect().area() = "<<temp_circle_rect.boundingRect().area() <<endl;
         // cout<<"hierarchy["<<j<<"]="<<hierarchy[j]<<endl;
@@ -283,13 +295,15 @@ bool BuffDetector::findCenter_R(Mat &bin_img, Mat &frame){
             line(frame, circle_r[k],circle_r[(k+1)%4], Scalar(0, 255, 0), 3);
         }
 
-        if((double)temp_circle_rect.size.width > (double)temp_circle_rect.size.height){
-            rect_ratio = (double)temp_circle_rect.size.width/(double)temp_circle_rect.size.height;
-        }
-        else {
-            rect_ratio = (double)temp_circle_rect.size.height/(double)temp_circle_rect.size.width;
+        if(temp_circle_rect.size.width > temp_circle_rect.size.height){
+            temp_circle_width = temp_circle_rect.size.width;
+            temp_circle_height = temp_circle_rect.size.height;
+        }else {
+            temp_circle_width = temp_circle_rect.size.height;
+            temp_circle_height = temp_circle_rect.size.width;
         }
 
+        rect_ratio = temp_circle_rect.size.width/temp_circle_rect.size.height;
         // cout<<"temp_circle_rect.size["<<j<<"]="<<temp_circle_rect.size.area()<<endl;
         // cout<<"rect_ratio["<<j<<"]="<<rect_ratio<<endl;
 
@@ -303,6 +317,7 @@ bool BuffDetector::findCenter_R(Mat &bin_img, Mat &frame){
     for(std::size_t i = 0; i < first_screen.size(); ++ i )
     {
         distance_target = pointDistance(first_screen[i].center,frame_center);
+        cout<<"distance = "<<distance_target;
         area_target = first_screen[i].size.area();
         if( distance_target < last_min_distance_target && area_target < last_min_area_target )
         {
@@ -553,7 +568,6 @@ int BuffDetector::buffDetect_Task(Mat &frame,int my_color){
             }
         }
         solve_buff.run_SolvePnp_Buff(solve_rect,frame, total_angle,BUFF_WIDTH,BUFF_HEIGHT);
-        common = auto_control.run(solve_buff.angle_x,solve_buff.angle_y,is_target,diff_angle_);//坐标传出位置
         #if SERIAL_COMMUNICATION_PLAN == 0
         /* 二维＋深度 */
         yaw_data = int(pre_center.x);
@@ -564,9 +578,9 @@ int BuffDetector::buffDetect_Task(Mat &frame,int my_color){
         pitch_data = solve_buff.angle_y;
         depth = int(solve_buff.dist);
         #endif 
-        _yaw_data = (yaw_data >=0 ? 0:1);
-        _pitch_data = (pitch_data >=0 ? 0:1);
-}else{
+        _yaw_data = (yaw_data >=0 ? 1:0);
+        _pitch_data = (pitch_data >=0 ? 1:0);
+    }else{
 
     #if SERIAL_COMMUNICATION_PLAN == 0
     /* 二维＋深度 */
@@ -578,7 +592,7 @@ int BuffDetector::buffDetect_Task(Mat &frame,int my_color){
     #endif
     _yaw_data = 0;
     _pitch_data = 0;
-}
+    }
     
     // cout <<"current common is:"<<common<<endl;
     // cout<<"depth="<<depth<<endl;
@@ -587,11 +601,17 @@ int BuffDetector::buffDetect_Task(Mat &frame,int my_color){
 
     //测试卡尔曼滤波器
     // white_box = g_time*1000;
-    yaw_data = red_box;//red
-    pitch_data = white_box;//white diff_speed_4 new_speed_5
-    _yaw_data = 0;
-    _pitch_data = 0;
+    // yaw_data = red_box;//red
+    // pitch_data = white_box;//white diff_speed_4 new_speed_5
+    // _yaw_data = 0;
+    // _pitch_data = 0;
+    common = auto_control.run(solve_buff.angle_x,solve_buff.angle_y,is_target,diff_angle_);//坐标传出位置
+    if(common == 2){
+        auto_control.current_Angle(yaw_data,pitch_data,common);
+    }
 
+    _yaw_data = (yaw_data >=0 ? 1:0);
+    _pitch_data = (pitch_data >=0 ? 1:0);
 
     //发送串口数据
     #if IS_SERIAL_OPEN == 1

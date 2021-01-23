@@ -147,7 +147,7 @@ public:
     int cnt_ = 0;
     int time = 0;
     int fire_cnt = 0;
-    int max_cnt_ = 50;             // 满足条件次数,根据帧率进行调整
+    int max_cnt_ = 50;             // 满足条件次数,根据帧率进行调整 50
     float limit_angle_x_ = 15.0f;    // 条件角度阈值 2.0f
     float limit_angle_y_ = 15.0f;
 };
@@ -179,7 +179,7 @@ public:
     }
 public:
     int cnt = 0;
-    int max_cnt_ = 30;   // 最大丢失目标次数，根据帧率进行调整
+    int max_cnt_ = 10;   // 最大丢失目标次数，根据帧率进行调整 30
 };
 
 /**
@@ -189,7 +189,7 @@ class AutoControl
 {
 public:
     AutoControl(){}
-    int run(float current_yaw, float &current_pit,int find_flag, float diff_buff_angle){
+    int run(float &current_yaw, float &current_pit,int find_flag, float diff_buff_angle){
         int command_tmp = DEFAULT;
         // 开火任务启动
         bool is_change_target = false;
@@ -245,6 +245,16 @@ public:
         return command_;
     }
 
+    void current_Angle(float &yaw,float &pitch,int &command){
+            if(command == 2){
+                yaw = 0;
+                pitch = current_p;
+            }else if(command == 4){
+                yaw = 0;
+                pitch = 0;
+            }
+            
+    }
 private:
     // 设置命令相关函数
     // 置1用 |    清零用&   跟随位0x01 开火位0x02 复位位0x04
@@ -268,20 +278,48 @@ private:
 
     //暂时只是上下摆动，后续如果需要就再加上左右的搜索
     void search_target(float &angle_pit,float &angle_yaw){
-        if(lose_cnt<50){
-            angle_pit = RESET_ANGLE;
+        if(lose_cnt <= 100){            
+            angle_pit -= 0.5;
+            if(angle_pit <-15){
+                angle_pit = -15;
+                lose_cnt = 101;
+            }
             angle_yaw = angle_yaw;
-        }
-        else if((lose_cnt=50)){
-            angle_pit += (-50)*RESET_ANGLE;
+            current_y = angle_yaw;
+            current_p = angle_pit;
+        }/* else if(lose_cnt == 50){
+            // angle_pit = 15;
+        } */
+        else if(lose_cnt > 100 && lose_cnt <=200){
+
+            angle_pit += 0.5;//-50
+            if(angle_pit >15){
+                angle_pit = 15;
+                lose_cnt = 201;
+            }
             angle_yaw = angle_yaw;
+            current_y = angle_yaw;
+            current_p = angle_pit;
         }
-        else if(lose_cnt>50 && lose_cnt<100)
+        else if(lose_cnt>200 && lose_cnt<300)
         {
-            angle_pit = -RESET_ANGLE;
+            angle_pit -= 0.5;
+            if(angle_pit <-15){
+                angle_pit = -15;
+                lose_cnt = 101;
+            }
             angle_yaw = angle_yaw;
+            current_y = angle_yaw;
+            current_p = angle_pit;
+        }else if(lose_cnt >300 ){
+            lose_cnt = 0;
         }
+
     }
+
+    float current_y = 0.f;
+    float current_p = 0.f;
+
 
 public:
     FireTask fire_task;     // 开火任务
