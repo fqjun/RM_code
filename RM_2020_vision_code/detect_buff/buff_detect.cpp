@@ -83,8 +83,8 @@ void BuffDetector::imageProcess(Mat & frame,int my_color){
     dilate(bin_img_color, bin_img_color, getStructuringElement(MORPH_RECT, Size(3,3)));    //膨胀 
     dilate(bin_img_gray, bin_img_gray, getStructuringElement(MORPH_RECT, Size(3,3)));    //膨胀 
     bitwise_and(bin_img_color, bin_img_gray, bin_img_color); 
-    // dilate(bin_img_color, bin_img_color, getStructuringElement(MORPH_RECT, Size(3,3)));    //膨胀 晚上
-    dilate(bin_img_color, bin_img_color, getStructuringElement(MORPH_RECT, Size(5,5)));    //膨胀  早上
+    dilate(bin_img_color, bin_img_color, getStructuringElement(MORPH_RECT, Size(3,3)));    //膨胀 晚上
+    // dilate(bin_img_color, bin_img_color, getStructuringElement(MORPH_RECT, Size(5,5)));    //膨胀  早上
 
     bin_img_color.copyTo(bin_img);
     #if SHOW_BIN_IMG == 1
@@ -240,7 +240,7 @@ bool BuffDetector::findTarget(Mat & frame){
     vector<vector<Point>>(contours).swap(contours);
     /*----- vector 清除内容 -----*/
 
-    imshow("src", frame);
+    // imshow("src", frame);
     return is_target;
 }
 
@@ -272,8 +272,8 @@ bool BuffDetector::findCenter_R(Mat &bin_img, Mat &frame){
             continue;
         RotatedRect temp_circle_rect = fitEllipse(contours[j]);
         
-        float temp_circle_width = temp_circle_rect.size.width;
-        float temp_circle_height = temp_circle_rect.size.height;
+        float temp_circle_width = temp_circle_rect.boundingRect2f().size().width;
+        float temp_circle_height = temp_circle_rect.boundingRect2f().size().height;
         float temp_circle_center_x = temp_circle_rect.center.x;
         float temp_circle_center_y = temp_circle_rect.center.y;
 
@@ -317,7 +317,7 @@ bool BuffDetector::findCenter_R(Mat &bin_img, Mat &frame){
     for(std::size_t i = 0; i < first_screen.size(); ++ i )
     {
         distance_target = pointDistance(first_screen[i].center,frame_center);
-        cout<<"distance = "<<distance_target;
+        // cout<<"distance = "<<distance_target;
         area_target = first_screen[i].size.area();
         if( distance_target < last_min_distance_target && area_target < last_min_area_target )
         {
@@ -354,8 +354,22 @@ bool BuffDetector::findCenter_R(Mat &bin_img, Mat &frame){
 }
 
 int BuffDetector::buffDetect_Task(Mat &frame,int my_color){
+
+    buff_fps.starttheTime();
     imageProcess(frame,my_color);                     //预处理
+    buff_fps.endtheTime();
+        if((1/g_time<40))
+        buff_fps.displayframeRate();
+
+    buff_fps.starttheTime();
     bool is_target = findTarget(frame);      //查找目标
+    buff_fps.endtheTime();
+        if((1/g_time<40))
+        buff_fps.displayframeRate();
+        
+    buff_fps.starttheTime();
+
+
     int common = 0;
     Mat result_img;
     Mat roi_img;
@@ -507,7 +521,7 @@ int BuffDetector::buffDetect_Task(Mat &frame,int my_color){
                 // total_angle = /* direction_tmp_* */(PRE_ANGLE+theta+pre_angle_large);//test
                 // cout<<"buff_h  = "<<test_buff_h<<" total = "<<total<<endl;//test
                 // cout<<"total:"<<total<<endl;
-                cout<<"pre_angle_large:"<<pre_angle_large<<endl;
+                // cout<<"pre_angle_large:"<<pre_angle_large<<endl;
 
             }
             else {
@@ -624,13 +638,19 @@ int BuffDetector::buffDetect_Task(Mat &frame,int my_color){
     
     #if SHOW_OUTPUT_IMG == 1
     //imshow("roi", result_img);
-    imshow("roi_img", roi_img);
+    // imshow("roi_img", roi_img);
     imshow("bin", bin_img);
     imshow("img", frame);
     #endif
 
     result_img.release();
     roi_img.release();
+
+    buff_fps.endtheTime();
+        if((1/g_time<40)){
+            buff_fps.displayframeRate();
+            cout<<"========"<<endl;
+        }
 
     return 0;
 }
@@ -857,19 +877,19 @@ double BuffDetector::preangleoflargeBuff(){
                 {
                     //第三号目标为函数的最低值
                     total_time = time_4 + time_5;
-                    cout<<"--- 3 ---"<<endl;
+                    // cout<<"--- 3 ---"<<endl;
                 }
                 else if ( last_correct_flag ==4 )
                 {
                     //第一号目标为函数的最低值
                     total_time = time_2 + time_3 + time_4 + time_5;
-                    cout<<"--- 1 ---"<<endl;
+                    // cout<<"--- 1 ---"<<endl;
                 }
                 else
                 {   
                     //第二号目标为函数的最低值
                     total_time = time_3 + time_4 + time_5;
-                    cout<<"--- 2 ---"<<endl;
+                    // cout<<"--- 2 ---"<<endl;
 
                 }
 
@@ -925,7 +945,7 @@ double BuffDetector::preangleoflargeBuff(){
     timing_point_2 = getTickCount();
     last_angle_large = buff_angle_;
     // cout<<"pre_angle = "<<pre_angle<<endl;
-    cout<<"======================"<<endl;
+    // cout<<"======================"<<endl;
     return pre_angle;
 }
 
@@ -948,7 +968,7 @@ void BuffDetector::updateData(){
     if(spt_t > 0.46 && _is_change_target == false)
     {
         spt_t = 0.25;
-        cout<<"太大"<<endl;
+        // cout<<"太大"<<endl;
     }
 
     // time_total += spt_t;
@@ -1001,10 +1021,10 @@ void BuffDetector::updateData(){
     // speed_5 = filter_speed_5;
 
     //记录数据
-    float cnt = times_cnt;
-    record_data.getvalueAutomatically(cnt,red_box);
+    // float cnt = times_cnt;
+    // record_data.getvalueAutomatically(cnt,red_box);
 
-    cout<<"  red_box = "<<red_box<<endl;
+    // cout<<"  red_box = "<<red_box<<endl;
     // cout<<"diff_angle_large = "<<diff_angle_large<<endl;
     // cout<<"time_5 = "<<time_5<<endl;
 

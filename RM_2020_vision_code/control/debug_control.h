@@ -15,7 +15,7 @@
   @param: PB_MODEL_PATH pb文件路径
 */
 
-#define CAMERA_PARAM_FILE "./camera/param/cameraParams_last.xml"
+#define CAMERA_PARAM_FILE "/home/gcu/workspace/RM_code/RM_2020_vision_code/camera/param/cameraParams_last.xml"
 // #define CAMERA_PARAM_FILE "/home/jun/workplace/Github/RM_code/RM_2020_vision_code/camera/param/cameraParams_last.xml"
 /**
   @brief: 相机标定文件路径
@@ -75,7 +75,7 @@
 */
 /*---------------------------------------------------*/
 
-#define CAMERA_CONFIG 3
+#define CAMERA_CONFIG 0
 /**
  * @brief: 设置相机参数模式选项
  * @param: 0 曝光
@@ -128,7 +128,7 @@
   @param: 0         二维＋深度
   @param: 1         云台俯仰与偏航角度
 */
-#define SHOW_SERIAL_INFORMATION 1
+#define SHOW_SERIAL_INFORMATION 0
 /**
   @brief: 是否打印串口数据信息
   @param: 0     不打印
@@ -181,7 +181,7 @@
   @param: 0     不打印
   @param: 1     打印
 */
-#define IS_PARAM_ADJUSTMENT 1
+#define IS_PARAM_ADJUSTMENT 0
 /**
   @brief: 是否进入调参模式
   @param: 0     否

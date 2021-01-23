@@ -39,7 +39,7 @@ void RM_SolveAngle::run_SolvePnp(RotatedRect &rect, float _W, float _H){
 /*--------------------------------------大神符------------------------------------------*/
 void RM_SolveAngle::run_SolvePnp_Buff(RotatedRect & rect, Mat & srcImg,  float buff_angle, float _W, float _H){
 
-    cout<<"rect_center: "<<rect.center<<endl;
+    // cout<<"rect_center: "<<rect.center<<endl;
     circle(srcImg,rect.center,5,Scalar(0,0,255),1,8);
     float half_x = _W * 0.5;
     float half_y = _H * 0.5;
@@ -190,7 +190,7 @@ void RM_SolveAngle::get_Angle(const Mat & pos_in_ptz){
 void RM_SolveAngle::get_Angel_Buff(const Mat & pos_in_ptz, float buff_angle){
     //计算子弹下坠补偿
     const double *_xyz = (const double *)pos_in_ptz.data;
-    cout << "x:" << _xyz[0] << "   y:" << _xyz[1] << "   z:" << _xyz[2] << endl;
+    // cout << "x:" << _xyz[0] << "   y:" << _xyz[1] << "   z:" << _xyz[2] << endl;
 
     //    double down_t = 0.0;
     //    if(BULLET_SPEED > 10e-3)
@@ -257,7 +257,7 @@ void RM_SolveAngle::get_Angel_Buff(const Mat & pos_in_ptz, float buff_angle){
     angle_y = angle_y * 180 / CV_PI;
     dist = xyz[2];
 
-   cout << "angle_x:" << angle_x << "     angle_y:" << angle_y << "    dist:" << dist <<endl;
+//    cout << "angle_x:" << angle_x << "     angle_y:" << angle_y << "    dist:" << dist <<endl;
 }
 
 /**

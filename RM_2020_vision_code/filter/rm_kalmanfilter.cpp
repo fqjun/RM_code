@@ -278,9 +278,9 @@ float KF_data::data_Predict(float &value){
 
 float KF_data::data_Processing_second(float &new_value){
     
-    namedWindow("kalman_2");
-    createTrackbar("Q_k","kalman_2",&tf_Q_k_2,10000,nullptr);
-    createTrackbar("R_k","kalman_2",&tf_R_k_2,10000,nullptr);
+    // namedWindow("kalman_2");
+    // createTrackbar("Q_k","kalman_2",&tf_Q_k_2,10000,nullptr);
+    // createTrackbar("R_k","kalman_2",&tf_R_k_2,10000,nullptr);
 
     Q_k_2 = tf_Q_k_2/100;
     R_k_2 = tf_R_k_2/100;
@@ -300,16 +300,16 @@ float KF_data::data_Processing_second(float &new_value){
 
     P_k_2 = (1 - kalmanGain_2 *H_k_2)*P_k_2;
 
-    imshow("kalman_2",kalman_img_2);
+    // imshow("kalman_2",kalman_img_2);
     // destroyWindow("kalman");
     return filtervalue_2;
 
 }
 float KF_data::data_Processing(float &new_value){
     
-    namedWindow("kalman");
-    createTrackbar("Q_k","kalman",&tf_Q_k,10000,nullptr);
-    createTrackbar("R_k","kalman",&tf_R_k,10000,nullptr);
+    // namedWindow("kalman");
+    // createTrackbar("Q_k","kalman",&tf_Q_k,10000,nullptr);
+    // createTrackbar("R_k","kalman",&tf_R_k,10000,nullptr);
     // createTrackbar("U_k","kalman",&tf_U_k,10,nullptr);
     // createTrackbar("filtervalue","kalman",&tf_filtervalue,10000,nullptr);
     // createTrackbar("W_k","kalman",&tf_W_k,10000,nullptr);
@@ -337,7 +337,7 @@ float KF_data::data_Processing(float &new_value){
     // cout<<"filtervalue = "<<filtervalue<<endl;
     
     P_k = (1 - kalmanGain*H_k)*P_k;
-    imshow("kalman",kalman_img);
+    // imshow("kalman",kalman_img);
     // destroyWindow("kalman");
     return filtervalue;
 
