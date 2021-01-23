@@ -12,7 +12,7 @@ public:
     ~RM_SolveAngle();
     //调用解算函数
     void run_SolvePnp(RotatedRect &rect, float _W, float _H);
-    void run_SolvePnp_Buff(RotatedRect & rect, Mat & srcImg,  float buff_angle, float _W, float _H);//大神符
+    void run_SolvePnp_Buff(vector<Point2f> &image_point, Mat & srcImg,  float buff_angle, float _W, float _H);//大神符
 
     void draw_Coordinate(Mat & input);
     float angle_x, angle_y, dist;

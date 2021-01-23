@@ -156,10 +156,17 @@ bool BuffDetector::findTarget(Mat & frame){
             object.type_ = UNKOWN;
             //再次清洗目标找出叶片
             if(small_rect_size_ratio>1 && small_rect_size_ratio<3 && area_ratio>0.08f && area_ratio<0.25f){
-                for(int k=0;k<4;k++){
-                                    // line(frame, small_point_tmp[k],small_point_tmp[(k+1)%4], Scalar(0, 0, 255), 1);
-                                // line(frame, big_point_tmp[k],big_point_tmp[(k+1)%4], Scalar(0, 0, 255), 1);
-                                }
+                // for(int k=0;k<4;k++){
+                // line(frame, small_point_tmp[k],small_point_tmp[(k+1)%4], Scalar(0, 0, 255), 1);
+                // line(frame, big_point_tmp[k],big_point_tmp[(k+1)%4], Scalar(0, 0, 255), 1);
+                // }
+
+                //根据椭圆拟合得到的矩形进行逐个点显示
+                // circle(frame,small_point_tmp[0],10,Scalar(0,0,255),-1,8);
+                // circle(frame,small_point_tmp[1],10,Scalar(0,255,255),-1,8);
+                // circle(frame,small_point_tmp[2],10,Scalar(255,0,0),-1,8);
+                // circle(frame,small_point_tmp[3],10,Scalar(0,255,0),-1,8);
+
                 object.type_= ACTION;
                 //直接找出未激活状态目标（待优化）
                 if(/*small_rect_area*9>big_rect_area && small_rect_area*3<big_rect_area*/0){
@@ -206,7 +213,6 @@ bool BuffDetector::findTarget(Mat & frame){
             points_2d = final_target.points_2d_;//当前目标的点
             //big_points_2d = final_target.big_points_2d_;
             target_center = final_target.small_rect_.center;//获取小轮廓的圆心
-
             current_point = target_center;//test angle bug
             displacement = pointDistance(current_point,last_point);
             // cout<<"是否有位移,位移为:"<<displacement<<endl;
@@ -359,13 +365,13 @@ int BuffDetector::buffDetect_Task(Mat &frame,int my_color){
     imageProcess(frame,my_color);                     //预处理
     buff_fps.endtheTime();
         if((1/g_time<40))
-        buff_fps.displayframeRate();
+        // buff_fps.displayframeRate();
 
     buff_fps.starttheTime();
     bool is_target = findTarget(frame);      //查找目标
     buff_fps.endtheTime();
         if((1/g_time<40))
-        buff_fps.displayframeRate();
+        // buff_fps.displayframeRate();
         
     buff_fps.starttheTime();
 
@@ -495,13 +501,21 @@ int BuffDetector::buffDetect_Task(Mat &frame,int my_color){
             /* --------------test--------------- */
 
             // cout<<"y = "<<target_center.y - (circle_center.y+roi.tl().y)<<"  x = "<<target_center.x - (circle_center.x+roi.tl().x)<<endl;
+            //test_theta 装甲板中点与中心R的夹角，角度0°在正左方，顺时针增加到360°，且与0°重合
             double test_theta = atan2(target_center.y - (circle_center.y+roi.tl().y),target_center.x - (circle_center.x+roi.tl().x))*180/CV_PI + 180;
             // cout<<"test_theta = "<<test_theta<<"  buff_angle = "<<buff_angle_<<endl;
+
+            //固定预测角的角度
             double test_total_angle =  direction_tmp_*PRE_ANGLE+test_theta;
             if(test_total_angle < 0){
                 test_total_angle += 360;
+            }else if (test_total_angle > 360)
+            {
+                test_total_angle -= 360;
             }
             // cout<<"test_total_angle = "<<test_total_angle<<endl;
+
+            //固定预测角转为弧度
             double test_total = direction_tmp_*(test_total_angle)*CV_PI/180;
             // cout<<"test_total = "<<test_total<<endl;
             // double sin_calcu_test = sin(test_total);
@@ -510,6 +524,7 @@ int BuffDetector::buffDetect_Task(Mat &frame,int my_color){
             // cout<<"sin : "<<asin(sin_calcu_test)*180/CV_PI<<"  cos : "<<acos(cos_calcu_test)*180/CV_PI<<endl;
             /* --------------test--------------- */
             
+            //没懂，一个很神奇的坐标系
             double theta = atan2(double(target_center.y - circle_center.y) , (target_center.x - circle_center.x));//弧度
             // cout<<"theta angle = "<<theta*180/CV_PI<<"  theta :"<<theta<<endl;//test
             // double test_total;//test
@@ -538,7 +553,7 @@ int BuffDetector::buffDetect_Task(Mat &frame,int my_color){
             double sin_calcu_test = sin(test_total);//test
             double cos_calcu_test = cos(test_total);//test
 
-            Point2f round_center(circle_center.x+roi.tl().x, circle_center.y+roi.tl().y);
+            Point2f round_center(circle_center.x+roi.tl().x, circle_center.y+roi.tl().y);//圆心R在frame中的坐标
 
             pre_center.x = (target_center.x-round_center.x)*cos_calcu-(target_center.y-round_center.y)*sin_calcu+round_center.x;
             pre_center.y = (target_center.x-round_center.x)*sin_calcu+(target_center.y-round_center.y)*cos_calcu+round_center.y;
@@ -549,17 +564,38 @@ int BuffDetector::buffDetect_Task(Mat &frame,int my_color){
 
             double radio = pointDistance(round_center, pre_center);
 
+            //手动计算yaw角度
+            float theta_pre_frame_center_x = fabs(frame.size().width/2 - pre_center_test.x) * 4.8*pow(10,-3);
+            yaw_test = atan2(theta_pre_frame_center_x,8)*180/CV_PI;
+            if(pre_center_test.x <= frame.size().width/2){
+                yaw_test = -1*yaw_test;
+            }
+            cout<<"yaw_test = "<<yaw_test<<endl;
+
+
             float pre_center_angle = atan2(pre_center_test.y - round_center.y,pre_center_test.x - round_center.x)*180/CV_PI + 180;
             // cout<<"pre_center_angle = "<<pre_center_angle<<endl;
             total_angle = pre_center_angle;//最终输出的目标角度
             // float test_buff_h = 800*sin(pre_center_angle*CV_PI/180)+800;//test
             // cout<<"test_buff_h = "<<test_buff_h<<endl;
+            Point2f theta_center = pre_center_test - target_center;
+
+            points_2d.at(0) = points_2d.at(0) + theta_center;
+            points_2d.at(1) = points_2d.at(1) + theta_center;
+            points_2d.at(2) = points_2d.at(2) + theta_center;
+            points_2d.at(3) = points_2d.at(3) + theta_center;
+
+            // circle(frame,points_2d.at(0),6,Scalar(0,0,255),-1,8);
+            // circle(frame,points_2d.at(1),6,Scalar(0,255,255),-1,8);
+            // circle(frame,points_2d.at(2),6,Scalar(255,0,0),-1,8);
+            // circle(frame,points_2d.at(3),6,Scalar(0,255,0),-1,8);
 
             circle(frame, round_center, radio, Scalar(0,255,125),2,8,0);
             circle(frame, pre_center, 3, Scalar(255,0,0),3,8,0);
             line(frame, pre_center, round_center, Scalar(0,255,255),2);
-            line(frame, pre_center_test, round_center, Scalar(0,255,255),2);//test
-        }else{
+            line(frame, pre_center_test, round_center, Scalar(0,255,0),2);//test
+        }
+        else{
             Point2f vector_pre = points_2d[0] - points_2d[1];
             if(direction_tmp_ != 0){
                 Point2f vector_center = target_center - direction_tmp_ * vector_pre * SMALL_LENTH_R;
@@ -581,7 +617,9 @@ int BuffDetector::buffDetect_Task(Mat &frame,int my_color){
                 pre_center = target_center;
             }
         }
-        solve_buff.run_SolvePnp_Buff(solve_rect,frame, total_angle,BUFF_WIDTH,BUFF_HEIGHT);
+
+
+        solve_buff.run_SolvePnp_Buff(points_2d,frame, total_angle,BUFF_WIDTH,BUFF_HEIGHT);
         #if SERIAL_COMMUNICATION_PLAN == 0
         /* 二维＋深度 */
         yaw_data = int(pre_center.x);
@@ -589,6 +627,7 @@ int BuffDetector::buffDetect_Task(Mat &frame,int my_color){
         #else
         /* Angle */
         yaw_data = solve_buff.angle_x;
+        // yaw_data = yaw_test;
         pitch_data = solve_buff.angle_y;
         depth = int(solve_buff.dist);
         #endif 
@@ -621,9 +660,10 @@ int BuffDetector::buffDetect_Task(Mat &frame,int my_color){
     // _pitch_data = 0;
     common = auto_control.run(solve_buff.angle_x,solve_buff.angle_y,is_target,diff_angle_);//坐标传出位置
     if(common == 2){
-        auto_control.current_Angle(yaw_data,pitch_data,common);
+        // auto_control.current_Angle(yaw_data,pitch_data,common);
     }
 
+    //手动计算yaw
     _yaw_data = (yaw_data >=0 ? 1:0);
     _pitch_data = (pitch_data >=0 ? 1:0);
 
@@ -639,7 +679,7 @@ int BuffDetector::buffDetect_Task(Mat &frame,int my_color){
     #if SHOW_OUTPUT_IMG == 1
     //imshow("roi", result_img);
     // imshow("roi_img", roi_img);
-    imshow("bin", bin_img);
+    // imshow("bin", bin_img);
     imshow("img", frame);
     #endif
 
@@ -648,8 +688,8 @@ int BuffDetector::buffDetect_Task(Mat &frame,int my_color){
 
     buff_fps.endtheTime();
         if((1/g_time<40)){
-            buff_fps.displayframeRate();
-            cout<<"========"<<endl;
+            // buff_fps.displayframeRate();
+            // cout<<"========"<<endl;
         }
 
     return 0;
@@ -675,6 +715,7 @@ void Object::smallUpdate_Order(){
     points_2d_.clear();
     Point2f points[4];
     small_rect_.points(points);
+    
     Point2f point_up_center = (points[0] + points[1])/2;
     Point2f point_down_center = (points[2] + points[3])/2;
     double up_distance = pointDistance(point_up_center, big_rect_.center);
@@ -692,7 +733,7 @@ void Object::smallUpdate_Order(){
         points_2d_.push_back(points[0]);points_2d_.push_back(points[1]);
     }
 
-    //cout << angle_ << endl;
+    cout << angle_ << endl;
 }
 
 void Object::knowYour_Self(Mat &img){
@@ -980,7 +1021,7 @@ void BuffDetector::updateData(){
     
  
 
-    cout<<"g = "<<g_time<<endl;
+    // cout<<"g = "<<g_time<<endl;
     // speed_5 = (diff_angle_large / g_time)*100;
     //角度 200 弧度 
     // if(speed_5 > 2){

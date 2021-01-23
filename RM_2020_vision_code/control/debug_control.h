@@ -48,7 +48,8 @@
   @param: 1     使用普通USB相机
 */
 // #define USB_CAPTURE_DEFULT "/home/jun/workplace/录像/camera_MaxBuff07.avi" //armor_2  大小装甲-红  步兵自旋-蓝  基地步兵-蓝 camera_13 camera_17 camera_MaxBuff01
-#define USB_CAPTURE_DEFULT "/home/nuc/workspace/vedio/camera_MaxBuff08.avi"
+// #define USB_CAPTURE_DEFULT "/home/nuc/workspace/vedio/camera_MaxBuff08.avi"
+#define USB_CAPTURE_DEFULT "/home/gcu/workspace/Vedio/camera_MaxBuff15.avi"
 // #define USB_CAPTURE_DEFULT "/home/jun/workplace/Github/RM_code/Vedio_Record/camera_MaxBuff06.avi"
 // #define USB_CAPTURE_DEFULT "/home/jun/workplace/Github/jun/xieyifa_code/RM_2020_vision_code/camera_MaxBuff02.avi"
 #endif
@@ -128,7 +129,7 @@
   @param: 0         二维＋深度
   @param: 1         云台俯仰与偏航角度
 */
-#define SHOW_SERIAL_INFORMATION 0
+#define SHOW_SERIAL_INFORMATION 1
 /**
   @brief: 是否打印串口数据信息
   @param: 0     不打印
@@ -169,7 +170,7 @@
   @param: 0     不显示
   @param: 1     显示
 */
-#define SHOW_BIN_IMG 1
+#define SHOW_BIN_IMG 0
 /**
   @brief: 是否显示二值图像
   @param: 0     不显示
@@ -254,9 +255,9 @@
 
 //buff-model尺寸(solve_pnp.cpp)
 #define BULLET_SPEED 29           //子弹射速
-#define BUFF_BOTTOM_H 728.84        //buff最底装甲板距离地面高度
+#define BUFF_BOTTOM_H -100        //buff最底装甲板距离地面高度 728.84
 #define ROBOT_H 330               //枪口高度    现在是330~340 也有可能是摄像头高度，待测
-#define BUFF_ROBOT_Z 7212.708       //枪口和buff的直线距离    6915.340249311 6817.708
+#define BUFF_ROBOT_Z 6915.340249311       //枪口和buff的直线距离    6915.340249311 6817.708 7212.708
 #define OFFSET_Y_BARREL_PTZ 0 //枪管和云台的高度差
 
 #define PTZ_CAMERA_X 0.f
@@ -264,7 +265,7 @@
 #define PTZ_CAMERA_Z 68.9
 
 
-#define BUFF_WIDTH 200    //内轮廓宽 300
+#define BUFF_WIDTH 230    //内轮廓宽 300 200
 #define BUFF_HEIGHT 140   //内轮廓高 170
 
 //auto_control

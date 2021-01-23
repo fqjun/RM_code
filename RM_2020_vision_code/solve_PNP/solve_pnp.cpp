@@ -37,10 +37,9 @@ void RM_SolveAngle::run_SolvePnp(RotatedRect &rect, float _W, float _H){
 }
 
 /*--------------------------------------大神符------------------------------------------*/
-void RM_SolveAngle::run_SolvePnp_Buff(RotatedRect & rect, Mat & srcImg,  float buff_angle, float _W, float _H){
+void RM_SolveAngle::run_SolvePnp_Buff(vector<Point2f> &image_point, Mat & srcImg,  float buff_angle, float _W, float _H){
 
     // cout<<"rect_center: "<<rect.center<<endl;
-    circle(srcImg,rect.center,5,Scalar(0,0,255),1,8);
     float half_x = _W * 0.5;
     float half_y = _H * 0.5;
 
@@ -50,11 +49,19 @@ void RM_SolveAngle::run_SolvePnp_Buff(RotatedRect & rect, Mat & srcImg,  float b
     object_3d.push_back(Point3f(half_x, half_y, 0));
     object_3d.push_back(Point3f(-half_x, half_y, 0));
 
-    vertex_Sort(rect);
+    // vertex_Sort(rect);
 
-    solvePnP(object_3d, target2d, cameraMatrix, distCoeffs, rvec, tvec, false, SOLVEPNP_ITERATIVE);
+    // 显示target2d的各个点 lu：红 ru：黄 ld：蓝 rd：绿
+    // circle(srcImg,target2d.at(0),6,Scalar(0,0,255),-1,8);
+    // circle(srcImg,target2d.at(1),6,Scalar(0,255,255),-1,8);
+    // circle(srcImg,target2d.at(2),6,Scalar(255,0,0),-1,8);
+    // circle(srcImg,target2d.at(3),6,Scalar(0,255,0),-1,8);
 
-    // draw_Coordinate(srcImg);
+
+
+    solvePnP(object_3d, image_point , cameraMatrix, distCoeffs, rvec, tvec, false, SOLVEPNP_ITERATIVE);
+
+    draw_Coordinate(srcImg);
 
     Mat ptz = camera_ptz(tvec);//云台Pitch轴当前角度
     //cout << ptz << "-----" << rect.center << endl;
@@ -257,7 +264,7 @@ void RM_SolveAngle::get_Angel_Buff(const Mat & pos_in_ptz, float buff_angle){
     angle_y = angle_y * 180 / CV_PI;
     dist = xyz[2];
 
-//    cout << "angle_x:" << angle_x << "     angle_y:" << angle_y << "    dist:" << dist <<endl;
+   cout << "angle_x:" << angle_x << "     angle_y:" << angle_y << "    dist:" << dist <<endl;
 }
 
 /**

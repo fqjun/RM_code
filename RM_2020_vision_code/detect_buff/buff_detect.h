@@ -279,9 +279,9 @@ private:
     //暂时只是上下摆动，后续如果需要就再加上左右的搜索
     void search_target(float &angle_pit,float &angle_yaw){
         if(lose_cnt <= 100){            
-            angle_pit -= 0.5;
-            if(angle_pit <-15){
-                angle_pit = -15;
+            angle_pit -= 0.2;
+            if(angle_pit <-10){
+                angle_pit = -10;
                 lose_cnt = 101;
             }
             angle_yaw = angle_yaw;
@@ -292,9 +292,9 @@ private:
         } */
         else if(lose_cnt > 100 && lose_cnt <=200){
 
-            angle_pit += 0.5;//-50
-            if(angle_pit >15){
-                angle_pit = 15;
+            angle_pit += 0.2;//-50
+            if(angle_pit >10){
+                angle_pit = 10;
                 lose_cnt = 201;
             }
             angle_yaw = angle_yaw;
@@ -303,9 +303,9 @@ private:
         }
         else if(lose_cnt>200 && lose_cnt<300)
         {
-            angle_pit -= 0.5;
-            if(angle_pit <-15){
-                angle_pit = -15;
+            angle_pit -= 0.2;
+            if(angle_pit <-10){
+                angle_pit = -10;
                 lose_cnt = 101;
             }
             angle_yaw = angle_yaw;
@@ -366,6 +366,9 @@ public:
 
     //全局时间
     double g_time = 0.f;
+
+    //手动计算yaw
+    float yaw_test = 0.f;
 
 private://类的声明
     RM_SolveAngle solve_buff;

@@ -18,7 +18,7 @@ int main()
         run.buff.g_time = run.g_time;
         double g_time_fps = 1/run.g_time;
         if(g_time_fps<40)
-        cout<<"FPS = "<<g_time_fps<<endl;
+        // cout<<"FPS = "<<g_time_fps<<endl;
 
         fps.starttheTime();
         /** run **/
