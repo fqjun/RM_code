@@ -1,7 +1,7 @@
 #ifndef DEBUG_CONTROL_H
 #define DEBUG_CONTROL_H
 
-#define CAMERA_OR_VEDIO 1
+#define CAMERA_OR_VEDIO 0
 /**
  * @brief 使用相机或者视频
  * @param: 0      相机
@@ -75,7 +75,7 @@
 */
 /*---------------------------------------------------*/
 
-#define CAMERA_CONFIG 0
+#define CAMERA_CONFIG 3
 /**
  * @brief: 设置相机参数模式选项
  * @param: 0 曝光
@@ -128,7 +128,7 @@
   @param: 0         二维＋深度
   @param: 1         云台俯仰与偏航角度
 */
-#define SHOW_SERIAL_INFORMATION 0
+#define SHOW_SERIAL_INFORMATION 1
 /**
   @brief: 是否打印串口数据信息
   @param: 0     不打印
@@ -169,7 +169,7 @@
   @param: 0     不显示
   @param: 1     显示
 */
-#define SHOW_BIN_IMG 0
+#define SHOW_BIN_IMG 1
 /**
   @brief: 是否显示二值图像
   @param: 0     不显示
@@ -181,14 +181,14 @@
   @param: 0     不打印
   @param: 1     打印
 */
-#define IS_PARAM_ADJUSTMENT 0
+#define IS_PARAM_ADJUSTMENT 1
 /**
   @brief: 是否进入调参模式
   @param: 0     否
   @param: 1     是
   记得调整原参数
 */
-#define ANALYZE_EACH_FRAME 1
+#define ANALYZE_EACH_FRAME 0
 /**
  * @brief:是否分析每一帧
  * @param: 0    否
@@ -225,15 +225,15 @@
 
 /*--------------------------能量机关-------------------------*/
 //二值化阈值
-#define THRESHOLD_BUFF_BLUE 42//35 66 42
-#define THRESHOLD_GRAY_TH_BLUE 83//80
+#define THRESHOLD_BUFF_BLUE 86//35 66 42 morning：22 evening：42
+#define THRESHOLD_GRAY_TH_BLUE 80//80 morning：62  evening：83
 
 #define THRESHOLD_BUFF_RED 66 //38 66
 #define THRESHOLD_GRAY_TH_RED 40//40
 
 //debug threshold
-#define DEBUG_GRAY_TH_BLUE 111//80 下午 86 晚上 42
-#define DEBUG_COLOR_TH_BLUE 83//蓝色装甲的阈值 35 66 下午23
+#define DEBUG_GRAY_TH_BLUE 80//80 下午 86 111 晚上 42 早上：82
+#define DEBUG_COLOR_TH_BLUE 86//蓝色装甲的阈值 35 66 下午23 83 早上：48
 
 #define DEBUG_GRAY_TH_RED 40
 #define DEBUG_COLOR_TH_RED 38//红色装甲的阈值
@@ -274,7 +274,7 @@
 #define FIRE_CNT 30           // 越小响应越快
 #define RESET_CNT 30          // 丢失目标复位计数 越小响应越快
 #define REPEAT_FIRE_TIME 1000 // 重复发射时间，单位ｍｓ,可以修改，根据子弹飞行时间进行确认
-#define RESET_ANGLE -10       // 1:-20 else: -10  // 复位绝对角度
+#define RESET_ANGLE -1     // 1:-20 else: -10  // 复位绝对角度
 
 /*--------------------------------------能量机关----------------------------------------*/
 
