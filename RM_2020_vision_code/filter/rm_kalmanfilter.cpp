@@ -286,17 +286,17 @@ float KF_data::data_Processing_second(float &new_value){
     R_k_2 = tf_R_k_2/100;
 
     predictvalue_2 = coefficient_A * filtervalue_2 + coefficient_B * U_k + U_k;
-    cout<<"predictvalue_2 = "<<predictvalue_2<<endl;
+    // cout<<"predictvalue_2 = "<<predictvalue_2<<endl;
 
     P_k_2 = coefficient_A * P_k_2 * coefficient_A + Q_k_2;
-    cout<<"P_k_2 = "<<P_k_2<<endl;
+    // cout<<"P_k_2 = "<<P_k_2<<endl;
 
 
     kalmanGain_2 = P_k_2 * H_k_2 / (H_k_2 * P_k_2 * H_k_2 + R_k_2);
-    cout<<"kalmanGain_2 = "<<kalmanGain_2<<endl;
+    // cout<<"kalmanGain_2 = "<<kalmanGain_2<<endl;
 
     filtervalue_2 = predictvalue_2 + kalmanGain_2*(new_value - predictvalue_2);
-    cout<<"filtervalue_2 = "<<filtervalue_2<<endl;
+    // cout<<"filtervalue_2 = "<<filtervalue_2<<endl;
 
     P_k_2 = (1 - kalmanGain_2 *H_k_2)*P_k_2;
 
