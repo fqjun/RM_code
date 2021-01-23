@@ -437,6 +437,14 @@ private://能量机关顺逆时针判断
     Point2f last_point = Point2f(0,0);
     float displacement = 0;
 
+    //弹道补偿
+    int offset_x = 0;
+    int offset_y = 0;
+    int _offset_x = 0; //正1 负0
+    int _offset_y = 0; //正1 负0
+    int offset_amplitude = 20;
+    int offset_excursion = 10;
+
 private://大神符加速函数
     double pre_angle_large = 0.f;//最终得到的提前量
 

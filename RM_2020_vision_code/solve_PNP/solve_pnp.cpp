@@ -224,7 +224,9 @@ void RM_SolveAngle::get_Angel_Buff(const Mat & pos_in_ptz, float buff_angle){
         //cout << buff_h << endl;
     }
 
-    double xyz[3] = {_xyz[0], _xyz[1] - OFFSET_Y_BARREL_PTZ, z};
+    // double xyz[3] = {_xyz[0], _xyz[1] - OFFSET_Y_BARREL_PTZ, z};
+    double xyz[3] = {_xyz[0], _xyz[1] - OFFSET_Y_BARREL_PTZ, _xyz[2]};
+
 
     //计算角度
     double alpha = 0.0, theta = 0.0;
@@ -260,11 +262,13 @@ void RM_SolveAngle::get_Angel_Buff(const Mat & pos_in_ptz, float buff_angle){
 
 
     angle_x = static_cast<float>(atan2(xyz[0], xyz[2]));
+    //test
+    angle_y = static_cast<float>(atan2(xyz[1], xyz[2]));
     angle_x = angle_x * 180 / CV_PI;
     angle_y = angle_y * 180 / CV_PI;
     dist = xyz[2];
 
-   cout << "angle_x:" << angle_x << "     angle_y:" << angle_y << "    dist:" << dist <<endl;
+//    cout << "angle_x:" << angle_x << "     angle_y:" << angle_y << "    dist:" << dist <<endl;
 }
 
 /**
@@ -324,7 +328,7 @@ void RM_SolveAngle::draw_Coordinate(Mat & input){
     vector<Point3f> (reference_Obj).swap(reference_Obj);
 
     #if SHOW_OUTPUT_IMG == 1
-    imshow("outImg", input);
+    // imshow("outImg", input);
     #endif
 }
 

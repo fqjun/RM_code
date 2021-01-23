@@ -258,7 +258,7 @@ bool BuffDetector::findCenter_R(Mat &bin_img, Mat &frame){
     RotatedRect circle_rect = RotatedRect(Point2f(frame.cols,frame.rows),Size2f(0,0),0);
     Point2f frame_center(frame.cols/2,frame.rows/2);
 
-    float last_min_distance_target =frame.rows;
+    float last_min_distance_target =frame.rows/2;
     int last_min_area_target = frame.size().area();
     float distance_target = 0;
     int area_target = 0;
@@ -268,8 +268,8 @@ bool BuffDetector::findCenter_R(Mat &bin_img, Mat &frame){
     vector<RotatedRect>first_screen;
 
     findContours(bin_img, contours, hierarchy, 0, CHAIN_APPROX_NONE);
-
-//    cout<<"轮廓数目："<<contours.size()<<endl;
+    imshow("R_bin",bin_img);
+    cout<<"轮廓数目："<<contours.size()<<endl;
 
     for(int j = 0; j < (int)contours.size(); ++j){
         double circle_area = contourArea(contours[j]);
@@ -278,61 +278,63 @@ bool BuffDetector::findCenter_R(Mat &bin_img, Mat &frame){
             continue;
         RotatedRect temp_circle_rect = fitEllipse(contours[j]);
         
-        float temp_circle_width = temp_circle_rect.boundingRect2f().size().width;
-        float temp_circle_height = temp_circle_rect.boundingRect2f().size().height;
-        float temp_circle_center_x = temp_circle_rect.center.x;
-        float temp_circle_center_y = temp_circle_rect.center.y;
+        // float temp_circle_width = temp_circle_rect.size.width;
+        // float temp_circle_height = temp_circle_rect.size.height;
+        // float temp_circle_center_x = temp_circle_rect.center.x;
+        // float temp_circle_center_y = temp_circle_rect.center.y;
 
-        // 类似roi的条件
-        if(temp_circle_center_x - temp_circle_width == 0 || temp_circle_center_y - temp_circle_height == 0 || \
-            temp_circle_center_x + temp_circle_width == bin_img.cols || temp_circle_center_y + temp_circle_height == bin_img.rows){
-                continue;
-            }
+        // // 类似roi的条件
+        // // if(temp_circle_center_x - temp_circle_width <= 0 || temp_circle_center_y - temp_circle_height <= 0 || 
+        // //     temp_circle_center_x + temp_circle_width >= bin_img.cols || temp_circle_center_y + temp_circle_height >= bin_img.rows){
+        // //         cout<<"77-----------------------------------------7"<<endl;
+        // //         continue;
+        // //     }
 
         // cout<<"temp_circle_rect.boundingRect().area() = "<<temp_circle_rect.boundingRect().area() <<endl;
-        // cout<<"hierarchy["<<j<<"]="<<hierarchy[j]<<endl;
-        if((temp_circle_rect.boundingRect().area() >2500 || temp_circle_rect.boundingRect().area() <500) && hierarchy[j][3] != -1){
-            continue;
-        }
+        // // cout<<"hierarchy["<<j<<"]="<<hierarchy[j]<<endl;
+        // if((temp_circle_rect.boundingRect().area() >2500 || temp_circle_rect.boundingRect().area() <1000) && hierarchy[j][3] != -1){
+        //     continue;
+        // }
 
-        // temp_circle_rect.points(circle_r);
-        for(int k = 0;k<4;k++)
-        {
-            line(frame, circle_r[k],circle_r[(k+1)%4], Scalar(0, 255, 0), 3);
-        }
+        // // temp_circle_rect.points(circle_r);
+        // // for(int k = 0;k<4;k++)
+        // // {
+        // //     line(frame, circle_r[k],circle_r[(k+1)%4], Scalar(0, 255, 0), 3);
+        // // }
 
-        if(temp_circle_rect.size.width > temp_circle_rect.size.height){
-            temp_circle_width = temp_circle_rect.size.width;
-            temp_circle_height = temp_circle_rect.size.height;
-        }else {
-            temp_circle_width = temp_circle_rect.size.height;
-            temp_circle_height = temp_circle_rect.size.width;
-        }
+        // if(temp_circle_rect.size.width > temp_circle_rect.size.height){
+        //     temp_circle_width = temp_circle_rect.size.width;
+        //     temp_circle_height = temp_circle_rect.size.height;
+        // }else {
+        //     temp_circle_width = temp_circle_rect.size.height;
+        //     temp_circle_height = temp_circle_rect.size.width;
+        // }
 
-        rect_ratio = temp_circle_rect.size.width/temp_circle_rect.size.height;
-        // cout<<"temp_circle_rect.size["<<j<<"]="<<temp_circle_rect.size.area()<<endl;
+        // rect_ratio = temp_circle_rect.size.width/temp_circle_rect.size.height;
+        // // cout<<"temp_circle_rect.size["<<j<<"]="<<temp_circle_rect.size.area()<<endl;
         // cout<<"rect_ratio["<<j<<"]="<<rect_ratio<<endl;
 
-        // 比例适度要修正.原来为1.1f 1.12f
-        if(rect_ratio > 0.9f && rect_ratio < 1.2f){
+        // // 比例适度要修正.原来为1.1f 1.12f
+        // if(rect_ratio > 0.9f && rect_ratio < 1.2f){
             first_screen.push_back(temp_circle_rect);
-        }
+        // }
     }
 
 //    cout<<"符合比例条件的:"<<first_screen.size()<<endl;
     for(std::size_t i = 0; i < first_screen.size(); ++ i )
     {
         distance_target = pointDistance(first_screen[i].center,frame_center);
-        // cout<<"distance = "<<distance_target;
-        area_target = first_screen[i].size.area();
-        if( distance_target < last_min_distance_target && area_target < last_min_area_target )
+        cout<<"distance = "<<distance_target<<"  ";
+        // area_target = first_screen[i].size.area();
+        if( distance_target < last_min_distance_target /* && area_target < last_min_area_target */ )
         {
                 last_min_distance_target = distance_target;
-                last_min_area_target = area_target;
+                // last_min_area_target = area_target;
                 circle_rect = first_screen[i];
         }
     }
 
+    cout<<"last_min_distance_target = "<<last_min_distance_target<<endl;
     circle_rect.points(circle_r);
 
     circle_center = circle_rect.center;
@@ -395,6 +397,18 @@ int BuffDetector::buffDetect_Task(Mat &frame,int my_color){
     imshow("BuffParam",BuffParam);
     BuffParam.release();
     #endif
+    namedWindow("offset");
+    Mat offset_img = Mat::zeros(1,1200,CV_8UC1);
+    createTrackbar("offset_x/100 ","offset",&offset_x,500,nullptr);
+    createTrackbar("offset_y/100 ","offset",&offset_y,500,nullptr);
+    createTrackbar("正1右，负0左_x ","offset",&_offset_x,1,nullptr);
+    createTrackbar("正1下，负0上_y ","offset",&_offset_y,1,nullptr);
+    createTrackbar("offset_amplitude ","offset",&offset_amplitude,50,nullptr);
+    createTrackbar("offset_excursion ","offset",&offset_excursion,100,nullptr);
+
+    imshow("offset",offset_img);
+    offset_img.release();
+
 
     if(is_target){//可找到未激活目标
         if(roi_center.x < 0 || roi_center.y < 0 || roi_center.x > frame.cols || roi_center.y > frame.rows){
@@ -408,7 +422,7 @@ int BuffDetector::buffDetect_Task(Mat &frame,int my_color){
                 roi_center.y = frame.rows - 1;
             }
         }
-        RotatedRect roi_R(roi_center, Size(100,100),0);//画出假定圆心的roi矩形
+        RotatedRect roi_R(roi_center, Size(90,90),0);//画出假定圆心的roi矩形
         Rect roi = roi_R.boundingRect();
         //roi安全条件
         if(roi.tl().x < 0 || roi.tl().y < 0|| roi.br().x > frame.cols || roi.br().y > frame.rows){
@@ -485,10 +499,10 @@ int BuffDetector::buffDetect_Task(Mat &frame,int my_color){
         }
 
 
-        if(1)//大神符加速函数 隔帧进行处理
+        if(0)//大神符加速函数 隔帧进行处理
         {
             pre_angle_large = preangleoflargeBuff();
-            pre_angle_large = red_box - 2;
+            pre_angle_large = red_box - offset_excursion/10;
         }
 
         bool is_circle = findCenter_R(result_img, roi_img);
@@ -532,7 +546,7 @@ int BuffDetector::buffDetect_Task(Mat &frame,int my_color){
             if(direction_tmp_ != 0){
                 // cout<<"pre_theta = "<<PRE_ANGLE+theta<<endl;
                 total = direction_tmp_*(PRE_ANGLE+theta)*CV_PI/180;//转换为弧度 ！！！此处加上大神符加速函数
-                test_total = direction_tmp_*(PRE_ANGLE+theta+pre_angle_large*10)*CV_PI/180;// test 待修改 1、提前量的函数（+-） 2、提前量的增益（*） 3、提前量的
+                test_total = direction_tmp_*(PRE_ANGLE+theta+pre_angle_large*offset_amplitude)*CV_PI/180;// test 待修改 1、提前量的函数（+-） 2、提前量的增益（*） 3、提前量的
                 // total_angle = /* direction_tmp_* */(PRE_ANGLE+theta+pre_angle_large);//test
                 // cout<<"buff_h  = "<<test_buff_h<<" total = "<<total<<endl;//test
                 // cout<<"total:"<<total<<endl;
@@ -548,7 +562,6 @@ int BuffDetector::buffDetect_Task(Mat &frame,int my_color){
             double sin_calcu = sin(total);
             double cos_calcu = cos(total);
             // cout<<"sin_calcu = "<<cos_calcu<<endl;
-
 
             double sin_calcu_test = sin(test_total);//test
             double cos_calcu_test = cos(test_total);//test
@@ -630,6 +643,22 @@ int BuffDetector::buffDetect_Task(Mat &frame,int my_color){
         // yaw_data = yaw_test;
         pitch_data = solve_buff.angle_y;
         depth = int(solve_buff.dist);
+
+        if(_offset_x == 0){
+            yaw_data = yaw_data - offset_x/100;
+        }else
+        {
+            yaw_data = yaw_data + offset_x/100;
+        }
+        
+        if(_offset_y == 0){
+            pitch_data = pitch_data - offset_y/100;
+        }else
+        {
+            pitch_data = pitch_data + offset_y/100;
+        }
+
+
         #endif 
         _yaw_data = (yaw_data >=0 ? 1:0);
         _pitch_data = (pitch_data >=0 ? 1:0);
@@ -678,7 +707,7 @@ int BuffDetector::buffDetect_Task(Mat &frame,int my_color){
     
     #if SHOW_OUTPUT_IMG == 1
     //imshow("roi", result_img);
-    // imshow("roi_img", roi_img);
+    imshow("roi_img", roi_img);
     // imshow("bin", bin_img);
     imshow("img", frame);
     #endif
