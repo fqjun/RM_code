@@ -217,6 +217,14 @@ bool BuffDetector::findTarget(Mat & frame){
             line(frame, final_target.big_rect_.center, roi_center, Scalar(0,255,255),2);//画出大轮廓到假定圆心的路径
             circle(frame, roi_center, 2, Scalar(0,0,255), 2, 8, 0);//画出假定圆心
             //circle(frame, points_2d[3], 2, Scalar(0,0,255), 2, 8, 0);
+
+            /* -----显示内轮廓----- */
+            // Point2f small_rect_point_tmp[4];
+            // final_target.small_rect_.points(small_rect_point_tmp);
+            // for(int k = 0; k < 4; ++k){
+            // line(frame,small_rect_point_tmp[k],small_rect_point_tmp[(k+1)%4],Scalar(0,255,0),3);
+            // }
+            /* -----显示内轮廓----- */
         }
     }
 
@@ -454,15 +462,38 @@ int BuffDetector::buffDetect_Task(Mat &frame,int my_color){
             double total;
             //小轮廓圆心和R的斜率的反正切，得到一个角
             // double theta = atan(double(target_center.y - circle_center.y) / (target_center.x - circle_center.x));
-            double theta = atan2(double(target_center.y - circle_center.y) , (target_center.x - circle_center.x));
 
-            double test_total;//test
+            /* --------------test--------------- */
+
+            // cout<<"y = "<<target_center.y - (circle_center.y+roi.tl().y)<<"  x = "<<target_center.x - (circle_center.x+roi.tl().x)<<endl;
+            double test_theta = atan2(target_center.y - (circle_center.y+roi.tl().y),target_center.x - (circle_center.x+roi.tl().x))*180/CV_PI + 180;
+            // cout<<"test_theta = "<<test_theta<<"  buff_angle = "<<buff_angle_<<endl;
+            double test_total_angle =  direction_tmp_*PRE_ANGLE+test_theta;
+            if(test_total_angle < 0){
+                test_total_angle += 360;
+            }
+            // cout<<"test_total_angle = "<<test_total_angle<<endl;
+            double test_total = direction_tmp_*(test_total_angle)*CV_PI/180;
+            // cout<<"test_total = "<<test_total<<endl;
+            // double sin_calcu_test = sin(test_total);
+            // double cos_calcu_test = cos(test_total);
+
+            // cout<<"sin : "<<asin(sin_calcu_test)*180/CV_PI<<"  cos : "<<acos(cos_calcu_test)*180/CV_PI<<endl;
+            /* --------------test--------------- */
+            
+            double theta = atan2(double(target_center.y - circle_center.y) , (target_center.x - circle_center.x));//弧度
+            // cout<<"theta angle = "<<theta*180/CV_PI<<"  theta :"<<theta<<endl;//test
+            // double test_total;//test
             //计算预测量
             if(direction_tmp_ != 0){
+                // cout<<"pre_theta = "<<PRE_ANGLE+theta<<endl;
                 total = direction_tmp_*(PRE_ANGLE+theta)*CV_PI/180;//转换为弧度 ！！！此处加上大神符加速函数
-                test_total = direction_tmp_*(PRE_ANGLE+theta+pre_angle_large)*CV_PI/180;// test
-
+                test_total = direction_tmp_*(PRE_ANGLE+theta+pre_angle_large*10)*CV_PI/180;// test 待修改 1、提前量的函数（+-） 2、提前量的增益（*） 3、提前量的
+                // total_angle = /* direction_tmp_* */(PRE_ANGLE+theta+pre_angle_large);//test
+                // cout<<"buff_h  = "<<test_buff_h<<" total = "<<total<<endl;//test
                 // cout<<"total:"<<total<<endl;
+                cout<<"pre_angle_large:"<<pre_angle_large<<endl;
+
             }
             else {
                 total = theta*CV_PI/180;
@@ -472,6 +503,8 @@ int BuffDetector::buffDetect_Task(Mat &frame,int my_color){
 
             double sin_calcu = sin(total);
             double cos_calcu = cos(total);
+            // cout<<"sin_calcu = "<<cos_calcu<<endl;
+
 
             double sin_calcu_test = sin(test_total);//test
             double cos_calcu_test = cos(test_total);//test
@@ -487,14 +520,17 @@ int BuffDetector::buffDetect_Task(Mat &frame,int my_color){
 
             double radio = pointDistance(round_center, pre_center);
 
+            float pre_center_angle = atan2(pre_center_test.y - round_center.y,pre_center_test.x - round_center.x)*180/CV_PI + 180;
+            // cout<<"pre_center_angle = "<<pre_center_angle<<endl;
+            total_angle = pre_center_angle;//最终输出的目标角度
+            // float test_buff_h = 800*sin(pre_center_angle*CV_PI/180)+800;//test
+            // cout<<"test_buff_h = "<<test_buff_h<<endl;
 
             circle(frame, round_center, radio, Scalar(0,255,125),2,8,0);
             circle(frame, pre_center, 3, Scalar(255,0,0),3,8,0);
             line(frame, pre_center, round_center, Scalar(0,255,255),2);
             line(frame, pre_center_test, round_center, Scalar(0,255,255),2);//test
-
-        }
-        else{
+        }else{
             Point2f vector_pre = points_2d[0] - points_2d[1];
             if(direction_tmp_ != 0){
                 Point2f vector_center = target_center - direction_tmp_ * vector_pre * SMALL_LENTH_R;
@@ -505,6 +541,9 @@ int BuffDetector::buffDetect_Task(Mat &frame,int my_color){
                 pre_center.x = (vector_center.x-target_center.x)*cos_calcu-(vector_center.y-target_center.y)*sin_calcu+target_center.x;
                 pre_center.y = (vector_center.x-target_center.x)*sin_calcu+(vector_center.y-target_center.y)*cos_calcu+target_center.y;
 
+                float pre_center_angle = atan2(target_center.y - pre_center.y,target_center.x - pre_center.x)*180/CV_PI + 180;
+                total_angle = pre_center_angle;//最终输出的目标角度
+
                 circle(frame, pre_center, 3, Scalar(0,255,0),3,8,0);
                 line(frame, target_center, pre_center, Scalar(255,123,0),2);
                 line(frame, target_center, vector_center, Scalar(255,123,0),2);
@@ -513,7 +552,7 @@ int BuffDetector::buffDetect_Task(Mat &frame,int my_color){
                 pre_center = target_center;
             }
         }
-        solve_buff.run_SolvePnp_Buff(solve_rect,frame, buff_angle_,WIDTH,HEIGHT);
+        solve_buff.run_SolvePnp_Buff(solve_rect,frame, total_angle,BUFF_WIDTH,BUFF_HEIGHT);
         common = auto_control.run(solve_buff.angle_x,solve_buff.angle_y,is_target,diff_angle_);//坐标传出位置
         #if SERIAL_COMMUNICATION_PLAN == 0
         /* 二维＋深度 */

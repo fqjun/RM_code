@@ -388,6 +388,7 @@ private://能量机关顺逆时针判断
     float d_angle_ = 1;//0
     int find_cnt_ = 0;
     int direction_tmp_ = 0; // -1逆时针 1顺时针
+    float total_angle = 0.f;
 
     //angle bug test
 
