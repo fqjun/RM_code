@@ -81,10 +81,14 @@ void BuffDetector::imageProcess(Mat & frame,int my_color){
     //        threshold(gaussImg, binImg, th-15, 255,  0);
 
     dilate(bin_img_color, bin_img_color, getStructuringElement(MORPH_RECT, Size(3,3)));    //膨胀 
-    dilate(bin_img_gray, bin_img_gray, getStructuringElement(MORPH_RECT, Size(3,3)));    //膨胀 
+    
+    dilate(bin_img_gray, bin_img_gray, getStructuringElement(MORPH_RECT, Size(5,5)));    //膨胀 
+    erode(bin_img_gray, bin_img_gray, getStructuringElement(MORPH_RECT, Size(3,3)));    //膨胀 
+
     bitwise_and(bin_img_color, bin_img_gray, bin_img_color); 
     dilate(bin_img_color, bin_img_color, getStructuringElement(MORPH_RECT, Size(3,3)));    //膨胀 晚上
     // dilate(bin_img_color, bin_img_color, getStructuringElement(MORPH_RECT, Size(5,5)));    //膨胀  早上
+    erode(bin_img_color,bin_img_color,getStructuringElement(MORPH_RECT, Size(3,3)));
 
     bin_img_color.copyTo(bin_img);
     #if SHOW_BIN_IMG == 1
@@ -403,8 +407,11 @@ int BuffDetector::buffDetect_Task(Mat &frame,int my_color){
     createTrackbar("offset_y/100 ","offset",&offset_y,500,nullptr);
     createTrackbar("正1右，负0左_x ","offset",&_offset_x,1,nullptr);
     createTrackbar("正1下，负0上_y ","offset",&_offset_y,1,nullptr);
-    createTrackbar("offset_amplitude ","offset",&offset_amplitude,50,nullptr);
-    createTrackbar("offset_excursion ","offset",&offset_excursion,100,nullptr);
+    createTrackbar("（倍数）offset_amplitude ","offset",&offset_amplitude,50,nullptr);
+    createTrackbar("（函数幅值）offset_excursion ","offset",&offset_excursion,100,nullptr);
+    createTrackbar("offset_preangle ","offset",&offset_preangle,100,nullptr);
+    createTrackbar("offset_ratio ","offset",&offset_ratio,50,nullptr);
+
 
     imshow("offset",offset_img);
     offset_img.release();
@@ -499,7 +506,7 @@ int BuffDetector::buffDetect_Task(Mat &frame,int my_color){
         }
 
 
-        if(0)//大神符加速函数 隔帧进行处理
+        if(1)//大神符加速函数 隔帧进行处理
         {
             pre_angle_large = preangleoflargeBuff();
             pre_angle_large = red_box - offset_excursion/10;
@@ -542,11 +549,11 @@ int BuffDetector::buffDetect_Task(Mat &frame,int my_color){
             double theta = atan2(double(target_center.y - circle_center.y) , (target_center.x - circle_center.x));//弧度
             // cout<<"theta angle = "<<theta*180/CV_PI<<"  theta :"<<theta<<endl;//test
             // double test_total;//test
-            //计算预测量
+            //计算预测量,隔帧取样可能bug，尝试延长采样周期
             if(direction_tmp_ != 0){
                 // cout<<"pre_theta = "<<PRE_ANGLE+theta<<endl;
-                total = direction_tmp_*(PRE_ANGLE+theta)*CV_PI/180;//转换为弧度 ！！！此处加上大神符加速函数
-                test_total = direction_tmp_*(PRE_ANGLE+theta+pre_angle_large*offset_amplitude)*CV_PI/180;// test 待修改 1、提前量的函数（+-） 2、提前量的增益（*） 3、提前量的
+                total = direction_tmp_*(offset_preangle+theta)*CV_PI/180;//转换为弧度 ！！！此处加上大神符加速函数
+                test_total = /* direction_tmp_* */-1*(offset_preangle+theta+pre_angle_large*offset_amplitude)*CV_PI/180;// test 待修改 1、提前量的函数（+-） 2、提前量的增益（*） 3、提前量的
                 // total_angle = /* direction_tmp_* */(PRE_ANGLE+theta+pre_angle_large);//test
                 // cout<<"buff_h  = "<<test_buff_h<<" total = "<<total<<endl;//test
                 // cout<<"total:"<<total<<endl;
@@ -642,6 +649,24 @@ int BuffDetector::buffDetect_Task(Mat &frame,int my_color){
         yaw_data = solve_buff.angle_x;
         // yaw_data = yaw_test;
         pitch_data = solve_buff.angle_y;
+
+        //test 半径补偿
+        if(yaw_data < 0){
+            yaw_data += offset_ratio/10;
+        }else
+        {
+            yaw_data -= offset_ratio/10;
+        }
+
+        if(pitch_data > 0){
+            pitch_data += offset_ratio/10;
+        }else
+        {
+            pitch_data -= offset_ratio/10;
+        }
+        //test 半径补偿
+
+
         depth = int(solve_buff.dist);
 
         if(_offset_x == 0){

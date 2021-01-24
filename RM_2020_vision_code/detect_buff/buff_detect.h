@@ -438,12 +438,14 @@ private://能量机关顺逆时针判断
     float displacement = 0;
 
     //弹道补偿
-    int offset_x = 0;
-    int offset_y = 0;
-    int _offset_x = 0; //正1 负0
-    int _offset_y = 0; //正1 负0
-    int offset_amplitude = 20;
-    int offset_excursion = 10;
+    int offset_x = 153;//小：153
+    int offset_y = 30;//小： 30
+    int _offset_x = 0; //正1 负0 小：0
+    int _offset_y = 1; //正1 负0 小：1
+    int offset_amplitude = 12; // 0~50 倍 20
+    int offset_excursion = 31; //数值除以十 1~10 精度为0.1 10
+    int offset_preangle = PRE_ANGLE;
+    int offset_ratio = 2;//0~5° 精度0.1 1.5感觉最好
 
 private://大神符加速函数
     double pre_angle_large = 0.f;//最终得到的提前量

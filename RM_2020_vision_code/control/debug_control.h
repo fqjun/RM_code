@@ -54,17 +54,17 @@
 // #define USB_CAPTURE_DEFULT "/home/jun/workplace/Github/jun/xieyifa_code/RM_2020_vision_code/camera_MaxBuff02.avi"
 #endif
 
-#define CAMERA_EXPOSURETIME 1200 //800 400大神符 1200
+#define CAMERA_EXPOSURETIME 400 //800 400大神符 1200
 #define CAMERA_RESOLUTION_COLS 1280
 #define CAMERA_RESOLUTION_ROWS 800
 #define CAMERA_RESOLUTION_COLS_FOV ((1280 - CAMERA_RESOLUTION_COLS) * 0.5)
 #define CAMERA_RESOLUTION_ROWS_FOV ((1024 - CAMERA_RESOLUTION_ROWS) * 0.5)
-#define CAMERA_BLUE_GAIN 113
-#define CAMERA_GREEN_GAIN 92
-#define CAMERA_RED_GAIN 70
-#define CAMERA_GAMMA 93
-#define CAMERA_CONTRAST 108
-#define CAMERA_SATURATION 115
+#define CAMERA_BLUE_GAIN 123
+#define CAMERA_GREEN_GAIN 123
+#define CAMERA_RED_GAIN 103
+#define CAMERA_GAMMA 119
+#define CAMERA_CONTRAST 83
+#define CAMERA_SATURATION 166
 /**
   @brief: 设置相机的分辨率
   @param: CAMERA_EXPOSURETIME   相机曝光时间
@@ -76,7 +76,7 @@
 */
 /*---------------------------------------------------*/
 
-#define CAMERA_CONFIG 0
+#define CAMERA_CONFIG 1
 /**
  * @brief: 设置相机参数模式选项
  * @param: 0 曝光
@@ -170,7 +170,7 @@
   @param: 0     不显示
   @param: 1     显示
 */
-#define SHOW_BIN_IMG 1
+#define SHOW_BIN_IMG 0
 /**
   @brief: 是否显示二值图像
   @param: 0     不显示
@@ -182,7 +182,7 @@
   @param: 0     不打印
   @param: 1     打印
 */
-#define IS_PARAM_ADJUSTMENT 1
+#define IS_PARAM_ADJUSTMENT 0
 /**
   @brief: 是否进入调参模式
   @param: 0     否
@@ -226,15 +226,15 @@
 
 /*--------------------------能量机关-------------------------*/
 //二值化阈值
-#define THRESHOLD_GRAY_TH_BLUE 76//80 morning：62  evening：83
-#define THRESHOLD_BUFF_BLUE 70//35 66 42 morning：22 evening：42
+#define THRESHOLD_GRAY_TH_BLUE 33//80 morning：62  evening：83
+#define THRESHOLD_BUFF_BLUE 86//35 66 42 morning：22 evening：42
 
 #define THRESHOLD_BUFF_RED 66 //38 66
 #define THRESHOLD_GRAY_TH_RED 40//40
 
 //debug threshold
-#define DEBUG_GRAY_TH_BLUE 76//80 下午 86 111 晚上 42 早上：82
-#define DEBUG_COLOR_TH_BLUE 70//蓝色装甲的阈值 35 66 下午23 83 早上：48
+#define DEBUG_GRAY_TH_BLUE 33//80 下午 86 111 晚上 42 早上：82
+#define DEBUG_COLOR_TH_BLUE 86//蓝色装甲的阈值 35 66 下午23 83 早上：48
 
 #define DEBUG_GRAY_TH_RED 40
 #define DEBUG_COLOR_TH_RED 38//红色装甲的阈值
@@ -243,7 +243,7 @@
 #define MODEL 1
 
 //buff-pre(buff_detect.cpp)
-#define PRE_ANGLE 20
+#define PRE_ANGLE 35
 #define SMALL_LENTH_R 1.2
 #define SMALL_PRE_ANGLE 20
 #define BIG_LENTH_R 4.8 //4
