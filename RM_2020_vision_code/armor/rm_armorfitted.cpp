@@ -18,13 +18,13 @@ void CandidateArmor::inputParam(NiceLight &light_left, NiceLight &light_right, R
     
     armor_width = centerDistance(light_left.rect.center, light_right.rect.center);
     convert_center = rect.center + Point2f(roi.tl);//set center of roi
-    dist_to_center = centerDistance(convert_center,IMG_CENTER);
+    dist_to_center = centerDistance(convert_center,IMG_CENTER);//未用上
     
     rect = RotatedRect(convert_center,rect.size,rect.angle);                          
     float _w = float(sqrt(pow(fabs(light_left.depth - light_right.depth), 2) + pow(armor_width, 2)));
     //RotatedRect _rect = RotatedRect(rect.center,Size(_w,rect.size.height),rect.angle);
     float temp_w = rect.size.width;
-    rect.size.width = _w;
+    // rect.size.width = _w;
     angle_solve.run_SolvePnp(rect, SMALL_ARMOR_SIZE_W, SMALL_ARMOR_SIZE_H);
     rect.size.width = temp_w;                      
 
@@ -54,13 +54,13 @@ RotatedRect CandidateArmor::fit_Rrect(RotatedRect &rect_left,RotatedRect &rect_r
     float width_right = MIN(rect_right.size.width,rect_right.size.height);
     float height_right =MAX(rect_right.size.width,rect_right.size.height);
 
-    float W = distance-(width_left/2 + width_right/2);//roi of  rect.width
+    float W = distance +(width_left/2 + width_right/2);//roi of  rect.width
     if(W < 0){
         W = 0;
     }
     float H = MAX(height_left,height_right);//*2.27;
-    cout<<"rect_left.size.width=="<<W<<endl;//test
-    cout<<"rect_right.size.width=="<<H<<endl;
+    // cout<<"rect_left.size.width=="<<W<<endl;//test
+    // cout<<"rect_right.size.width=="<<H<<endl;
     float angle = atan(center_slope);
     //float angle = atan2((rect_left.center.y-rect_right.center.y),(rect_left.center.x-rect_right.center.x));
     RotatedRect Rrect = RotatedRect(center,Size2f(W,H),angle*180/float(CV_PI));
@@ -133,7 +133,7 @@ void RM_ArmorFitted::imageProcessing(Mat frame, int my_color){
     #endif
     src_img.copyTo(dst_img);
     /* 获取灰度图 */
-    // imshow("roi_img", roi_img);
+    imshow("roi_img", roi_img);
     cvtColor(roi_img, gray_img, COLOR_BGR2GRAY);
     //cvtColor(roi_img, hsv_img, COLOR_BGR2HSV);
     vector<Mat> _split;     //B G R
@@ -146,10 +146,13 @@ void RM_ArmorFitted::imageProcessing(Mat frame, int my_color){
         /* 灰度图与RGB同样做蓝色处理 */
         subtract(_split[0], _split[2], bin_img_color);// b - r
         #if IS_PARAM_ADJUSTMENT == 1
-        cv::createTrackbar("GRAY_TH_BLUE:", "src_img", &GRAY_TH_BLUE, 255, nullptr);
-        cv::createTrackbar("COLOR_TH_BLUE:", "src_img", &COLOR_TH_BLUE, 255, nullptr);
+        Mat trackbar_img = Mat::zeros(1,1200,CV_8UC1);
+        namedWindow("trackbar");
+        cv::createTrackbar("GRAY_TH_BLUE:", "trackbar", &GRAY_TH_BLUE, 255, nullptr);
+        cv::createTrackbar("COLOR_TH_BLUE:", "trackbar", &COLOR_TH_BLUE, 255, nullptr);
         threshold(gray_img, bin_img_gray, GRAY_TH_BLUE, 255, THRESH_BINARY);
         threshold(bin_img_color, bin_img_color, COLOR_TH_BLUE, 255, THRESH_BINARY);
+        imshow("trackbar",trackbar_img);
         #else
         threshold(gray_img, bin_img_gray, BLUE_ARMOR_GRAY_TH, 255, THRESH_BINARY);
         threshold(bin_img_color, bin_img_color, BLUE_ARMOR_COLOR_TH, 255, THRESH_BINARY);
@@ -162,10 +165,13 @@ void RM_ArmorFitted::imageProcessing(Mat frame, int my_color){
         /* 灰度图与RGB同样做红色处理 */
         subtract(_split[2], _split[0], bin_img_color);// r - b
         #if IS_PARAM_ADJUSTMENT == 1
-        cv::createTrackbar("GRAY_TH_RED:", "src_img", &GRAY_TH_RED, 255, nullptr);
-        cv::createTrackbar("COLOR_TH_RED:", "src_img", &COLOR_TH_RED, 255, nullptr);
+        Mat trackbar_img = Mat::zeros(1,1200,CV_8UC1);
+        namedWindow("trackbar");
+        cv::createTrackbar("GRAY_TH_RED:", "trackbar", &GRAY_TH_RED, 255, nullptr);
+        cv::createTrackbar("COLOR_TH_RED:", "trackbar", &COLOR_TH_RED, 255, nullptr);
         threshold(gray_img, bin_img_gray, GRAY_TH_RED, 255, THRESH_BINARY);
         threshold(bin_img_color, bin_img_color, COLOR_TH_RED, 255, THRESH_BINARY);
+        imshow("trackbar",trackbar_img);
         #else
         threshold(gray_img, bin_img_gray, RED_ARMOR_GRAY_TH, 255, THRESH_BINARY);
         threshold(bin_img_color, bin_img_color, RED_ARMOR_COLOR_TH, 255, THRESH_BINARY);
@@ -180,14 +186,17 @@ void RM_ArmorFitted::imageProcessing(Mat frame, int my_color){
         subtract(_split[0], _split[2], bin_img_color_1);// b - r
         subtract(_split[2], _split[0], bin_img_color_2);// r - b
         #if IS_PARAM_ADJUSTMENT == 1
-        cv::createTrackbar("GRAY_TH_RED:", "src_img", &GRAY_TH_RED, 255, nullptr);
-        cv::createTrackbar("GRAY_TH_BLUE:", "src_img", &GRAY_TH_BLUE, 255, nullptr);
-        cv::createTrackbar("COLOR_TH_BLUE:", "src_img", &COLOR_TH_BLUE, 255, nullptr);
-        cv::createTrackbar("COLOR_TH_RED:", "src_img", &COLOR_TH_RED, 255, nullptr);
+        Mat trackbar_img = Mat::zeros(1,1200,CV_8UC1);
+        namedWindow("trackbar");
+        cv::createTrackbar("GRAY_TH_RED:", "trackbar", &GRAY_TH_RED, 255, nullptr);
+        cv::createTrackbar("GRAY_TH_BLUE:", "trackbar", &GRAY_TH_BLUE, 255, nullptr);
+        cv::createTrackbar("COLOR_TH_BLUE:", "trackbar", &COLOR_TH_BLUE, 255, nullptr);
+        cv::createTrackbar("COLOR_TH_RED:", "trackbar", &COLOR_TH_RED, 255, nullptr);
         int th = int((GRAY_TH_RED +GRAY_TH_BLUE)*0.5);
         threshold(gray_img, bin_img_gray, th, 255, THRESH_BINARY);
         threshold(bin_img_color_1, bin_img_color_1, COLOR_TH_BLUE, 255, THRESH_BINARY);
         threshold(bin_img_color_2, bin_img_color_2, COLOR_TH_RED, 255, THRESH_BINARY);
+        imshow("trackbar",trackbar_img);
         #else
         int th = int((BLUE_ARMOR_GRAY_TH + RED_ARMOR_GRAY_TH)*0.5);
         threshold(gray_img, bin_img_gray, th, 255, THRESH_BINARY);
@@ -198,7 +207,7 @@ void RM_ArmorFitted::imageProcessing(Mat frame, int my_color){
     } break;
     }
 
-    Mat element = getStructuringElement(MORPH_ELLIPSE,cv::Size(3,7));
+    Mat element = getStructuringElement(MORPH_ELLIPSE,cv::Size(3,7));//MORPH_ELLIPSE,cv::Size(3,7)
     dilate(bin_img_gray,bin_img_gray,element);
     medianBlur(bin_img_color,bin_img_color,5);
     dilate(bin_img_color,bin_img_color,element);
@@ -212,6 +221,9 @@ void RM_ArmorFitted::imageProcessing(Mat frame, int my_color){
     #if SHOW_BIN_IMG == 1
     imshow("bin_img_final", bin_img_color);
     #endif
+
+    _split.clear();
+    vector<Mat>(_split).swap(_split);
 } 
 
 /**
@@ -220,6 +232,7 @@ void RM_ArmorFitted::imageProcessing(Mat frame, int my_color){
  */
 void RM_ArmorFitted::armorFitted(){
     is_last_data_catch = false;
+    float rect_area;
     
     vector <NiceLight> candidate_lights;   //符合条件的灯条实例化
 
@@ -231,10 +244,10 @@ void RM_ArmorFitted::armorFitted(){
         RotatedRect R_rect = fitEllipse(contours[j]);
         float width = MIN(R_rect.size.width,R_rect.size.height);
         float height =MAX(R_rect.size.width,R_rect.size.height);
-        //float rect_area = width * height;
+        rect_area = width * height;
         float w_h_ratio = width / height;
         if ((w_h_ratio < 0.4f) /*高宽比,角度筛选形状符合要求的灯条*/
-                && ((0<= R_rect.angle && R_rect.angle<=45)||(135<=R_rect.angle && R_rect.angle<=180))){
+                && ((0<= R_rect.angle && R_rect.angle<=45)||(135<=R_rect.angle && R_rect.angle<=180)) && rect_area > 50 ){
             light.inputParam(R_rect, angle_solve);
             candidate_lights.push_back(light);
             #if DRAW_LIGHT == 1
@@ -252,7 +265,7 @@ void RM_ArmorFitted::armorFitted(){
     }//筛选灯条循环结束
 
     #if SHOW_DEBUG_INFORMATION == 1
-    float max_dis_th;;
+    float max_dis_th;
     float light_distance_val;
     float light_dis_equ_maxh;
     float w1_equ_w2;
@@ -317,7 +330,7 @@ void RM_ArmorFitted::armorFitted(){
                 if(h1 + h2 >= light_addH_max){
                     light_addH_max = h1 + h2;
                     armor.inputParam(left_light, right_light, angle_solve, roi);
-                                        
+
                     #if SHOW_DEBUG_INFORMATION == 1
                     light_distance_val = light_distance;
                     max_dis_th = MAX(h1,h2) * 5;
@@ -367,15 +380,19 @@ void RM_ArmorFitted::armorFitted(){
         
         #if SERIAL_COMMUNICATION_PLAN == 0
         /* 二维＋深度 */
-        yaw_data = int(armor_rect.center.x);
-        pitch_data = int(armor_rect.center.y);
+        yaw_data = armor_rect.center.x;
+        pitch_data = armor_rect.center.y;
+        _yaw_data = 0;
+        _pitch_data = 0;
+
         #else
         /* Angle */
-        yaw_data = int(angle_solve.angle_x);
-        pitch_data = int(angle_solve.angle_y);
-        #endif
+        yaw_data = fabs(angle_solve.angle_x)*1000;
+        pitch_data = fabs(angle_solve.angle_y)*1000;
         _yaw_data = (yaw_data >=0 ? 0:1);
-        _pitch_data = (pitch_data >=0 ? 0:1);
+        _pitch_data = (pitch_data <=0 ? 0:1);
+        #endif
+        
     } else {
         kf_reset_cnt += 1;
         #if SERIAL_COMMUNICATION_PLAN == 0
@@ -384,8 +401,8 @@ void RM_ArmorFitted::armorFitted(){
         pitch_data = int(src_img.rows*0.5);
         #else
         /* Angle */
-        yaw_data = 0;
-        pitch_data = 0;
+        yaw_data = 0.0;
+        pitch_data = 0.0;
         #endif
         _yaw_data = 0;
         _pitch_data = 0;
@@ -399,15 +416,36 @@ void RM_ArmorFitted::armorFitted(){
     putText(dst_img,to_string(light_dis_equ_maxh),p,FONT_HERSHEY_PLAIN,2,Scalar(0, 100, 255),1,8,false);//橙色 灯条距离与最大高之比
     p = Point(armor_rect.center.x,armor_rect.center.y+80);
     putText(dst_img,to_string(w1_equ_w2),p,FONT_HERSHEY_PLAIN,2,Scalar(0, 255, 255),1,8,false);//黄色 灯条宽之比
+    p = Point(armor_rect.center.x,armor_rect.center.y+100);
+    putText(dst_img,to_string(armor.depth),p,FONT_HERSHEY_PLAIN,2,Scalar(194, 158, 241),1,8,false);//粉色 深度距离信息
     #endif
 
     if(kf_reset_cnt > 20){
-        kf.reset();
+        // kf.reset();
         kf_reset_cnt = 0;
+
     }
+
+    float armor_area = armor.rect.size.area();
+    float light_height = left_light.rect.size.height;   
+    float armor_width = armor.rect.size.width;
+
+    float distance = pinhole_test.getfitDistance(armor_width,armor_area,light_height);
+
+    // float distance_f = 2000;
+    // float true_width = 240;
+    // float focal = pinhole_test.getfocalLength(armor_width,distance_f,true_width);
+    // pinhole_test.getDistance(armor_width,focal,true_width);
+
+    Point p = Point(100,100);
+    putText(src_img,"current distance:   " + to_string(distance/1000),p,FONT_HERSHEY_PLAIN,2,Scalar(255, 255, 255),1,8,false);
+    // p = Point(100,200);
+    // putText(src_img,"armor depth distance:   " + to_string(armor.depth/1000),p,FONT_HERSHEY_PLAIN,2,Scalar(255, 255, 255),1,8,false);
+
+
     //发送串口数据
     #if IS_SERIAL_OPEN == 1
-    SerialPort::RMserialWrite(_yaw_data, abs(yaw_data), _pitch_data, abs(pitch_data), armor.depth, is_last_data_catch, shooting);// SerialPort::RMserialWrite(_yaw_data, abs(yaw_data), _pitch_data, abs(pitch_data), armor.depth, is_last_data_catch, shooting);
+    SerialPort::RMserialWrite(_yaw_data,yaw_data, _pitch_data,pitch_data, distance, is_last_data_catch, shooting);// SerialPort::RMserialWrite(_yaw_data, abs(yaw_data), _pitch_data, abs(pitch_data), armor.depth, is_last_data_catch, shooting);
     #endif
 
     #if SHOW_OUTPUT_IMG == 1

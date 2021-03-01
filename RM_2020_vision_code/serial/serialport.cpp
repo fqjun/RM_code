@@ -11,9 +11,13 @@
 #include "serialport.h"
 
 int SerialPort::fd;
-char SerialPort::g_write_buf[WRITE_BUFF_LENGTH];
-char SerialPort::g_CRC_buf[CRC_BUFF_LENGTH];
-char SerialPort::g_rec_buf[REC_BUFF_LENGTH];
+unsigned char SerialPort::g_write_buf[WRITE_BUFF_LENGTH];
+unsigned char SerialPort::g_CRC_buf[CRC_BUFF_LENGTH];
+unsigned char SerialPort::g_rec_buf[REC_BUFF_LENGTH];
+
+int16_t SerialPort::_yaw_reduction = 0x0000;
+int16_t SerialPort::_pitch_reduction = 0x0000;
+int16_t SerialPort::_depth_reduction = 0x0000;
 /**
 * @brief Construct a new Serial Port:: Serial Port object
 * ------------------------------------------------------
@@ -130,28 +134,56 @@ void SerialPort::RMreceiveData(int arr[REC_BUFF_LENGTH]){
  * @param: _yaw yaw正负
  * @param: _pitch pitch正负
  * @param: data_type 是否正确识别的标志
- * @param: data_type 是否正确识别的标志
  *
  * @authors: Rcxxx
  *           Hzkkk
  */
-void SerialPort::RMserialWrite(int _yaw,int yaw,int _pitch,int pitch,int depth,int data_type = 0,int is_shooting = 0){
-    sprintf(g_CRC_buf, "%c%1d%1d%1d%04d%1d%03d%04d", 'S', data_type, is_shooting, _yaw ,yaw, _pitch, pitch, depth);
-    uint8_t CRC = Checksum_CRC8(g_CRC_buf, sizeof(g_CRC_buf));
-    sprintf(g_write_buf, "%c%1d%1d%1d%04d%1d%03d%04d%03d%c", 'S',data_type, is_shooting, _yaw ,yaw, _pitch, pitch, depth, CRC, 'E');
+void SerialPort::RMserialWrite(int _yaw,int16_t yaw,int _pitch,int16_t pitch,int16_t depth,int data_type = 0,int is_shooting = 0){
+    // sprintf(g_CRC_buf, "%c%1d%1d%1d%04d%1d%03d%04d", 'S', data_type, is_shooting, _yaw ,yaw, _pitch, pitch, depth);
+    getDataForCRC(data_type,is_shooting,_yaw,yaw,_pitch,pitch,depth);
 
-    cout<<"depth="<<depth<<endl;
-    /*协议内容：[0]'S' 帧头
-     *[1]数据是否可用(是否识别到装甲板) [2]是否可以射击(控制自动射击)
-     *[3]yaw正负 0正1负 [4]~[6]yaw 偏航数据
-     *[7]pitch正负 0正1负 [8]~[10]pitch 俯仰数据
-     *[11]~[14]depth 深度数据
-     *[15]~[17]CRC CRC校验位
-     *[18]'E' 帧尾
-     */
+    uint8_t CRC = Checksum_CRC8(g_CRC_buf, sizeof(g_CRC_buf));
+    getDataForSend(data_type,is_shooting,_yaw,yaw,_pitch,pitch,depth,CRC);
+    /*
+    0：帧头     1：是否正确识别的标志   2：是否射击的信号
+    3：yaw正负值    4：yaw低八位数据    5：yaw高八位数据
+    6：pitch正负值  7：pitch低八位数据  8：pitch高八位数据
+    9：深度低八位   10：深度高八位
+    11：CRC
+    12：帧尾
+    */
     write(fd,g_write_buf,sizeof(g_write_buf));
     #if SHOW_SERIAL_INFORMATION == 1
-    std::cout<<"g_write_buf: "<<g_write_buf<<std::endl;
+ 
+    _yaw_reduction = (g_write_buf[5]<<8) | _yaw_reduction;
+    _yaw_reduction = g_write_buf[4] | _yaw_reduction;
+
+    _pitch_reduction = (g_write_buf[8]<<8) | _pitch_reduction;
+    _pitch_reduction = g_write_buf[7] | _pitch_reduction;
+
+    _depth_reduction = (g_write_buf[10]<<8) | _depth_reduction;
+    _depth_reduction = g_write_buf[9] | _depth_reduction;
+
+    #if SERIAL_COMMUNICATION_PLAN == 1
+    cout<<"g_write_buf=  "<<g_write_buf[0] \
+    <<"  "<<static_cast<int>(g_write_buf[1]) \
+    <<"  "<<static_cast<int>(g_write_buf[2]) \
+    <<"  "<<static_cast<int>(g_write_buf[3])<<"  "<<float(_yaw_reduction)/100 \
+    <<"  "<<static_cast<int>(g_write_buf[6])<<"  "<<float(_pitch_reduction)/100 \
+    <<"  "<<float(_depth_reduction)<<"  "<<g_write_buf[12]<<endl;
+    #else
+    cout<<"g_write_buf=  "<<g_write_buf[0] \
+    <<"  "<<static_cast<int>(g_write_buf[1]) \
+    <<"  "<<static_cast<int>(g_write_buf[2]) \
+    <<"  "<<static_cast<int>(g_write_buf[3])<<"  "<<float(_yaw_reduction) \
+    <<"  "<<static_cast<int>(g_write_buf[6])<<"  "<<float(_pitch_reduction) \
+    <<"  "<<float(_depth_reduction)<<"  "<<g_write_buf[12]<<endl;
+    #endif
+    _yaw_reduction = 0x0000;
+    _pitch_reduction = 0x0000;
+    _depth_reduction = 0x0000;
+    
+    
     #endif
     //usleep(1);
 }
@@ -167,7 +199,7 @@ void SerialPort::RMserialWrite(int _yaw,int yaw,int _pitch,int pitch,int depth,i
  *　　　　　   函数提供了一些常用的串口参数设置
  *           本串口类析构时会自动关闭串口,无需额外执行关闭串口
  */
-uint8_t SerialPort::Checksum_CRC8(char *buf,uint16_t len)
+uint8_t SerialPort::Checksum_CRC8(unsigned char *buf,uint16_t len)
 {
     uint8_t check = 0;
 
@@ -177,4 +209,34 @@ uint8_t SerialPort::Checksum_CRC8(char *buf,uint16_t len)
     }
 
     return (check)&0x00ff;
+}
+
+void SerialPort::getDataForCRC(int data_type,int is_shooting,int _yaw,int16_t yaw,int _pitch,int16_t pitch,int16_t depth){
+    g_CRC_buf[0] = 0x53;
+    g_CRC_buf[1] = static_cast<unsigned char>(data_type);
+    g_CRC_buf[2] = static_cast<unsigned char>(is_shooting);
+    g_CRC_buf[3] = static_cast<unsigned char>(_yaw);
+    g_CRC_buf[4] = yaw & 0xff;
+    g_CRC_buf[5] = (yaw>>8) & 0xff;
+    g_CRC_buf[6] = static_cast<unsigned char>(_pitch);
+    g_CRC_buf[7] = pitch & 0xff;
+    g_CRC_buf[8] = (pitch>>8) & 0xff;
+    g_CRC_buf[9] = depth & 0xff;
+    g_CRC_buf[10] = (depth>>8) & 0xff;
+}
+
+void SerialPort::getDataForSend(int data_type,int is_shooting,int _yaw,int16_t yaw,int _pitch,int16_t pitch,int16_t depth,uint8_t CRC){
+    g_write_buf[0] = 0x53;
+    g_write_buf[1] = static_cast<unsigned char>(data_type);
+    g_write_buf[2] = static_cast<unsigned char>(is_shooting);
+    g_write_buf[3] = static_cast<unsigned char>(_yaw);
+    g_write_buf[4] = yaw & 0xff;
+    g_write_buf[5] = (yaw>>8) & 0xff;
+    g_write_buf[6] = static_cast<unsigned char>(_pitch);
+    g_write_buf[7] = pitch & 0xff;
+    g_write_buf[8] = (pitch>>8) & 0xff;
+    g_write_buf[9] = depth & 0xff;
+    g_write_buf[10] = (depth>>8) & 0xff;
+    g_write_buf[11] = CRC & 0xff;
+    g_write_buf[12] = 0x45;
 }

@@ -51,7 +51,36 @@ RM_VideoCapture::~RM_VideoCapture()
  * @return false 不能启用工业相机
  */
 bool RM_VideoCapture::isindustryimgInput()
-{
+{    
+    /* -----设置伽马值----- */
+    #if CAMERA_CONFIG == 2 || CAMERA_CONFIG == 3
+    #if IS_PARAM_ADJUSTMENT == 1
+    namedWindow("Camera");
+    Mat camera_config = Mat::zeros(1,1200,CV_8UC1);
+    createTrackbar("EXPOSURETIME","Camera", &exposuretime, 10000,nullptr);
+    CameraSetExposureTime(hCamera, exposuretime);
+    
+
+    #if CAMERA_CONFIG == 3
+    createTrackbar("BLUE_gain","Camera", &b_gain, 400,nullptr);
+    createTrackbar("GREEN_gain","Camera", &g_gain, 400,nullptr);
+    createTrackbar("RED_gain","Camera", &r_gain, 400,nullptr);
+    createTrackbar("Gamma","Camera", &gamma, 240,nullptr);
+    createTrackbar("Contrast","Camera", &contrast, 200,nullptr);
+    createTrackbar("Saturation","Camera", &saturation, 190,nullptr);
+    
+    CameraSetGain(hCamera,r_gain,g_gain,b_gain);
+    CameraSetGamma(hCamera,gamma);
+    CameraSetContrast(hCamera,contrast);
+    CameraSetSaturation(hCamera,saturation);
+    #endif
+
+    imshow("Camera",camera_config);
+    #endif  
+
+    #endif
+    /* -----设置伽马值----- */
+
     bool isindustry_camera_open = false;
     if(iscamera0_open == 1)
     {
@@ -101,7 +130,7 @@ int RM_VideoCapture::cameraSet()
     }
     //获得相机的特性描述结构体。该结构体中包含了相机可设置的各种参数的范围信息。决定了相关函数的参数
     CameraGetCapability(hCamera,&tCapability);
-    g_pRgbBuffer = (unsigned char*)malloc(tCapability.sResolutionRange.iHeightMax*tCapability.sResolutionRange.iWidthMax*3);
+    g_pRgbBuffer = (unsigned char*)malloc(tCapability.sResolutionRange.iHeightMax*tCapability.sResolutionRange.iWidthMax*3);//malloc
     /*--------设置分辨率---------*/
     CameraGetImageResolution(hCamera, &pImageResolution);
     pImageResolution.iIndex = 0xFF;
@@ -119,13 +148,26 @@ int RM_VideoCapture::cameraSet()
     cout<<CameraSetAeState(hCamera,FALSE);
     if(MY_COLOR == 0)
     {
+        #if CAMERA_CONFIG == 0 || CAMERA_CONFIG == 1
         CameraSetExposureTime(hCamera,CAMERA_EXPOSURETIME);
+        #endif
     }
     else
-    {
+    {     
+        #if CAMERA_CONFIG == 0 || CAMERA_CONFIG == 1
         CameraSetExposureTime(hCamera,CAMERA_EXPOSURETIME);
+        #endif
     }
     /*--------设置曝光时间---------*/
+
+    /*----- 伽马值、饱和度、对比度、颜色增益 -----*/
+    #if CAMERA_CONFIG == 1
+    CameraSetGain(hCamera,r_gain,g_gain,b_gain);
+    CameraSetGamma(hCamera,gamma);
+    CameraSetContrast(hCamera,contrast);
+    CameraSetSaturation(hCamera,saturation);
+    #endif
+    /*----- 伽马值、饱和度、对比度、颜色增益 -----*/
 
     /*让SDK进入工作模式，开始接收来自相机发送的图像数据。
      *如果当前相机是触发模式，则需要接收到触发帧以后才会更新图像*/

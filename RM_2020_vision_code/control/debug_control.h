@@ -15,9 +15,11 @@
   @param: PB_MODEL_PATH pb文件路径
 */
 
-#define CAMERA_PARAM_FILE "./camera/param/cameraParams.xml"
+#define CAMERA_PARAM_FILE "/home/gcu/workspace/RM_code/RM_2020_vision_code/camera/param/cameraParams_last.xml"
+// #define CAMERA_PARAM_FILE "/home/jun/workplace/Github/RM_code/RM_2020_vision_code/camera/param/cameraParams_last.xml"
 /**
   @brief: 相机标定文件路径
+  记得改路径
 */
 /*---------------------------------------------------*/
 
@@ -45,15 +47,24 @@
   @param: 0     使用工业相机
   @param: 1     使用普通USB相机
 */
-#define USB_CAPTURE_DEFULT "/home/jun/workplace/录像/camera_17.avi" //armor_2  大小装甲-红  步兵自旋-蓝  基地步兵-蓝 camera_13 camera_17
-
+// #define USB_CAPTURE_DEFULT "/home/jun/workplace/录像/camera_MaxBuff07.avi" //armor_2  大小装甲-红  步兵自旋-蓝  基地步兵-蓝 camera_13 camera_17 camera_MaxBuff01
+// #define USB_CAPTURE_DEFULT "/home/nuc/workspace/vedio/camera_MaxBuff08.avi"
+#define USB_CAPTURE_DEFULT "/home/gcu/workspace/Vedio/camera_MaxBuff15.avi"
+// #define USB_CAPTURE_DEFULT "/home/jun/workplace/Github/RM_code/Vedio_Record/camera_MaxBuff06.avi"
+// #define USB_CAPTURE_DEFULT "/home/jun/workplace/Github/jun/xieyifa_code/RM_2020_vision_code/camera_MaxBuff02.avi"
 #endif
 
-#define CAMERA_EXPOSURETIME 800 //800
+#define CAMERA_EXPOSURETIME 400 //800 400大神符 1200
 #define CAMERA_RESOLUTION_COLS 1280
 #define CAMERA_RESOLUTION_ROWS 800
 #define CAMERA_RESOLUTION_COLS_FOV ((1280 - CAMERA_RESOLUTION_COLS) * 0.5)
 #define CAMERA_RESOLUTION_ROWS_FOV ((1024 - CAMERA_RESOLUTION_ROWS) * 0.5)
+#define CAMERA_BLUE_GAIN 123
+#define CAMERA_GREEN_GAIN 123
+#define CAMERA_RED_GAIN 103
+#define CAMERA_GAMMA 119
+#define CAMERA_CONTRAST 83
+#define CAMERA_SATURATION 166
 /**
   @brief: 设置相机的分辨率
   @param: CAMERA_EXPOSURETIME   相机曝光时间
@@ -65,7 +76,18 @@
 */
 /*---------------------------------------------------*/
 
-#define MY_COLOR 1
+#define CAMERA_CONFIG 1
+/**
+ * @brief: 设置相机参数模式选项
+ * @param: 0 曝光
+ * @param: 1 曝光 + 其他
+ * @param: 2 动态调整 曝光
+ * @param: 3 动态调整 曝光 + 其他
+ * @note: 其他部分包括：对比度、饱和度、伽马值、颜色增益（R G B）
+ * 
+ */
+
+#define MY_COLOR 2
 /**
   @brief: 选择己方阵营
   @param: 0     不限制颜色
@@ -107,7 +129,7 @@
   @param: 0         二维＋深度
   @param: 1         云台俯仰与偏航角度
 */
-#define SHOW_SERIAL_INFORMATION 1
+#define SHOW_SERIAL_INFORMATION 0
 /**
   @brief: 是否打印串口数据信息
   @param: 0     不打印
@@ -142,7 +164,7 @@
 */
 /*---------------------------------------------------*/
 
-#define SHOW_OUTPUT_IMG 0
+#define SHOW_OUTPUT_IMG 1
 /**
   @brief: 是否显示输出图像
   @param: 0     不显示
@@ -154,17 +176,18 @@
   @param: 0     不显示
   @param: 1     显示
 */
-#define COUT_FPS 1
+#define COUT_FPS 0
 /**
   @brief: 是否打印帧率
   @param: 0     不打印
   @param: 1     打印
 */
-#define IS_PARAM_ADJUSTMENT 1
+#define IS_PARAM_ADJUSTMENT 0
 /**
   @brief: 是否进入调参模式
   @param: 0     否
   @param: 1     是
+  记得调整原参数
 */
 #define ANALYZE_EACH_FRAME 0
 /**
@@ -172,7 +195,7 @@
  * @param: 0    否
  * @param: 1    是
  */
-#define SHOW_DEBUG_INFORMATION 0
+#define SHOW_DEBUG_INFORMATIO 0
 /**
   @brief: 是否打印调试信息
   @param: 0     不打印
@@ -185,14 +208,14 @@
   @param: 0     不打印
   @param: 1     打印
 */
-#define DRAW_LIGHT 0
+#define DRAW_LIGHT 1
 /**
   @brief: 是否绘制符合条件的light
   @param: 0     不绘制
   @param: 1     绘制
   @note: 蓝色
 */
-#define DRAW_ARMOR_RECT 0
+#define DRAW_ARMOR_RECT 1
 /**
   @brief: 是否绘制符合条件的armor
   @param: 0     不绘制
@@ -203,31 +226,47 @@
 
 /*--------------------------能量机关-------------------------*/
 //二值化阈值
-#define THRESHOLD_BUFF_BLUE 35
-#define THRESHOLD_BUFF_RED 32
+#define THRESHOLD_GRAY_TH_BLUE 33//80 morning：62  evening：83
+#define THRESHOLD_BUFF_BLUE 86//35 66 42 morning：22 evening：42
 
+#define THRESHOLD_BUFF_RED 66 //38 66
+#define THRESHOLD_GRAY_TH_RED 40//40
+
+//debug threshold
+#define DEBUG_GRAY_TH_BLUE 33//80 下午 86 111 晚上 42 早上：82
+#define DEBUG_COLOR_TH_BLUE 86//蓝色装甲的阈值 35 66 下午23 83 早上：48
+
+#define DEBUG_GRAY_TH_RED 40
+#define DEBUG_COLOR_TH_RED 38//红色装甲的阈值
 
 //model 1固定模型 0实时测距
 #define MODEL 1
 
 //buff-pre(buff_detect.cpp)
-#define PRE_ANGLE 20
+#define PRE_ANGLE 35
 #define SMALL_LENTH_R 1.2
 #define SMALL_PRE_ANGLE 20
-#define BIG_LENTH_R 5
+#define BIG_LENTH_R 4.8 //4
 
 //buff-filter(buff_detect.cpp)
 #define REVISE 0.1
 
-//buff-model尺寸(solve_pnp.cpp)
-#define BULLET_SPEED 30           //子弹射速
-#define BUFF_BOTTOM_H 1369        //buff最底装甲板距离地面高度
-#define ROBOT_H 400               //枪口高度    现在是330~340
-#define BUFF_ROBOT_Z 6914.7       //枪口和buff的直线距离    6915.340249311
-#define OFFSET_Y_BARREL_PTZ 27.69 //枪管和云台的高度差
 
-#define WIDTH 300
-#define HEIGHT 170
+
+//buff-model尺寸(solve_pnp.cpp)
+#define BULLET_SPEED 29           //子弹射速
+#define BUFF_BOTTOM_H -100        //buff最底装甲板距离地面高度 728.84
+#define ROBOT_H 330               //枪口高度    现在是330~340 也有可能是摄像头高度，待测
+#define BUFF_ROBOT_Z 6915.340249311       //枪口和buff的直线距离    6915.340249311 6817.708 7212.708
+#define OFFSET_Y_BARREL_PTZ 0 //枪管和云台的高度差
+
+#define PTZ_CAMERA_X 0.f
+#define PTZ_CAMERA_Y 45.5
+#define PTZ_CAMERA_Z 68.9
+
+
+#define BUFF_WIDTH 230    //内轮廓宽 300 200
+#define BUFF_HEIGHT 140   //内轮廓高 170
 
 //auto_control
 // 能量机关自动控制项
@@ -236,7 +275,7 @@
 #define FIRE_CNT 30           // 越小响应越快
 #define RESET_CNT 30          // 丢失目标复位计数 越小响应越快
 #define REPEAT_FIRE_TIME 1000 // 重复发射时间，单位ｍｓ,可以修改，根据子弹飞行时间进行确认
-#define RESET_ANGLE -10       // 1:-20 else: -10  // 复位绝对角度
+#define RESET_ANGLE -1     // 1:-20 else: -10  // 复位绝对角度
 
 /*--------------------------------------能量机关----------------------------------------*/
 
@@ -294,12 +333,12 @@ enum armor_size
       @param: LIGHT_SIZE_W          灯条实际宽度
       @param: LIGHT_SIZE_H          灯条实际高度
     */
-  BIG_ARMOR_SIZE_W = 225,
-  BIG_ARMOR_SIZE_H = 55,
-  SMALL_ARMOR_SIZE_W = 125,
-  SMALL_ARMOR_SIZE_H = 55,
-  LIGHT_SIZE_W = 10,
-  LIGHT_SIZE_H = 55,
+  BIG_ARMOR_SIZE_W = 250,//225 250
+  BIG_ARMOR_SIZE_H = 65, //55
+  SMALL_ARMOR_SIZE_W = 140,//125 140
+  SMALL_ARMOR_SIZE_H = 60,//55 60
+  LIGHT_SIZE_W = 14,//10 15 14
+  LIGHT_SIZE_H = 57,//55 58 57
 };
 
 enum communicationl_plan
@@ -337,15 +376,11 @@ enum Robot_ID
  * @param RED_ARMOR_COLOR_TH    红色颜色阈值
  * @param BLUE_ARMOR_GRAY_TH    蓝色灰度阈值
  * @param BLUE_ARMOR_COLOR_TH   蓝色颜色阈值
- *
- *
- *
- *
  */
 const int RED_ARMOR_GRAY_TH = 40;
 const int RED_ARMOR_COLOR_TH = 100;
 const int BLUE_ARMOR_GRAY_TH = 80;
-const int BLUE_ARMOR_COLOR_TH = 135;
+const int BLUE_ARMOR_COLOR_TH = 100;//135
 
 /*---------------------------------------------------*/
 

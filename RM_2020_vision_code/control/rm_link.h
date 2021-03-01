@@ -15,6 +15,7 @@
 #include "serial/serialport.h"
 #include "armor/rm_armorfitted.h"
 #include "detect_buff/buff_detect.h"
+#include "fps/fps.h"
 
 class RM_Vision_Init
 {
@@ -47,6 +48,9 @@ public:
 
     int th;
     int energy_refresh_count = 0;
+    double g_time_1 = 0.f;
+    double g_time_2 = 0.f;
+    double g_time = 0.f;
 };
 
 #endif // RM_LINK_H

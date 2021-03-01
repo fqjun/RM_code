@@ -37,6 +37,24 @@ public:
     bool isindustryimgInput();
     void cameraReleasebuff();
     int cameraSet();
+
+#if CAMERA_CONFIG != 0 
+public:
+
+    #if CAMERA_CONFIG > 1
+    int exposuretime = CAMERA_EXPOSURETIME;
+    #endif
+    
+    #if CAMERA_CONFIG == 1 || CAMERA_CONFIG == 3
+    int b_gain = CAMERA_BLUE_GAIN;
+    int g_gain = CAMERA_GREEN_GAIN;
+    int r_gain = CAMERA_RED_GAIN;
+    int gamma = CAMERA_GAMMA;
+    int contrast = CAMERA_CONTRAST;
+    int saturation = CAMERA_SATURATION;
+    #endif 
+
+#endif
 };
 
 #endif // RM_VIDEOCAPTURE_H

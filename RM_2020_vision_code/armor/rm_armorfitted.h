@@ -6,6 +6,8 @@
 #include "solve_PNP/solve_pnp.h"
 #include "serial/serialport.h"
 #include "filter/rm_kalmanfilter.h"
+#include "pinhole/pinhole.h"
+#include "data_exchange/data_exchange.h"
 
 // //结构体实现方法
 // struct ArmorROI
@@ -321,9 +323,9 @@ public:
     void armorFitted();
 
 public:
-    int yaw_data = 0; //云台偏航
+    float yaw_data = 0; //云台偏航
     int _yaw_data = 0; //偏航值的正负
-    int pitch_data = 0; //云台俯仰
+    float pitch_data = 0; //云台俯仰
     int _pitch_data = 0; //俯仰值的正负
     int armor_depth = 0; //深度 -- 装甲板距离相机的距离
 
@@ -335,6 +337,9 @@ private:
     ArmorROI roi;
     CandidateArmor armor = CandidateArmor();
     NiceLight light,left_light,right_light;
+
+    Pinhole pinhole_test;
+    Data_exchange data_exchange;
 
     Mat src_img;
     Mat gray_img;
@@ -356,7 +361,7 @@ private:
 
     #if IS_PARAM_ADJUSTMENT == 1
     int GRAY_TH_BLUE = 80;   //蓝色装甲的阈值
-    int COLOR_TH_BLUE = 135;
+    int COLOR_TH_BLUE = 100;//135
     int GRAY_TH_RED = 40;    //红色装甲的阈值
     int COLOR_TH_RED = 100;
     #endif

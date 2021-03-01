@@ -6,28 +6,39 @@ int main()
 #if IS_SERIAL_OPEN == 1
     SerialPort serialport;
 #endif
-//    g_Ctrl.my_color = ALL_COLOR;
-//    g_Ctrl.now_run_mode = DEFAULT_MODE;
-    for(;;)
+    Fps fps;
+
+    //    g_Ctrl.my_color = ALL_COLOR;
+    //    g_Ctrl.now_run_mode = DEFAULT_MODE;
+    for (;;)
     {
-        double t = double(getTickCount());
+        run.g_time_1 = getTickCount();
+        run.g_time = (run.g_time_1 - run.g_time_2) / getTickFrequency();
+        run.g_time_2 = getTickCount();
+        run.buff.g_time = run.g_time;
+        double g_time_fps = 1 / run.g_time;
+        if (g_time_fps < 40)
+            // cout<<"FPS = "<<g_time_fps<<endl;
+
+            fps.starttheTime();
         /** run **/
         run.Run();
+        fps.endtheTime();
+        run.armor._t = fps.time;
 
-        t = (double(getTickCount() - t)) / getTickFrequency();
-        run.armor._t = t;
 #if COUT_FPS == 1
-        int fps = int(1.0 / t);
-        cout<< endl << "FPS: " << fps<< endl;
+        fps.displayframeRate();
 #endif
 
-        #if ANALYZE_EACH_FRAME == 1
-        if(run.is_continue()){
+#if ANALYZE_EACH_FRAME == 1
+        if (run.is_continue())
+        {
             continue;
         }
-        #endif
+#endif
 
-        if(run.is_exit()){
+        if (run.is_exit())
+        {
             break;
         }
     }
