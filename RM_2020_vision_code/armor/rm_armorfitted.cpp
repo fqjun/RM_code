@@ -421,7 +421,7 @@ void RM_ArmorFitted::armorFitted(){
     #endif
 
     if(kf_reset_cnt > 20){
-        kf.reset();
+        // kf.reset();
         kf_reset_cnt = 0;
 
     }
@@ -431,6 +431,11 @@ void RM_ArmorFitted::armorFitted(){
     float armor_width = armor.rect.size.width;
 
     float distance = pinhole_test.getfitDistance(armor_width,armor_area,light_height);
+
+    // float distance_f = 2000;
+    // float true_width = 240;
+    // float focal = pinhole_test.getfocalLength(armor_width,distance_f,true_width);
+    // pinhole_test.getDistance(armor_width,focal,true_width);
 
     Point p = Point(100,100);
     putText(src_img,"current distance:   " + to_string(distance/1000),p,FONT_HERSHEY_PLAIN,2,Scalar(255, 255, 255),1,8,false);

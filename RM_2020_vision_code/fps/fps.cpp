@@ -29,6 +29,7 @@ void Fps::endtheTime(){
 void Fps::displayframeRate(){
 
     cout<<"FPS: "<<fps<<endl;
+    // printf("%%c\:",name);
 
 }
 void Fps::computetheAverage(){

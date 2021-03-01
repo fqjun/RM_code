@@ -10,9 +10,11 @@ private:
     /* data */
     vector<float>yvalue;
     vector<float>xvalue;
+
     Mat data_csv;
 
     float y_value_temp;
+    bool record_flag = false;
 
 public:
     Data_exchange(){};
