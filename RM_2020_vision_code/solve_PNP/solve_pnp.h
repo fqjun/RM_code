@@ -2,6 +2,8 @@
 #define SOLVE_PNP_H
 #include "configure.h"
 #include "control/debug_control.h"
+#include "filter/rm_kalmanfilter.h"
+
 
 class RM_SolveAngle{
 
@@ -10,7 +12,7 @@ public:
     ~RM_SolveAngle();
     //调用解算函数
     void run_SolvePnp(RotatedRect &rect, float _W, float _H);
-    void run_SolvePnp_Buff(RotatedRect & rect, Mat & srcImg,  float buff_angle, float _W, float _H);//大神符
+    void run_SolvePnp_Buff(vector<Point2f> &image_point, Mat & srcImg,  float buff_angle, float _W, float _H);//大神符
 
     void draw_Coordinate(Mat & input);
     float angle_x, angle_y, dist;
@@ -34,9 +36,9 @@ private:
     vector<Point3f> object_3d;
     vector<Point2f> target2d;
 
-    const float ptz_camera_x = 0;
-    const float ptz_camera_y = 0;
-    const float ptz_camera_z = 0;
+    const float ptz_camera_x = PTZ_CAMERA_X;
+    const float ptz_camera_y = PTZ_CAMERA_Y;
+    const float ptz_camera_z = PTZ_CAMERA_Z;
     const float barrel_ptz_offset_x = 0;
     const float barrel_ptz_offset_y = 0;
     const float overlap_dist = 0;

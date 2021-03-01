@@ -37,8 +37,9 @@ void RM_SolveAngle::run_SolvePnp(RotatedRect &rect, float _W, float _H){
 }
 
 /*--------------------------------------大神符------------------------------------------*/
-void RM_SolveAngle::run_SolvePnp_Buff(RotatedRect & rect, Mat & srcImg,  float buff_angle, float _W, float _H){
+void RM_SolveAngle::run_SolvePnp_Buff(vector<Point2f> &image_point, Mat & srcImg,  float buff_angle, float _W, float _H){
 
+    // cout<<"rect_center: "<<rect.center<<endl;
     float half_x = _W * 0.5;
     float half_y = _H * 0.5;
 
@@ -48,11 +49,19 @@ void RM_SolveAngle::run_SolvePnp_Buff(RotatedRect & rect, Mat & srcImg,  float b
     object_3d.push_back(Point3f(half_x, half_y, 0));
     object_3d.push_back(Point3f(-half_x, half_y, 0));
 
-    vertex_Sort(rect);
+    // vertex_Sort(rect);
 
-    solvePnP(object_3d, target2d, cameraMatrix, distCoeffs, rvec, tvec, false, SOLVEPNP_ITERATIVE);
+    // 显示target2d的各个点 lu：红 ru：黄 ld：蓝 rd：绿
+    // circle(srcImg,target2d.at(0),6,Scalar(0,0,255),-1,8);
+    // circle(srcImg,target2d.at(1),6,Scalar(0,255,255),-1,8);
+    // circle(srcImg,target2d.at(2),6,Scalar(255,0,0),-1,8);
+    // circle(srcImg,target2d.at(3),6,Scalar(0,255,0),-1,8);
 
-    //draw_Coordinate(srcImg);
+
+
+    solvePnP(object_3d, image_point , cameraMatrix, distCoeffs, rvec, tvec, false, SOLVEPNP_ITERATIVE);
+
+    draw_Coordinate(srcImg);
 
     Mat ptz = camera_ptz(tvec);//云台Pitch轴当前角度
     //cout << ptz << "-----" << rect.center << endl;
@@ -66,8 +75,9 @@ void RM_SolveAngle::vertex_Sort(RotatedRect & box){
     Point2f vertex[4];
     Point2f lu, ld, ru, rd;
 
-    box.points(vertex);
+    box.points(vertex);//box的点存储到vertex中
 
+    //对顶点点进行排序
     sort(vertex, vertex + 4, [](const Point2f & p1, const Point2f & p2) { return p1.x < p2.x; });
 
     if (vertex[0].y < vertex[1].y){
@@ -91,7 +101,7 @@ void RM_SolveAngle::vertex_Sort(RotatedRect & box){
     target2d.push_back(lu);
     target2d.push_back(ru);
     target2d.push_back(rd);
-    target2d.push_back(ld );
+    target2d.push_back(ld);
 }
 
 Mat RM_SolveAngle::camera_ptz(Mat & t){
@@ -103,7 +113,7 @@ Mat RM_SolveAngle::camera_ptz(Mat & t){
     Mat r_camera_ptz(3,3,CV_64FC1,r_data);
     Mat t_camera_ptz(3,1,CV_64FC1,t_data);
 
-    Mat position_in_ptz = r_camera_ptz * t - t_camera_ptz;
+    Mat position_in_ptz = /* r_camera_ptz * */ t - t_camera_ptz;
     //cout << position_in_ptz << endl;
     return position_in_ptz;
 }
@@ -187,7 +197,7 @@ void RM_SolveAngle::get_Angle(const Mat & pos_in_ptz){
 void RM_SolveAngle::get_Angel_Buff(const Mat & pos_in_ptz, float buff_angle){
     //计算子弹下坠补偿
     const double *_xyz = (const double *)pos_in_ptz.data;
-    //cout << "x:" << _xyz[0] << "   y:" << _xyz[1] << "   z:" << _xyz[2] << endl;
+    // cout << "x:" << _xyz[0] << "   y:" << _xyz[1] << "   z:" << _xyz[2] << endl;
 
     //    double down_t = 0.0;
     //    if(BULLET_SPEED > 10e-3)
@@ -202,10 +212,11 @@ void RM_SolveAngle::get_Angel_Buff(const Mat & pos_in_ptz, float buff_angle){
         //        float robot_h = 400;
         //        float buff_robot_z = 7200;
         float buff_robot_y = BUFF_BOTTOM_H - ROBOT_H;//大能量机关最低部装甲板到枪口高度
-        float predict_buff_angle = buff_angle + PRE_ANGLE;
-        if(predict_buff_angle > 360)
-            predict_buff_angle = predict_buff_angle - 360.0f;
-        float buff_h = 800*sin(predict_buff_angle *CV_PI/180)+800; // 计算风车相对最底面装甲高度　０－１６００
+        // float predict_buff_angle = buff_angle + PRE_ANGLE;
+        // if(predict_buff_angle > 360)
+        //     predict_buff_angle = predict_buff_angle - 360.0f;
+        
+        float buff_h = 800*sin(buff_angle *CV_PI/180)+800; // 计算风车相对最底面装甲高度　０－１６００
         target_h = buff_robot_y + buff_h;//目标装甲板与步兵枪口的高度
         float distance = sqrt(pow(target_h, 2) + pow(BUFF_ROBOT_Z, 2));
         z = distance;
@@ -213,16 +224,18 @@ void RM_SolveAngle::get_Angel_Buff(const Mat & pos_in_ptz, float buff_angle){
         //cout << buff_h << endl;
     }
 
-    double xyz[3] = {_xyz[0], _xyz[1] - OFFSET_Y_BARREL_PTZ, z};
+    // double xyz[3] = {_xyz[0], _xyz[1] - OFFSET_Y_BARREL_PTZ, z};
+    double xyz[3] = {_xyz[0], _xyz[1] - OFFSET_Y_BARREL_PTZ, _xyz[2]};
+
 
     //计算角度
     double alpha = 0.0, theta = 0.0;
 //    alpha = asin(offset_y_barrel_ptz/sqrt(xyz[1]*xyz[1] + xyz[2]*xyz[2]));//offset_y_barrel_ptz并未使用
 //    cout<<"aplha: "<<alpha<<endl;
-    theta = atan(xyz[1]/xyz[2]);//后续还要进行测试比较角度的准确性和a
+    // theta = atan(xyz[1]/xyz[2]);//后续还要进行测试比较角度的准确性和a
     /*------------------------------------北理珠---------------------------------------------------*/
-    // float thta = -static_cast<float>(atan2(xyz[1],xyz[2])); // 云台与目标点的相对角度
-    // float balta = static_cast<float>(atan2(target_h,xyz[2])) - thta; // 云台与地面的相对角度
+    float thta = -static_cast<float>(atan2(xyz[1],xyz[2])); // 云台与目标点的相对角度
+    float balta = static_cast<float>(atan2(target_h,xyz[2])) - thta; // 云台与地面的相对角度
     /*------------------------------------北理珠---------------------------------------------------*/
 
     //该部分参考北理珠，由于balta角的效果还有待考证，这里就先不加入，只是调整了坐标系
@@ -244,11 +257,13 @@ void RM_SolveAngle::get_Angel_Buff(const Mat & pos_in_ptz, float buff_angle){
 
     angle_y = -getBuffPitch(z/1000, (target_h)/1000, BULLET_SPEED);
     /*------------------------------------北理珠---------------------------------------------------*/
-    // angle_y += balta;
+    angle_y += balta;
     /*------------------------------------北理珠---------------------------------------------------*/
 
 
-    angle_x = atan2(xyz[0], xyz[2]);
+    angle_x = static_cast<float>(atan2(xyz[0], xyz[2]));
+    //test
+    angle_y = static_cast<float>(atan2(xyz[1], xyz[2]));
     angle_x = angle_x * 180 / CV_PI;
     angle_y = angle_y * 180 / CV_PI;
     dist = xyz[2];
@@ -313,7 +328,7 @@ void RM_SolveAngle::draw_Coordinate(Mat & input){
     vector<Point3f> (reference_Obj).swap(reference_Obj);
 
     #if SHOW_OUTPUT_IMG == 1
-    imshow("outImg", input);
+    // imshow("outImg", input);
     #endif
 }
 

@@ -23,7 +23,7 @@
 #include <iostream>
 // #include<conio.h>
 #include <stdio.h>
-#include</usr/include/eigen3/Eigen/Dense>
+// #include</usr/include/eigen3/Eigen/Dense>
 /*---- Others header files ----*/
 
 /*---- Serial header files ----*/
@@ -70,7 +70,7 @@
 
 using namespace std;
 using namespace cv;
-using namespace Eigen;
+// using namespace Eigen;
 #if IS_NUMBER_PREDICT_OPEN == 1
 using namespace tensorflow::ops;
 using namespace tensorflow;

@@ -168,8 +168,8 @@ void SerialPort::RMserialWrite(int _yaw,int16_t yaw,int _pitch,int16_t pitch,int
     cout<<"g_write_buf=  "<<g_write_buf[0] \
     <<"  "<<static_cast<int>(g_write_buf[1]) \
     <<"  "<<static_cast<int>(g_write_buf[2]) \
-    <<"  "<<static_cast<int>(g_write_buf[3])<<"  "<<float(_yaw_reduction)/1000 \
-    <<"  "<<static_cast<int>(g_write_buf[6])<<"  "<<float(_pitch_reduction)/1000 \
+    <<"  "<<static_cast<int>(g_write_buf[3])<<"  "<<float(_yaw_reduction)/100 \
+    <<"  "<<static_cast<int>(g_write_buf[6])<<"  "<<float(_pitch_reduction)/100 \
     <<"  "<<float(_depth_reduction)<<"  "<<g_write_buf[12]<<endl;
     #else
     cout<<"g_write_buf=  "<<g_write_buf[0] \
