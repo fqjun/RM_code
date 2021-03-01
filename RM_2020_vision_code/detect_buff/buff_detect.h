@@ -7,6 +7,7 @@
 #include "serial/serialport.h"
 #include "fps/fps.h"
 #include "filter/rm_kalmanfilter.h"
+#include "data_exchange/data_exchange.h"
 
 
 #define DEFAULT 0
@@ -146,7 +147,7 @@ public:
     int cnt_ = 0;
     int time = 0;
     int fire_cnt = 0;
-    int max_cnt_ = 50;             // 满足条件次数,根据帧率进行调整
+    int max_cnt_ = 50;             // 满足条件次数,根据帧率进行调整 50
     float limit_angle_x_ = 15.0f;    // 条件角度阈值 2.0f
     float limit_angle_y_ = 15.0f;
 };
@@ -178,7 +179,7 @@ public:
     }
 public:
     int cnt = 0;
-    int max_cnt_ = 30;   // 最大丢失目标次数，根据帧率进行调整
+    int max_cnt_ = 10;   // 最大丢失目标次数，根据帧率进行调整 30
 };
 
 /**
@@ -188,7 +189,7 @@ class AutoControl
 {
 public:
     AutoControl(){}
-    int run(float current_yaw, float &current_pit,int find_flag, float diff_buff_angle){
+    int run(float &current_yaw, float &current_pit,int find_flag, float diff_buff_angle){
         int command_tmp = DEFAULT;
         // 开火任务启动
         bool is_change_target = false;
@@ -244,6 +245,16 @@ public:
         return command_;
     }
 
+    void current_Angle(float &yaw,float &pitch,int &command){
+            if(command == 2){
+                yaw = 0;
+                pitch = current_p;
+            }else if(command == 4){
+                yaw = 0;
+                pitch = 0;
+            }
+            
+    }
 private:
     // 设置命令相关函数
     // 置1用 |    清零用&   跟随位0x01 开火位0x02 复位位0x04
@@ -267,20 +278,48 @@ private:
 
     //暂时只是上下摆动，后续如果需要就再加上左右的搜索
     void search_target(float &angle_pit,float &angle_yaw){
-        if(lose_cnt<50){
-            angle_pit = RESET_ANGLE;
+        if(lose_cnt <= 100){            
+            angle_pit -= 0.2;
+            if(angle_pit <-10){
+                angle_pit = -10;
+                lose_cnt = 101;
+            }
             angle_yaw = angle_yaw;
-        }
-        else if((lose_cnt=50)){
-            angle_pit += (-50)*RESET_ANGLE;
+            current_y = angle_yaw;
+            current_p = angle_pit;
+        }/* else if(lose_cnt == 50){
+            // angle_pit = 15;
+        } */
+        else if(lose_cnt > 100 && lose_cnt <=200){
+
+            angle_pit += 0.2;//-50
+            if(angle_pit >10){
+                angle_pit = 10;
+                lose_cnt = 201;
+            }
             angle_yaw = angle_yaw;
+            current_y = angle_yaw;
+            current_p = angle_pit;
         }
-        else if(lose_cnt>50 && lose_cnt<100)
+        else if(lose_cnt>200 && lose_cnt<300)
         {
-            angle_pit = -RESET_ANGLE;
+            angle_pit -= 0.2;
+            if(angle_pit <-10){
+                angle_pit = -10;
+                lose_cnt = 101;
+            }
             angle_yaw = angle_yaw;
+            current_y = angle_yaw;
+            current_p = angle_pit;
+        }else if(lose_cnt >300 ){
+            lose_cnt = 0;
         }
+
     }
+
+    float current_y = 0.f;
+    float current_p = 0.f;
+
 
 public:
     FireTask fire_task;     // 开火任务
@@ -325,7 +364,11 @@ public:
 
     //自动控制 类申明
 
+    //全局时间
+    double g_time = 0.f;
 
+    //手动计算yaw
+    float yaw_test = 0.f;
 
 private://类的声明
     RM_SolveAngle solve_buff;
@@ -334,7 +377,10 @@ private://类的声明
     Object object_tmp;
     AutoControl auto_control;
     Fps buff_fps;
+    KF_data data_kf;
+    KF_data data_kf_2;
     KF_buff kalman;
+    Data_exchange record_data;
 
 private:
     void imageProcess(Mat & frame,int my_color); //预处理
@@ -348,11 +394,11 @@ private:
     #if IS_PARAM_ADJUSTMENT == 1
     Mat trackbar_img = Mat::zeros(1,1200,CV_8UC1);
 
-    int GRAY_TH_BLUE = 111;//80
-    int COLOR_TH_BLUE = 83;//蓝色装甲的阈值 35 66
+    int GRAY_TH_BLUE = DEBUG_GRAY_TH_BLUE;
+    int COLOR_TH_BLUE = DEBUG_COLOR_TH_BLUE;
 
-    int GRAY_TH_RED = 40;
-    int COLOR_TH_RED = 38;//红色装甲的阈值
+    int GRAY_TH_RED = DEBUG_GRAY_TH_RED;
+    int COLOR_TH_RED = DEBUG_COLOR_TH_RED;
     #endif
 
 private://Object object_tmp新类，用于装清洗出来的新数据 和一些需要公用的数据
@@ -383,6 +429,7 @@ private://能量机关顺逆时针判断
     float d_angle_ = 1;//0
     int find_cnt_ = 0;
     int direction_tmp_ = 0; // -1逆时针 1顺时针
+    float total_angle = 0.f;
 
     //angle bug test
 
@@ -390,10 +437,21 @@ private://能量机关顺逆时针判断
     Point2f last_point = Point2f(0,0);
     float displacement = 0;
 
+    //弹道补偿
+    int offset_x = 153;//小：153
+    int offset_y = 30;//小： 30
+    int _offset_x = 0; //正1 负0 小：0
+    int _offset_y = 1; //正1 负0 小：1
+    int offset_amplitude = 12; // 0~50 倍 20
+    int offset_excursion = 31; //数值除以十 1~10 精度为0.1 10
+    int offset_preangle = PRE_ANGLE;
+    int offset_ratio = 2;//0~5° 精度0.1 1.5感觉最好
+
 private://大神符加速函数
     double pre_angle_large = 0.f;//最终得到的提前量
 
-    int a = 0;//切换次数
+    bool _is_change_target;
+    int change_target_cnt = 0;//切换次数
 
     Point2f solve_rect_center = Point2f(0,0);
     Point2f last_solve_rect_center = Point2f(0,0);
@@ -424,8 +482,13 @@ private://大神符加速函数
     double time_total = 0.f;
     int time_cnt = 0;
     double total_time = 0.f;
+    int times_cnt = 0;//防止在开启的神奇bug
 
     double error_speed = 0.f;
+
+    //测试卡尔曼滤波器
+    float white_box;
+    float red_box;
 
     //拟合成功标志位
     bool fitting_success = false;
@@ -458,3 +521,4 @@ private://大神符加速函数
 #endif // BUFF_DETECT_H
 double pointDistance(Point2f & p1, Point2f & p2);//计算两点之间距离
 int getRect_Intensity(const Mat &frame, Rect rect);//创建两小roi，判断叶片是否为未激活状态
+

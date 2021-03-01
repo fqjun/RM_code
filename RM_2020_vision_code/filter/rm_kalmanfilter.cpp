@@ -244,6 +244,107 @@ Point2f KF_buff::Predict(/*Mat src, Point2f center, double R,*/double init_runti
 
 }
 
+KF_data::KF_data(){
+    coefficient_A = 1;
+    H_k = 1;//没有进行单位转换，不需调整
+    P_k = 1;//误差初始值(待修改)根据变量
+    Q_k = 0.05;//预测过程的误差，相当于扩大预测的误差 小往大
+    R_k = 1;//控制卡尔曼增益（效果未知），调大滞后性越高，但会平滑 大往小
+    //R先正常取值、然后让Q = 0，看看能否收敛，在调大Q
+    coefficient_B = 0;//自己考虑要在预测值中混入多少控制量
+    U_k = 0;//控制量为零，这里只是对数据进行滤波处理
+    filtervalue = 2;//初始值 根据速度（° 或 rad）、位移、加速度进行设置 一般取中值
+    W_k = 0;//过程噪声（效果未知）
+
+    Q_k_2 = 0.05;
+    R_k_2 = 1;
+    filtervalue_2 = 2;
+    P_k_2 = 1;
+    H_k_2 = 1;
+}
+
+
+KF_data::~KF_data(){
+
+    kalman_img.release();
+    kalman_img_2.release();
+
+}
+
+float KF_data::data_Predict(float &value){
+    pre_data = coefficient_A*value + coefficient_B*U_k + U_k;
+    return pre_data;
+}
+
+float KF_data::data_Processing_second(float &new_value){
+    
+    // namedWindow("kalman_2");
+    // createTrackbar("Q_k","kalman_2",&tf_Q_k_2,10000,nullptr);
+    // createTrackbar("R_k","kalman_2",&tf_R_k_2,10000,nullptr);
+
+    Q_k_2 = tf_Q_k_2/100;
+    R_k_2 = tf_R_k_2/100;
+
+    predictvalue_2 = coefficient_A * filtervalue_2 + coefficient_B * U_k + U_k;
+    // cout<<"predictvalue_2 = "<<predictvalue_2<<endl;
+
+    P_k_2 = coefficient_A * P_k_2 * coefficient_A + Q_k_2;
+    // cout<<"P_k_2 = "<<P_k_2<<endl;
+
+
+    kalmanGain_2 = P_k_2 * H_k_2 / (H_k_2 * P_k_2 * H_k_2 + R_k_2);
+    // cout<<"kalmanGain_2 = "<<kalmanGain_2<<endl;
+
+    filtervalue_2 = predictvalue_2 + kalmanGain_2*(new_value - predictvalue_2);
+    // cout<<"filtervalue_2 = "<<filtervalue_2<<endl;
+
+    P_k_2 = (1 - kalmanGain_2 *H_k_2)*P_k_2;
+
+    // imshow("kalman_2",kalman_img_2);
+    // destroyWindow("kalman");
+    return filtervalue_2;
+
+}
+float KF_data::data_Processing(float &new_value){
+    
+    // namedWindow("kalman");
+    // createTrackbar("Q_k","kalman",&tf_Q_k,10000,nullptr);
+    // createTrackbar("R_k","kalman",&tf_R_k,10000,nullptr);
+    // createTrackbar("U_k","kalman",&tf_U_k,10,nullptr);
+    // createTrackbar("filtervalue","kalman",&tf_filtervalue,10000,nullptr);
+    // createTrackbar("W_k","kalman",&tf_W_k,10000,nullptr);
+
+    Q_k = tf_Q_k/100;
+    R_k = tf_R_k/100;
+    // U_k = tf_U_k/10;
+    // filtervalue = tf_filtervalue/10;
+    // W_k = tf_W_k/10;
+
+
+    predictvalue = coefficient_A*filtervalue + coefficient_B*U_k + U_k;
+    // cout<<"predictvalue = "<<predictvalue<<endl;
+
+    P_k = coefficient_A*P_k*coefficient_A + Q_k;
+    // cout<<"P_k = "<<P_k<<endl;
+
+    kalmanGain = P_k*H_k / (H_k*P_k*H_k + R_k);
+    // cout<<"kalmanGain = "<<predictvalue<<endl;
+
+
+    filtervalue = predictvalue + kalmanGain*(new_value - predictvalue);
+    // cout<<"predictvalue = "<<predictvalue<<endl;
+    // cout<<"new_value = "<<new_value<<endl;
+    // cout<<"filtervalue = "<<filtervalue<<endl;
+    
+    P_k = (1 - kalmanGain*H_k)*P_k;
+    // imshow("kalman",kalman_img);
+    // destroyWindow("kalman");
+    return filtervalue;
+
+}
+
+
+
 /*************************************************/
 // RM_kalmanfilter::~RM_kalmanfilter(){
 //         cout<<"stop!!!"<<endl;

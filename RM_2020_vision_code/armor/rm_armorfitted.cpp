@@ -432,6 +432,11 @@ void RM_ArmorFitted::armorFitted(){
 
     float distance = pinhole_test.getfitDistance(armor_width,armor_area,light_height);
 
+    // float distance_f = 2000;
+    // float true_width = 240;
+    // float focal = pinhole_test.getfocalLength(armor_width,distance_f,true_width);
+    // pinhole_test.getDistance(armor_width,focal,true_width);
+
     Point p = Point(100,100);
     putText(src_img,"current distance:   " + to_string(distance/1000),p,FONT_HERSHEY_PLAIN,2,Scalar(255, 255, 255),1,8,false);
     // p = Point(100,200);

@@ -81,9 +81,15 @@ void BuffDetector::imageProcess(Mat & frame,int my_color){
     //        threshold(gaussImg, binImg, th-15, 255,  0);
 
     dilate(bin_img_color, bin_img_color, getStructuringElement(MORPH_RECT, Size(3,3)));    //膨胀 
-    dilate(bin_img_gray, bin_img_gray, getStructuringElement(MORPH_RECT, Size(3,3)));    //膨胀 
+    
+    dilate(bin_img_gray, bin_img_gray, getStructuringElement(MORPH_RECT, Size(5,5)));    //膨胀 
+    erode(bin_img_gray, bin_img_gray, getStructuringElement(MORPH_RECT, Size(3,3)));    //膨胀 
+
     bitwise_and(bin_img_color, bin_img_gray, bin_img_color); 
-    dilate(bin_img_color, bin_img_color, getStructuringElement(MORPH_RECT, Size(3,3)));    //膨胀 
+    dilate(bin_img_color, bin_img_color, getStructuringElement(MORPH_RECT, Size(3,3)));    //膨胀 晚上
+    // dilate(bin_img_color, bin_img_color, getStructuringElement(MORPH_RECT, Size(5,5)));    //膨胀  早上
+    erode(bin_img_color,bin_img_color,getStructuringElement(MORPH_RECT, Size(3,3)));
+
     bin_img_color.copyTo(bin_img);
     #if SHOW_BIN_IMG == 1
     imshow("bin_img_final", bin_img_color);
@@ -154,10 +160,17 @@ bool BuffDetector::findTarget(Mat & frame){
             object.type_ = UNKOWN;
             //再次清洗目标找出叶片
             if(small_rect_size_ratio>1 && small_rect_size_ratio<3 && area_ratio>0.08f && area_ratio<0.25f){
-                for(int k=0;k<4;k++){
-                                    line(frame, small_point_tmp[k],small_point_tmp[(k+1)%4], Scalar(0, 0, 255), 1);
-                                line(frame, big_point_tmp[k],big_point_tmp[(k+1)%4], Scalar(0, 0, 255), 1);
-                                }
+                // for(int k=0;k<4;k++){
+                // line(frame, small_point_tmp[k],small_point_tmp[(k+1)%4], Scalar(0, 0, 255), 1);
+                // line(frame, big_point_tmp[k],big_point_tmp[(k+1)%4], Scalar(0, 0, 255), 1);
+                // }
+
+                //根据椭圆拟合得到的矩形进行逐个点显示
+                // circle(frame,small_point_tmp[0],10,Scalar(0,0,255),-1,8);
+                // circle(frame,small_point_tmp[1],10,Scalar(0,255,255),-1,8);
+                // circle(frame,small_point_tmp[2],10,Scalar(255,0,0),-1,8);
+                // circle(frame,small_point_tmp[3],10,Scalar(0,255,0),-1,8);
+
                 object.type_= ACTION;
                 //直接找出未激活状态目标（待优化）
                 if(/*small_rect_area*9>big_rect_area && small_rect_area*3<big_rect_area*/0){
@@ -204,7 +217,6 @@ bool BuffDetector::findTarget(Mat & frame){
             points_2d = final_target.points_2d_;//当前目标的点
             //big_points_2d = final_target.big_points_2d_;
             target_center = final_target.small_rect_.center;//获取小轮廓的圆心
-
             current_point = target_center;//test angle bug
             displacement = pointDistance(current_point,last_point);
             // cout<<"是否有位移,位移为:"<<displacement<<endl;
@@ -217,6 +229,14 @@ bool BuffDetector::findTarget(Mat & frame){
             line(frame, final_target.big_rect_.center, roi_center, Scalar(0,255,255),2);//画出大轮廓到假定圆心的路径
             circle(frame, roi_center, 2, Scalar(0,0,255), 2, 8, 0);//画出假定圆心
             //circle(frame, points_2d[3], 2, Scalar(0,0,255), 2, 8, 0);
+
+            /* -----显示内轮廓----- */
+            // Point2f small_rect_point_tmp[4];
+            // final_target.small_rect_.points(small_rect_point_tmp);
+            // for(int k = 0; k < 4; ++k){
+            // line(frame,small_rect_point_tmp[k],small_rect_point_tmp[(k+1)%4],Scalar(0,255,0),3);
+            // }
+            /* -----显示内轮廓----- */
         }
     }
 
@@ -230,7 +250,7 @@ bool BuffDetector::findTarget(Mat & frame){
     vector<vector<Point>>(contours).swap(contours);
     /*----- vector 清除内容 -----*/
 
-    imshow("src", frame);
+    // imshow("src", frame);
     return is_target;
 }
 
@@ -239,19 +259,21 @@ bool BuffDetector::findCenter_R(Mat &bin_img, Mat &frame){
     bool is_circle = false;
     vector<vector<Point>> contours;
     vector<Vec4i> hierarchy;
-    RotatedRect circle_rect = RotatedRect(Point2f(frame.cols/2,frame.rows/2),Size2f(0,0),0);
+    RotatedRect circle_rect = RotatedRect(Point2f(frame.cols,frame.rows),Size2f(0,0),0);
     Point2f frame_center(frame.cols/2,frame.rows/2);
 
-    float last_min_distance_target =frame.rows;
+    float last_min_distance_target =frame.rows/2;
+    int last_min_area_target = frame.size().area();
     float distance_target = 0;
+    int area_target = 0;
     double rect_ratio;//比较宽/高
     Point2f circle_r[4];//圆心R的点
 
     vector<RotatedRect>first_screen;
 
     findContours(bin_img, contours, hierarchy, 0, CHAIN_APPROX_NONE);
-
-//    cout<<"轮廓数目："<<contours.size()<<endl;
+    imshow("R_bin",bin_img);
+    cout<<"轮廓数目："<<contours.size()<<endl;
 
     for(int j = 0; j < (int)contours.size(); ++j){
         double circle_area = contourArea(contours[j]);
@@ -260,46 +282,63 @@ bool BuffDetector::findCenter_R(Mat &bin_img, Mat &frame){
             continue;
         RotatedRect temp_circle_rect = fitEllipse(contours[j]);
         
+        // float temp_circle_width = temp_circle_rect.size.width;
+        // float temp_circle_height = temp_circle_rect.size.height;
+        // float temp_circle_center_x = temp_circle_rect.center.x;
+        // float temp_circle_center_y = temp_circle_rect.center.y;
+
+        // // 类似roi的条件
+        // // if(temp_circle_center_x - temp_circle_width <= 0 || temp_circle_center_y - temp_circle_height <= 0 || 
+        // //     temp_circle_center_x + temp_circle_width >= bin_img.cols || temp_circle_center_y + temp_circle_height >= bin_img.rows){
+        // //         cout<<"77-----------------------------------------7"<<endl;
+        // //         continue;
+        // //     }
 
         // cout<<"temp_circle_rect.boundingRect().area() = "<<temp_circle_rect.boundingRect().area() <<endl;
-        // cout<<"hierarchy["<<j<<"]="<<hierarchy[j]<<endl;
-        if(temp_circle_rect.boundingRect().area() >2500 || temp_circle_rect.boundingRect().area() <500 || hierarchy[j][3] != -1){
-            continue;
-        }
-
-        // temp_circle_rect.points(circle_r);
-        // for(int k = 0;k<4;k++)
-        // {
-        //     line(frame, circle_r[k],circle_r[(k+1)%4], Scalar(0, 255, 0), 3);
+        // // cout<<"hierarchy["<<j<<"]="<<hierarchy[j]<<endl;
+        // if((temp_circle_rect.boundingRect().area() >2500 || temp_circle_rect.boundingRect().area() <1000) && hierarchy[j][3] != -1){
+        //     continue;
         // }
 
-        if((double)temp_circle_rect.size.width > (double)temp_circle_rect.size.height){
-            rect_ratio = (double)temp_circle_rect.size.width/(double)temp_circle_rect.size.height;
-        }
-        else {
-            rect_ratio = (double)temp_circle_rect.size.height/(double)temp_circle_rect.size.width;
-        }
+        // // temp_circle_rect.points(circle_r);
+        // // for(int k = 0;k<4;k++)
+        // // {
+        // //     line(frame, circle_r[k],circle_r[(k+1)%4], Scalar(0, 255, 0), 3);
+        // // }
 
-        // cout<<"temp_circle_rect.size["<<j<<"]="<<temp_circle_rect.size.area()<<endl;
+        // if(temp_circle_rect.size.width > temp_circle_rect.size.height){
+        //     temp_circle_width = temp_circle_rect.size.width;
+        //     temp_circle_height = temp_circle_rect.size.height;
+        // }else {
+        //     temp_circle_width = temp_circle_rect.size.height;
+        //     temp_circle_height = temp_circle_rect.size.width;
+        // }
+
+        // rect_ratio = temp_circle_rect.size.width/temp_circle_rect.size.height;
+        // // cout<<"temp_circle_rect.size["<<j<<"]="<<temp_circle_rect.size.area()<<endl;
         // cout<<"rect_ratio["<<j<<"]="<<rect_ratio<<endl;
 
-        // 比例适度要修正.原来为1.1f 1.12f
-        if(rect_ratio > 0.9f && rect_ratio < 1.2f){
+        // // 比例适度要修正.原来为1.1f 1.12f
+        // if(rect_ratio > 0.9f && rect_ratio < 1.2f){
             first_screen.push_back(temp_circle_rect);
-        }
+        // }
     }
 
 //    cout<<"符合比例条件的:"<<first_screen.size()<<endl;
     for(std::size_t i = 0; i < first_screen.size(); ++ i )
     {
         distance_target = pointDistance(first_screen[i].center,frame_center);
-        if( distance_target < last_min_distance_target )
+        cout<<"distance = "<<distance_target<<"  ";
+        // area_target = first_screen[i].size.area();
+        if( distance_target < last_min_distance_target /* && area_target < last_min_area_target */ )
         {
                 last_min_distance_target = distance_target;
+                // last_min_area_target = area_target;
                 circle_rect = first_screen[i];
         }
     }
 
+    cout<<"last_min_distance_target = "<<last_min_distance_target<<endl;
     circle_rect.points(circle_r);
 
     circle_center = circle_rect.center;
@@ -327,8 +366,22 @@ bool BuffDetector::findCenter_R(Mat &bin_img, Mat &frame){
 }
 
 int BuffDetector::buffDetect_Task(Mat &frame,int my_color){
+
+    buff_fps.starttheTime();
     imageProcess(frame,my_color);                     //预处理
+    buff_fps.endtheTime();
+        if((1/g_time<40))
+        // buff_fps.displayframeRate();
+
+    buff_fps.starttheTime();
     bool is_target = findTarget(frame);      //查找目标
+    buff_fps.endtheTime();
+        if((1/g_time<40))
+        // buff_fps.displayframeRate();
+        
+    buff_fps.starttheTime();
+
+
     int common = 0;
     Mat result_img;
     Mat roi_img;
@@ -348,6 +401,21 @@ int BuffDetector::buffDetect_Task(Mat &frame,int my_color){
     imshow("BuffParam",BuffParam);
     BuffParam.release();
     #endif
+    namedWindow("offset");
+    Mat offset_img = Mat::zeros(1,1200,CV_8UC1);
+    createTrackbar("offset_x/100 ","offset",&offset_x,500,nullptr);
+    createTrackbar("offset_y/100 ","offset",&offset_y,500,nullptr);
+    createTrackbar("正1右，负0左_x ","offset",&_offset_x,1,nullptr);
+    createTrackbar("正1下，负0上_y ","offset",&_offset_y,1,nullptr);
+    createTrackbar("（倍数）offset_amplitude ","offset",&offset_amplitude,50,nullptr);
+    createTrackbar("（函数幅值）offset_excursion ","offset",&offset_excursion,100,nullptr);
+    createTrackbar("offset_preangle ","offset",&offset_preangle,100,nullptr);
+    createTrackbar("offset_ratio ","offset",&offset_ratio,50,nullptr);
+
+
+    imshow("offset",offset_img);
+    offset_img.release();
+
 
     if(is_target){//可找到未激活目标
         if(roi_center.x < 0 || roi_center.y < 0 || roi_center.x > frame.cols || roi_center.y > frame.rows){
@@ -361,7 +429,7 @@ int BuffDetector::buffDetect_Task(Mat &frame,int my_color){
                 roi_center.y = frame.rows - 1;
             }
         }
-        RotatedRect roi_R(roi_center, Size(100,100),0);//画出假定圆心的roi矩形
+        RotatedRect roi_R(roi_center, Size(90,90),0);//画出假定圆心的roi矩形
         Rect roi = roi_R.boundingRect();
         //roi安全条件
         if(roi.tl().x < 0 || roi.tl().y < 0|| roi.br().x > frame.cols || roi.br().y > frame.rows){
@@ -430,7 +498,6 @@ int BuffDetector::buffDetect_Task(Mat &frame,int my_color){
         frame(roi).copyTo(roi_img);
         rectangle(frame,roi,Scalar(0,255,200),2,8,0);      //画出roi区域(在frame)
 
-
         ++find_cnt_;
         if(find_cnt_%2 == 0){//隔帧读数据
             direction_tmp_ = getState();//判断旋转方向 1顺时针,-1逆时针
@@ -442,6 +509,7 @@ int BuffDetector::buffDetect_Task(Mat &frame,int my_color){
         if(1)//大神符加速函数 隔帧进行处理
         {
             pre_angle_large = preangleoflargeBuff();
+            pre_angle_large = red_box - offset_excursion/10;
         }
 
         bool is_circle = findCenter_R(result_img, roi_img);
@@ -449,32 +517,103 @@ int BuffDetector::buffDetect_Task(Mat &frame,int my_color){
         if(is_circle == true){
             double total;
             //小轮廓圆心和R的斜率的反正切，得到一个角
-            double theta = atan(double(target_center.y - circle_center.y) / (target_center.x - circle_center.x));
+            // double theta = atan(double(target_center.y - circle_center.y) / (target_center.x - circle_center.x));
+
+            /* --------------test--------------- */
+
+            // cout<<"y = "<<target_center.y - (circle_center.y+roi.tl().y)<<"  x = "<<target_center.x - (circle_center.x+roi.tl().x)<<endl;
+            //test_theta 装甲板中点与中心R的夹角，角度0°在正左方，顺时针增加到360°，且与0°重合
+            double test_theta = atan2(target_center.y - (circle_center.y+roi.tl().y),target_center.x - (circle_center.x+roi.tl().x))*180/CV_PI + 180;
+            // cout<<"test_theta = "<<test_theta<<"  buff_angle = "<<buff_angle_<<endl;
+
+            //固定预测角的角度
+            double test_total_angle =  direction_tmp_*PRE_ANGLE+test_theta;
+            if(test_total_angle < 0){
+                test_total_angle += 360;
+            }else if (test_total_angle > 360)
+            {
+                test_total_angle -= 360;
+            }
+            // cout<<"test_total_angle = "<<test_total_angle<<endl;
+
+            //固定预测角转为弧度
+            double test_total = direction_tmp_*(test_total_angle)*CV_PI/180;
+            // cout<<"test_total = "<<test_total<<endl;
+            // double sin_calcu_test = sin(test_total);
+            // double cos_calcu_test = cos(test_total);
+
+            // cout<<"sin : "<<asin(sin_calcu_test)*180/CV_PI<<"  cos : "<<acos(cos_calcu_test)*180/CV_PI<<endl;
+            /* --------------test--------------- */
+            
+            //没懂，一个很神奇的坐标系
+            double theta = atan2(double(target_center.y - circle_center.y) , (target_center.x - circle_center.x));//弧度
+            // cout<<"theta angle = "<<theta*180/CV_PI<<"  theta :"<<theta<<endl;//test
+            // double test_total;//test
+            //计算预测量,隔帧取样可能bug，尝试延长采样周期
             if(direction_tmp_ != 0){
-                total = direction_tmp_*(PRE_ANGLE+theta+pre_angle_large)*CV_PI/180;//转换为弧度 ！！！此处加上大神符加速函数
-//                cout<<"total:"<<total<<endl;
+                // cout<<"pre_theta = "<<PRE_ANGLE+theta<<endl;
+                total = direction_tmp_*(offset_preangle+theta)*CV_PI/180;//转换为弧度 ！！！此处加上大神符加速函数
+                test_total = /* direction_tmp_* */-1*(offset_preangle+theta+pre_angle_large*offset_amplitude)*CV_PI/180;// test 待修改 1、提前量的函数（+-） 2、提前量的增益（*） 3、提前量的
+                // total_angle = /* direction_tmp_* */(PRE_ANGLE+theta+pre_angle_large);//test
+                // cout<<"buff_h  = "<<test_buff_h<<" total = "<<total<<endl;//test
+                // cout<<"total:"<<total<<endl;
+                // cout<<"pre_angle_large:"<<pre_angle_large<<endl;
+
             }
             else {
                 total = theta*CV_PI/180;
+                test_total = theta*CV_PI/180;//test
             }
+
+
             double sin_calcu = sin(total);
             double cos_calcu = cos(total);
-            Point2f round_center(circle_center.x+roi.tl().x, circle_center.y+roi.tl().y);
+            // cout<<"sin_calcu = "<<cos_calcu<<endl;
+
+            double sin_calcu_test = sin(test_total);//test
+            double cos_calcu_test = cos(test_total);//test
+
+            Point2f round_center(circle_center.x+roi.tl().x, circle_center.y+roi.tl().y);//圆心R在frame中的坐标
 
             pre_center.x = (target_center.x-round_center.x)*cos_calcu-(target_center.y-round_center.y)*sin_calcu+round_center.x;
             pre_center.y = (target_center.x-round_center.x)*sin_calcu+(target_center.y-round_center.y)*cos_calcu+round_center.y;
 
+            Point2f pre_center_test;//test
+            pre_center_test.x = (target_center.x-round_center.x)*cos_calcu_test-(target_center.y-round_center.y)*sin_calcu_test+round_center.x;//test
+            pre_center_test.y = (target_center.x-round_center.x)*sin_calcu_test+(target_center.y-round_center.y)*cos_calcu_test+round_center.y;//test
+
             double radio = pointDistance(round_center, pre_center);
 
-            double t_ = getTickCount();
-            double temp_s = (t_ - getTickCount()) / getTickFrequency();
-            pre_KF_center = kalman.Predict(temp_s,theta,direction_tmp_,target_center,round_center);//test
+            //手动计算yaw角度
+            float theta_pre_frame_center_x = fabs(frame.size().width/2 - pre_center_test.x) * 4.8*pow(10,-3);
+            yaw_test = atan2(theta_pre_frame_center_x,8)*180/CV_PI;
+            if(pre_center_test.x <= frame.size().width/2){
+                yaw_test = -1*yaw_test;
+            }
+            cout<<"yaw_test = "<<yaw_test<<endl;
 
+
+            float pre_center_angle = atan2(pre_center_test.y - round_center.y,pre_center_test.x - round_center.x)*180/CV_PI + 180;
+            // cout<<"pre_center_angle = "<<pre_center_angle<<endl;
+            total_angle = pre_center_angle;//最终输出的目标角度
+            // float test_buff_h = 800*sin(pre_center_angle*CV_PI/180)+800;//test
+            // cout<<"test_buff_h = "<<test_buff_h<<endl;
+            Point2f theta_center = pre_center_test - target_center;
+
+            points_2d.at(0) = points_2d.at(0) + theta_center;
+            points_2d.at(1) = points_2d.at(1) + theta_center;
+            points_2d.at(2) = points_2d.at(2) + theta_center;
+            points_2d.at(3) = points_2d.at(3) + theta_center;
+
+            // circle(frame,points_2d.at(0),6,Scalar(0,0,255),-1,8);
+            // circle(frame,points_2d.at(1),6,Scalar(0,255,255),-1,8);
+            // circle(frame,points_2d.at(2),6,Scalar(255,0,0),-1,8);
+            // circle(frame,points_2d.at(3),6,Scalar(0,255,0),-1,8);
 
             circle(frame, round_center, radio, Scalar(0,255,125),2,8,0);
             circle(frame, pre_center, 3, Scalar(255,0,0),3,8,0);
-            circle(frame,pre_KF_center,30,Scalar(0,0,255),2,8,0);//test
             line(frame, pre_center, round_center, Scalar(0,255,255),2);
+            line(frame, pre_center_test, round_center, Scalar(0,255,0),2);//test
         }
         else{
             Point2f vector_pre = points_2d[0] - points_2d[1];
@@ -487,6 +626,9 @@ int BuffDetector::buffDetect_Task(Mat &frame,int my_color){
                 pre_center.x = (vector_center.x-target_center.x)*cos_calcu-(vector_center.y-target_center.y)*sin_calcu+target_center.x;
                 pre_center.y = (vector_center.x-target_center.x)*sin_calcu+(vector_center.y-target_center.y)*cos_calcu+target_center.y;
 
+                float pre_center_angle = atan2(target_center.y - pre_center.y,target_center.x - pre_center.x)*180/CV_PI + 180;
+                total_angle = pre_center_angle;//最终输出的目标角度
+
                 circle(frame, pre_center, 3, Scalar(0,255,0),3,8,0);
                 line(frame, target_center, pre_center, Scalar(255,123,0),2);
                 line(frame, target_center, vector_center, Scalar(255,123,0),2);
@@ -495,8 +637,9 @@ int BuffDetector::buffDetect_Task(Mat &frame,int my_color){
                 pre_center = target_center;
             }
         }
-        solve_buff.run_SolvePnp_Buff(solve_rect,frame, buff_angle_,WIDTH,HEIGHT);
-        common = auto_control.run(solve_buff.angle_x,solve_buff.angle_y,is_target,diff_angle_);//坐标传出位置
+
+
+        solve_buff.run_SolvePnp_Buff(points_2d,frame, total_angle,BUFF_WIDTH,BUFF_HEIGHT);
         #if SERIAL_COMMUNICATION_PLAN == 0
         /* 二维＋深度 */
         yaw_data = int(pre_center.x);
@@ -504,32 +647,84 @@ int BuffDetector::buffDetect_Task(Mat &frame,int my_color){
         #else
         /* Angle */
         yaw_data = solve_buff.angle_x;
+        // yaw_data = yaw_test;
         pitch_data = solve_buff.angle_y;
+
+        //test 半径补偿
+        if(yaw_data < 0){
+            yaw_data += offset_ratio/10;
+        }else
+        {
+            yaw_data -= offset_ratio/10;
+        }
+
+        if(pitch_data > 0){
+            pitch_data += offset_ratio/10;
+        }else
+        {
+            pitch_data -= offset_ratio/10;
+        }
+        //test 半径补偿
+
+
         depth = int(solve_buff.dist);
+
+        if(_offset_x == 0){
+            yaw_data = yaw_data - offset_x/100;
+        }else
+        {
+            yaw_data = yaw_data + offset_x/100;
+        }
+        
+        if(_offset_y == 0){
+            pitch_data = pitch_data - offset_y/100;
+        }else
+        {
+            pitch_data = pitch_data + offset_y/100;
+        }
+
+
         #endif 
-        _yaw_data = (yaw_data >=0 ? 0:1);
-        _pitch_data = (pitch_data >=0 ? 0:1);
+        _yaw_data = (yaw_data >=0 ? 1:0);
+        _pitch_data = (pitch_data >=0 ? 1:0);
     }else{
-        #if SERIAL_COMMUNICATION_PLAN == 0
-        /* 二维＋深度 */
-        yaw_data = int(frame.cols*0.5);
-        pitch_data = int(frame.rows*0.5);
-        #else
-        yaw_data = 0;
-        pitch_data = 0;
-        #endif
-        _yaw_data = 0;
-        _pitch_data = 0;
+
+    #if SERIAL_COMMUNICATION_PLAN == 0
+    /* 二维＋深度 */
+    yaw_data = int(frame.cols*0.5);
+    pitch_data = int(frame.rows*0.5);
+    #else
+    yaw_data = 0;
+    pitch_data = 0;
+    #endif
+    _yaw_data = 0;
+    _pitch_data = 0;
     }
     
     // cout <<"current common is:"<<common<<endl;
     // cout<<"depth="<<depth<<endl;
     // cout<<"yaw_data="<<yaw_data<<endl;
     // cout<<"pitch_data="<<pitch_data<<endl;
+
+    //测试卡尔曼滤波器
+    // white_box = g_time*1000;
+    // yaw_data = red_box;//red
+    // pitch_data = white_box;//white diff_speed_4 new_speed_5
+    // _yaw_data = 0;
+    // _pitch_data = 0;
+    common = auto_control.run(solve_buff.angle_x,solve_buff.angle_y,is_target,diff_angle_);//坐标传出位置
+    if(common == 2){
+        // auto_control.current_Angle(yaw_data,pitch_data,common);
+    }
+
+    //手动计算yaw
+    _yaw_data = (yaw_data >=0 ? 1:0);
+    _pitch_data = (pitch_data >=0 ? 1:0);
+
     //发送串口数据
     #if IS_SERIAL_OPEN == 1
     #if SERIAL_COMMUNICATION_PLAN == 1
-    SerialPort::RMserialWrite(_yaw_data,fabs(yaw_data)*1000,_pitch_data,fabs(pitch_data)*1000, depth, is_target, common);
+    SerialPort::RMserialWrite(_yaw_data,fabs(yaw_data)*100,_pitch_data,fabs(pitch_data)*100, depth, is_target, common);
     #else
     SerialPort::RMserialWrite(_yaw_data,yaw_data,_pitch_data,pitch_data, depth, is_target, common);
     #endif
@@ -538,12 +733,18 @@ int BuffDetector::buffDetect_Task(Mat &frame,int my_color){
     #if SHOW_OUTPUT_IMG == 1
     //imshow("roi", result_img);
     imshow("roi_img", roi_img);
-    imshow("bin", bin_img);
+    // imshow("bin", bin_img);
     imshow("img", frame);
     #endif
 
     result_img.release();
     roi_img.release();
+
+    buff_fps.endtheTime();
+        if((1/g_time<40)){
+            // buff_fps.displayframeRate();
+            // cout<<"========"<<endl;
+        }
 
     return 0;
 }
@@ -568,6 +769,7 @@ void Object::smallUpdate_Order(){
     points_2d_.clear();
     Point2f points[4];
     small_rect_.points(points);
+    
     Point2f point_up_center = (points[0] + points[1])/2;
     Point2f point_down_center = (points[2] + points[3])/2;
     double up_distance = pointDistance(point_up_center, big_rect_.center);
@@ -585,7 +787,7 @@ void Object::smallUpdate_Order(){
         points_2d_.push_back(points[0]);points_2d_.push_back(points[1]);
     }
 
-    //cout << angle_ << endl;
+    cout << angle_ << endl;
 }
 
 void Object::knowYour_Self(Mat &img){
@@ -608,7 +810,7 @@ void Object::knowYour_Self(Mat &img){
 
     int left_intensity = getRect_Intensity(img, left_rect);     //计算左边roi内灯光强度
     int right_intensity = getRect_Intensity(img, right_rect);   //计算右边roi内灯光强度
-    cout << left_intensity << "  " << right_intensity << endl;
+    // cout << left_intensity << "  " << right_intensity << endl;
     if(left_intensity <= 15 && right_intensity <= 15){
         type_ = INACTION;
     }
@@ -648,7 +850,7 @@ double BuffDetector::preangleoflargeBuff(){
 
     //修正角度在360°的突变
     diff_angle_large = buff_angle_ - last_angle_large;
-
+    // cout<<"buff_angle_ = "<<buff_angle_<<endl;
     
     //过零处理
     if(diff_angle_large > 180)
@@ -664,24 +866,25 @@ double BuffDetector::preangleoflargeBuff(){
     // cout<<"diff_angle_large="<<diff_angle_large<<endl<<" ---------- "<<endl;
     // cout<<"buff_angle_="<<buff_angle_<<endl;
     // cout<<"last_angle="<<last_angle_large<<endl;
-    cout<<"diff_angle_large="<<diff_angle_large<<endl;
+    // cout<<"diff_angle_large="<<diff_angle_large<<endl;
 
     
     //检测装甲板的切换
-    bool _is_change_target = false;
+    _is_change_target = false;
     //角度范围可以修改
     if(fabs(diff_angle_large) > 40 ){
         _filter_flag = true;
+
         // cout<<"diff_angle_large = "<<diff_angle_large<<endl;
-        a += 1;
     }
     else{
         if(_filter_flag == true){
             _is_change_target = true;
             _filter_flag = false;
+            change_target_cnt += 1;
+
         }
     }
-    //  cout<<"a = "<<a<<endl;
      
     //计算时间
     timing_point_1 = getTickCount();
@@ -697,12 +900,12 @@ double BuffDetector::preangleoflargeBuff(){
     // }
 
     //是否切换叶片
-    if( _filter_flag == false && diff_center > 0.5f )
-    {      
+    if( _filter_flag == false && diff_center > 0.5f ){ 
+        // cout<<"change_target_cnt = "<<change_target_cnt<<endl;
+
         // ++ speed_cnt;
         // if(speed_cnt%3 == 0){
             spt_t = (timing_point_1 - timing_point_2)/ getTickFrequency();//现在的单位为秒
-            timing_point_2 = getTickCount();
 
             updateData();
         //     if(speed_cnt == 12)
@@ -731,7 +934,7 @@ double BuffDetector::preangleoflargeBuff(){
                 current_time_ =  1.884*( pre_time + 2.501268136 );
                 while (current_time_ > CV_2PI){
                 current_time_ -= CV_2PI;
-            }
+                }
                 pre_angle_large = sin(current_time_);
             }
         }
@@ -741,13 +944,13 @@ double BuffDetector::preangleoflargeBuff(){
         }
         /* -----预测部分----- */
 
-        cout<<"delay_fitting = "<<delay_fitting<<endl;
-        cout<<"diff_center = "<<diff_center<<endl;
-        cout<<"diff_angle_large = "<<diff_angle_large<<endl;
+        // cout<<"delay_fitting = "<<delay_fitting<<endl;
+        // cout<<"diff_center = "<<diff_center<<endl;
+        // cout<<"diff_angle_large = "<<diff_angle_large<<endl;
 
 
-        if( delay_fitting = 0 && diff_center < 3){
-            //对频，标志位判断
+        //对频，标志位判断
+        if( delay_fitting = 0 && diff_center < 3 ){
             if( diff_speed_1 < 0 && diff_speed_2 < 0 && diff_speed_3 > 0 && diff_speed_4 > 0 ){
                 first_correct_flag += 1;
             }
@@ -764,31 +967,31 @@ double BuffDetector::preangleoflargeBuff(){
             }
             
             if( (first_correct_flag == 1 && second_correct_flag == 1) || last_correct_flag == 4 || first_correct_flag == 2){
-                first_correct_flag = 0;
-                second_correct_flag = 0;
-                last_correct_flag = 0;
-
-
+                
                 if( first_correct_flag == 1 && second_correct_flag == 1 )
                 {
                     //第三号目标为函数的最低值
                     total_time = time_4 + time_5;
-                    cout<<"--- 3 ---"<<endl;
+                    // cout<<"--- 3 ---"<<endl;
                 }
                 else if ( last_correct_flag ==4 )
                 {
                     //第一号目标为函数的最低值
                     total_time = time_2 + time_3 + time_4 + time_5;
-                    cout<<"--- 1 ---"<<endl;
+                    // cout<<"--- 1 ---"<<endl;
                 }
                 else
                 {   
                     //第二号目标为函数的最低值
                     total_time = time_3 + time_4 + time_5;
-                    cout<<"--- 2 ---"<<endl;
+                    // cout<<"--- 2 ---"<<endl;
 
                 }
-                
+
+                first_correct_flag = 0;
+                second_correct_flag = 0;
+                last_correct_flag = 0;
+
             }
 
             //对频成功后将周期函数从最低点开始进行计时
@@ -827,13 +1030,17 @@ double BuffDetector::preangleoflargeBuff(){
                 current_time = 0;
             }
         }
-        }else{
+        //对频，标志位判断
+    }
+    else
+    {
             // cout<<"切换完成"<<endl;
-        }
-
+    }
+    
+    timing_point_2 = getTickCount();
     last_angle_large = buff_angle_;
     // cout<<"pre_angle = "<<pre_angle<<endl;
-    cout<<"======================"<<endl;
+    // cout<<"======================"<<endl;
     return pre_angle;
 }
 
@@ -846,62 +1053,100 @@ void BuffDetector::updateData(){
 
     // cout<<"speed_1 = "<<speed_1<<"  speed_2 = "<<speed_2<<"  speed_3 = "<<speed_3<<"  speed_4 = "<<speed_4;
 
-
     time_1 = time_2;
     time_2 = time_3;
     time_3 = time_4;
     time_4 = time_5;
 
     time_cnt += 1;
-
-    if(spt_t < 1)
+    // white_box = diff_angle_large;
+    if(spt_t > 0.46 && _is_change_target == false)
     {
-        time_total += spt_t;
-    }else
-    {
-        time_total += time_5;
+        spt_t = 0.25;
+        // cout<<"太大"<<endl;
     }
 
-    time_average = time_total/time_cnt;
-    
+    // time_total += spt_t;
+    // time_average = time_total/time_cnt;
+
     // time_5 = spt_t;
     time_5 = time_average;
  
     
+ 
 
-    // speed_5 = diff_angle_large / spt_t; 
-    // speed_5 = (diff_angle_large / time_average)*CV_PI/180; 
-    speed_5 = (diff_angle_large / time_average); 
+    // cout<<"g = "<<g_time<<endl;
+    // speed_5 = (diff_angle_large / g_time)*100;
+    //角度 200 弧度 
+    // if(speed_5 > 2){
+    //     speed_5 = speed_4;
+    // }
 
+    // if(time_average != 0){
+    //     speed_5 = (diff_angle_large / time_average); 
+    // }else
+    // {
+    //     speed_5 = (diff_angle_large / 0.02); 
+    // }
 
-    cout<<"  speed_5 = "<<speed_5<<endl;
-    cout<<"diff_angle_large = "<<diff_angle_large<<endl;
+    // if(speed_5 - speed_4 > 100 && times_cnt > 10){
+        
+    //     speed_5 = speed_4 + 10;
+
+    // }else if(speed_5 - speed_4 < 100 && times_cnt > 10){
+        
+    //     speed_5 = speed_4 - 10;
+
+    // }
+    // white_box = diff_angle_large;
+
+    times_cnt += 1; 
+    
+    white_box = diff_angle_large;
+    diff_angle_large = data_kf.data_Processing(white_box);
+    diff_angle_large = data_kf.data_Processing_second(diff_angle_large);
+
+    speed_5 = (diff_angle_large / g_time)*CV_PI/180*100;
+
+    diff_angle_large = data_kf.data_Predict(diff_angle_large);
+    red_box = diff_angle_large;
+
+    // red_box = data_kf_2.data_Processing(white_box);
+
+    // speed_5 = filter_speed_5;
+
+    //记录数据
+    // float cnt = times_cnt;
+    // record_data.getvalueAutomatically(cnt,red_box);
+
+    // cout<<"  red_box = "<<red_box<<endl;
+    // cout<<"diff_angle_large = "<<diff_angle_large<<endl;
     // cout<<"time_5 = "<<time_5<<endl;
 
     diff_speed_1 = speed_2 - speed_1;
-    if(diff_speed_1 >0 ){
-        cout<<" 凸 ";
-    }else{
-        cout<<" 凹 ";
-    }
+    // if(diff_speed_1 >0 ){
+    //     cout<<" 凸 ";
+    // }else{
+    //     cout<<" 凹 ";
+    // }
     diff_speed_2 = speed_3 - speed_2;
-    if(diff_speed_2 >0 ){
-        cout<<" 凸 ";
-    }else{
-        cout<<" 凹 ";
-    }
+    // if(diff_speed_2 >0 ){
+        // cout<<" 凸 ";
+    // }else{
+        // cout<<" 凹 ";
+    // }
     diff_speed_3 = speed_4 - speed_3;
-    if(diff_speed_3 >0 ){
-        cout<<" 凸 ";
-    }else{
-        cout<<" 凹 ";
-    }
+    // if(diff_speed_3 >0 ){
+    //     cout<<" 凸 ";
+    // }else{
+    //     cout<<" 凹 ";
+    // }
     diff_speed_4 = speed_5 - speed_4;
-    if(diff_speed_4 >0 ){
-        cout<<" 凸 "<<endl;
-    }else{
-        cout<<" 凹 "<<endl;
-    }
+    // if(diff_speed_4 >0 ){
+    //     cout<<" 凸 "<<endl;
+    // }else{
+    //     cout<<" 凹 "<<endl;
+    // }
 
 
 

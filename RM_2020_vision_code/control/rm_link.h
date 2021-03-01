@@ -48,6 +48,9 @@ public:
 
     int th;
     int energy_refresh_count = 0;
+    double g_time_1 = 0.f;
+    double g_time_2 = 0.f;
+    double g_time = 0.f;
 };
 
 #endif // RM_LINK_H
