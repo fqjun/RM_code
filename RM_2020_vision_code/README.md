@@ -183,11 +183,13 @@ i.<font color=red>自动控制模块</font>：根据解算完的角度，自动�
 
 代码的配置和调试都通过宏定义开关来进行控制，方便用户的快速上手和日常调试。所有的宏定义开关和宏定义阈值参数都在 `/control/debug_control.h` 文件中，内含了相机的软件配置、模式切换、打印数据、参数预设等内容，只需要根据文件注释内容进行选择即可控制相应的内容。
 
+- `#define CAMERA_OR_VEDIO` ：选择输入的视频流为相机/视频
 - `#define CAMERA_CONFIG` ：相机软件参数配置选择
 - `#define MY_COLOR ， #define MY_MODE` ：通过开关选择手动控制还是串口控制，进行选择颜色信息和运行模式
 - `#define SHOW_SERIAL_INFORMATION`：控制是否打印串口数据信息，方便用户进行错误排查
 - `#define SHOW_OUTPUT_IMG ，#define SHOW_BIN_IMG` ：控制目标识别的结果与过程图像信息的输出
 - `#define IS_PARAM_ADJUSTMENT` ：控制是否进入调参模式，若进入，则使用滑动条进行动态调参
+- `#define CAMERA_PARAM_FILE` ：控制相机标定文件路径，需要填写绝对路径，标定文件选择 `cameraParams_last.xml`即可
 
 ## 9.未来优化方向
 
