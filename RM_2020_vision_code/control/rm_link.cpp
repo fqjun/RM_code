@@ -83,6 +83,11 @@ void RM_Vision_Init::Run(){
         src_img = cvarrToMat(cap.iplImage,true);//这里只是进行指针转换，将IplImage转换成Mat类型
     }else{
         capture >> src_img;
+/*          if(src_img.empty()){
+        cout<<"图像为空"<<endl;
+        return; */
+
+    
     }
 #if IS_SERIAL_OPEN == 1
     //读取串口数据

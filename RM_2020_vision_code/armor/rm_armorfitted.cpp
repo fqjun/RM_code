@@ -387,10 +387,10 @@ void RM_ArmorFitted::armorFitted(){
 
         #else
         /* Angle */
-        yaw_data = fabs(angle_solve.angle_x)*1000;
-        pitch_data = fabs(angle_solve.angle_y)*1000;
-        _yaw_data = (yaw_data >=0 ? 0:1);
-        _pitch_data = (pitch_data <=0 ? 0:1);
+        yaw_data = fabs(angle_solve.angle_x)*100;
+        pitch_data = fabs(angle_solve.angle_y)*100;
+        _yaw_data = (yaw_data >=0 ? 1:0);
+        _pitch_data = (pitch_data >=0 ? 1:0);
         #endif
         
     } else {

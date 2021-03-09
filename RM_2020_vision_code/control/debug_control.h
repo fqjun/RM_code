@@ -1,7 +1,7 @@
 #ifndef DEBUG_CONTROL_H
 #define DEBUG_CONTROL_H
 
-#define CAMERA_OR_VEDIO 0
+#define CAMERA_OR_VEDIO 1
 /**
  * @brief 使用相机或者视频
  * @param: 0      相机
@@ -15,8 +15,8 @@
   @param: PB_MODEL_PATH pb文件路径
 */
 
-#define CAMERA_PARAM_FILE "/home/gcu/workspace/RM_code/RM_2020_vision_code/camera/param/cameraParams_last.xml"
-// #define CAMERA_PARAM_FILE "/home/jun/workplace/Github/RM_code/RM_2020_vision_code/camera/param/cameraParams_last.xml"
+// #define CAMERA_PARAM_FILE "/home/gcu/workspace/RM_code/RM_2020_vision_code/camera/param/cameraParams_last.xml"
+#define CAMERA_PARAM_FILE "/home/jun/workplace/Github/RM_code/RM_2020_vision_code/camera/param/cameraParams_last.xml"
 /**
   @brief: 相机标定文件路径
   记得改路径
@@ -47,9 +47,9 @@
   @param: 0     使用工业相机
   @param: 1     使用普通USB相机
 */
-// #define USB_CAPTURE_DEFULT "/home/jun/workplace/录像/camera_MaxBuff07.avi" //armor_2  大小装甲-红  步兵自旋-蓝  基地步兵-蓝 camera_13 camera_17 camera_MaxBuff01
+#define USB_CAPTURE_DEFULT "/home/jun/workplace/录像/camera_MaxBuff21.avi" //armor_2  大小装甲-红  步兵自旋-蓝  基地步兵-蓝 camera_13 camera_17 camera_MaxBuff01
 // #define USB_CAPTURE_DEFULT "/home/nuc/workspace/vedio/camera_MaxBuff08.avi"
-#define USB_CAPTURE_DEFULT "/home/gcu/workspace/Vedio/camera_MaxBuff15.avi"
+// #define USB_CAPTURE_DEFULT "/home/gcu/workspace/Vedio/camera_MaxBuff15.avi"
 // #define USB_CAPTURE_DEFULT "/home/jun/workplace/Github/RM_code/Vedio_Record/camera_MaxBuff06.avi"
 // #define USB_CAPTURE_DEFULT "/home/jun/workplace/Github/jun/xieyifa_code/RM_2020_vision_code/camera_MaxBuff02.avi"
 #endif
@@ -87,7 +87,7 @@
  * 
  */
 
-#define MY_COLOR 2
+#define MY_COLOR 1
 /**
   @brief: 选择己方阵营
   @param: 0     不限制颜色
@@ -97,7 +97,7 @@
   @note: 强制颜色模式
 */
 
-#define MY_MODE 2
+#define MY_MODE 1
 /**
  * @brief :选择己方模式
  * @param:0     默认模式
@@ -129,7 +129,7 @@
   @param: 0         二维＋深度
   @param: 1         云台俯仰与偏航角度
 */
-#define SHOW_SERIAL_INFORMATION 0
+#define SHOW_SERIAL_INFORMATION 1
 /**
   @brief: 是否打印串口数据信息
   @param: 0     不打印
@@ -189,7 +189,7 @@
   @param: 1     是
   记得调整原参数
 */
-#define ANALYZE_EACH_FRAME 0
+#define ANALYZE_EACH_FRAME 1
 /**
  * @brief:是否分析每一帧
  * @param: 0    否
