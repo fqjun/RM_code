@@ -1,7 +1,7 @@
 #ifndef DEBUG_CONTROL_H
 #define DEBUG_CONTROL_H
 
-#define CAMERA_OR_VEDIO 1
+#define CAMERA_OR_VEDIO 0
 /**
  * @brief 使用相机或者视频
  * @param: 0      相机
@@ -15,8 +15,8 @@
   @param: PB_MODEL_PATH pb文件路径
 */
 
-// #define CAMERA_PARAM_FILE "/home/gcu/workspace/RM_code/RM_2020_vision_code/camera/param/cameraParams_last.xml"
-#define CAMERA_PARAM_FILE "/home/jun/workplace/Github/RM_code/RM_2020_vision_code/camera/param/cameraParams_last.xml"
+#define CAMERA_PARAM_FILE "/home/gcu/workspace/RM_code/RM_2020_vision_code/camera/param/cameraParams_last.xml"
+// #define CAMERA_PARAM_FILE "/home/jun/workplace/Github/RM_code/RM_2020_vision_code/camera/param/cameraParams_last.xml"
 /**
   @brief: 相机标定文件路径
   记得改路径
@@ -87,7 +87,7 @@
  * 
  */
 
-#define MY_COLOR 1
+#define MY_COLOR 2
 /**
   @brief: 选择己方阵营
   @param: 0     不限制颜色
@@ -97,7 +97,7 @@
   @note: 强制颜色模式
 */
 
-#define MY_MODE 1
+#define MY_MODE 5
 /**
  * @brief :选择己方模式
  * @param:0     默认模式
@@ -189,7 +189,7 @@
   @param: 1     是
   记得调整原参数
 */
-#define ANALYZE_EACH_FRAME 1
+#define ANALYZE_EACH_FRAME 0
 /**
  * @brief:是否分析每一帧
  * @param: 0    否

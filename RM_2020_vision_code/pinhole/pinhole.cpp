@@ -44,10 +44,10 @@ float Pinhole::getfitDistance(float &pix_width,float &pix_area,float &pix_height
 
     distance = MIN(distance_width,distance_area);
     // distance = MIN(distance,Pinhole::distance_height);
-    cout<<"distance_width："<<distance_width<<endl;
-    cout<<"distance_area："<<distance_area<<endl;
+    // cout<<"distance_width："<<distance_width<<endl;
+    // cout<<"distance_area："<<distance_area<<endl;
     // cout<<"distance_height："<<distance_height<<endl;
-    cout<<"distance: "<<distance<<endl;
+    // cout<<"distance: "<<distance<<endl;
 
     return distance;
 

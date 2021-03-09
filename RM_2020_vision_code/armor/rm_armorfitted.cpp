@@ -47,7 +47,7 @@ RotatedRect CandidateArmor::fit_Rrect(RotatedRect &rect_left,RotatedRect &rect_r
     // }
     
     Point2f center = (rect_left.center+rect_right.center)*0.5;
-    float center_slope = (rect_left.center.y-rect_right.center.y)/(rect_left.center.x-rect_right.center.x);
+    // float center_slope = (rect_left.center.y-rect_right.center.y)/(rect_left.center.x-rect_right.center.x);
     float distance = centerDistance(rect_left.center,rect_right.center);
     float width_left =  MIN(rect_left.size.width,rect_left.size.height);
     float height_left = MAX(rect_left.size.width,rect_left.size.height);
@@ -61,8 +61,8 @@ RotatedRect CandidateArmor::fit_Rrect(RotatedRect &rect_left,RotatedRect &rect_r
     float H = MAX(height_left,height_right);//*2.27;
     // cout<<"rect_left.size.width=="<<W<<endl;//test
     // cout<<"rect_right.size.width=="<<H<<endl;
-    float angle = atan(center_slope);
-    //float angle = atan2((rect_left.center.y-rect_right.center.y),(rect_left.center.x-rect_right.center.x));
+    // float angle = atan2(center_slope);
+    float angle = atan2((rect_left.center.y-rect_right.center.y),(rect_left.center.x-rect_right.center.x));
     RotatedRect Rrect = RotatedRect(center,Size2f(W,H),angle*180/float(CV_PI));
     // -90~0, 0~90 (minArearent)  0~180 (fitEllipse)
     return Rrect;
@@ -430,6 +430,7 @@ void RM_ArmorFitted::armorFitted(){
     float light_height = left_light.rect.size.height;   
     float armor_width = armor.rect.size.width;
 
+    //暂时先关闭小孔测距的距离显示
     float distance = pinhole_test.getfitDistance(armor_width,armor_area,light_height);
 
     // float distance_f = 2000;
