@@ -244,7 +244,7 @@ void RM_ArmorFitted::armorFitted(){
         RotatedRect R_rect = fitEllipse(contours[j]);
         float width = MIN(R_rect.size.width,R_rect.size.height);
         float height =MAX(R_rect.size.width,R_rect.size.height);
-        rect_area = width * height;
+        rect_area = R_rect.size.area();
         float w_h_ratio = width / height;
         if ((w_h_ratio < 0.4f) /*高宽比,角度筛选形状符合要求的灯条*/
                 && ((0<= R_rect.angle && R_rect.angle<=45)||(135<=R_rect.angle && R_rect.angle<=180)) && rect_area > 50 ){

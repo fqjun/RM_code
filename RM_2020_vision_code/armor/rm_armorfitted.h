@@ -115,14 +115,14 @@ public:
         int W,H;
         if(!is_Lost_target){
             if(cnt <= LOSE_CNT_MAX*0.5){
-                W = last_roi_rect.boundingRect().width * 4;
-                H = int(last_roi_rect.boundingRect().height * 5);//2.5
-            } else if (LOSE_CNT_MAX*0.5 < cnt && cnt <= LOSE_CNT_MAX){
-                W = last_roi_rect.boundingRect().width * 6;
-                H = int(last_roi_rect.boundingRect().height * 7);//3.5
+                W = last_roi_rect.boundingRect().width * 3;//4
+                H = int(last_roi_rect.boundingRect().height * 4);//2.5 5
+            } else if (LOSE_CNT_MAX/2 < cnt && cnt <= LOSE_CNT_MAX){
+                W = last_roi_rect.boundingRect().width * 5;//6
+                H = int(last_roi_rect.boundingRect().height * 6);//3.5 7
             } else{
-                W = last_roi_rect.boundingRect().width;
-                H = last_roi_rect.boundingRect().height;
+                W = src.size().width;
+                H = src.size().height;
             }
             /*--- ROI区域安全处理 ---*/
             _tl = Point2f(last_roi_rect.center.x - W*0.5f,last_roi_rect.center.y - H*0.5f);
