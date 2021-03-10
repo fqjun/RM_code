@@ -1,7 +1,7 @@
 #ifndef DEBUG_CONTROL_H
 #define DEBUG_CONTROL_H
 
-#define CAMERA_OR_VEDIO 0
+#define CAMERA_OR_VEDIO 1
 /**
  * @brief 使用相机或者视频
  * @param: 0      相机
@@ -15,8 +15,8 @@
   @param: PB_MODEL_PATH pb文件路径
 */
 
-#define CAMERA_PARAM_FILE "/home/gcu/workspace/RM_code/RM_2020_vision_code/camera/param/cameraParams_last.xml"
-// #define CAMERA_PARAM_FILE "/home/jun/workplace/Github/RM_code/RM_2020_vision_code/camera/param/cameraParams_last.xml"
+// #define CAMERA_PARAM_FILE "/home/gcu/workspace/RM_code/RM_2020_vision_code/camera/param/cameraParams_last.xml"
+#define CAMERA_PARAM_FILE "/home/jun/workplace/Github/RM_code/RM_2020_vision_code/camera/param/cameraParams_last.xml"
 /**
   @brief: 相机标定文件路径
   记得改路径
@@ -47,7 +47,7 @@
   @param: 0     使用工业相机
   @param: 1     使用普通USB相机
 */
-#define USB_CAPTURE_DEFULT "/home/jun/workplace/录像/camera_MaxBuff21.avi" //armor_2  大小装甲-红  步兵自旋-蓝  基地步兵-蓝 camera_13 camera_17 camera_MaxBuff01
+#define USB_CAPTURE_DEFULT "/home/jun/workplace/录像/camera_MaxBuff12.avi" //armor_2  大小装甲-红  步兵自旋-蓝  基地步兵-蓝 camera_13 camera_17 camera_MaxBuff01
 // #define USB_CAPTURE_DEFULT "/home/nuc/workspace/vedio/camera_MaxBuff08.avi"
 // #define USB_CAPTURE_DEFULT "/home/gcu/workspace/Vedio/camera_MaxBuff15.avi"
 // #define USB_CAPTURE_DEFULT "/home/jun/workplace/Github/RM_code/Vedio_Record/camera_MaxBuff06.avi"
@@ -97,7 +97,7 @@
   @note: 强制颜色模式
 */
 
-#define MY_MODE 5
+#define MY_MODE 2
 /**
  * @brief :选择己方模式
  * @param:0     默认模式

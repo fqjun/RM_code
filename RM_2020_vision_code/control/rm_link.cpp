@@ -86,8 +86,6 @@ void RM_Vision_Init::Run(){
 /*          if(src_img.empty()){
         cout<<"图像为空"<<endl;
         return; */
-
-    
     }
 #if IS_SERIAL_OPEN == 1
     //读取串口数据

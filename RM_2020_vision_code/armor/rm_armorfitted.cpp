@@ -21,12 +21,12 @@ void CandidateArmor::inputParam(NiceLight &light_left, NiceLight &light_right, R
     dist_to_center = centerDistance(convert_center,IMG_CENTER);//未用上
     
     rect = RotatedRect(convert_center,rect.size,rect.angle);                          
-    float _w = float(sqrt(pow(fabs(light_left.depth - light_right.depth), 2) + pow(armor_width, 2)));
+    // float _w = float(sqrt(pow(fabs(light_left.depth - light_right.depth), 2) + pow(armor_width, 2)));
     //RotatedRect _rect = RotatedRect(rect.center,Size(_w,rect.size.height),rect.angle);
-    float temp_w = rect.size.width;
+    // float temp_w = rect.size.width;
     // rect.size.width = _w;
     angle_solve.run_SolvePnp(rect, SMALL_ARMOR_SIZE_W, SMALL_ARMOR_SIZE_H);
-    rect.size.width = temp_w;                      
+    // rect.size.width = temp_w;                      
 
     depth = int(angle_solve.dist);
 }
@@ -347,8 +347,8 @@ void RM_ArmorFitted::armorFitted(){
     if(is_last_data_catch){
         armor_rect = armor.rect;
         last_armor = armor_rect;
-        roi.setNumROI(src_img, armor_rect);
-        float armor_aspect_ratio = MIN(armor_rect.size.width,armor_rect.size.height)/MIN(armor_rect.size.width,armor_rect.size.height);
+        // roi.setNumROI(src_img, armor_rect);
+        // float armor_aspect_ratio = MIN(armor_rect.size.width,armor_rect.size.height)/MIN(armor_rect.size.width,armor_rect.size.height);
         // 数字识别
         #if IS_NUMBER_PREDICT_OPEN == 1
         int output_class_id = getLabel(roi.ROI_armor_ID);   //获取装甲板ID
@@ -389,8 +389,8 @@ void RM_ArmorFitted::armorFitted(){
         /* Angle */
         yaw_data = fabs(angle_solve.angle_x)*100;
         pitch_data = fabs(angle_solve.angle_y)*100;
-        _yaw_data = (yaw_data >=0 ? 1:0);
-        _pitch_data = (pitch_data >=0 ? 1:0);
+        _yaw_data = (angle_solve.angle_x >=0 ? 1:0);
+        _pitch_data = (angle_solve.angle_y >=0 ? 1:0);
         #endif
         
     } else {
