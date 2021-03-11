@@ -19,6 +19,7 @@ void RM_SolveAngle::run_SolvePnp(RotatedRect &rect, float _W, float _H){
     float half_y = _H * 0.5;
 
     object_3d.clear();
+    // vector<Point3f>(object_3d).swap(object_3d);
     object_3d.push_back(Point3f(-half_x, -half_y, 0));
     object_3d.push_back(Point3f(half_x, -half_y, 0));
     object_3d.push_back(Point3f(half_x, half_y, 0));
@@ -44,6 +45,7 @@ void RM_SolveAngle::run_SolvePnp_Buff(vector<Point2f> &image_point, Mat & srcImg
     float half_y = _H * 0.5;
 
     object_3d.clear();
+    // vector<Point3f>(object_3d).swap(object_3d);
     object_3d.push_back(Point3f(-half_x, -half_y, 0));
     object_3d.push_back(Point3f(half_x, -half_y, 0));
     object_3d.push_back(Point3f(half_x, half_y, 0));
@@ -98,6 +100,7 @@ void RM_SolveAngle::vertex_Sort(RotatedRect & box){
     }
 
     target2d.clear();
+    // vector<Point2f>(target2d).swap(target2d);
     target2d.push_back(lu);
     target2d.push_back(ru);
     target2d.push_back(rd);

@@ -70,6 +70,7 @@ RotatedRect CandidateArmor::fit_Rrect(RotatedRect &rect_left,
   // float angle = atan2(center_slope);
   float angle = atan2((rect_left.center.y - rect_right.center.y),
                       (rect_left.center.x - rect_right.center.x));
+  // cout<<"拟合装甲板的角度为 = "<<angle*180/CV_PI<<endl;
   RotatedRect Rrect =
       RotatedRect(center, Size2f(W, H), angle * 180 / float(CV_PI));
   // -90~0, 0~90 (minArearent)  0~180 (fitEllipse)
@@ -264,7 +265,7 @@ void RM_ArmorFitted::armorFitted() {
 
   vector<NiceLight> candidate_lights;  //符合条件的灯条实例化
 
-  vector<vector<Point> > contours;
+  vector<vector<Point>> contours;
   vector<Vec4i> hierarchy;
   findContours(bin_img_color, contours, hierarchy, RETR_EXTERNAL,
                CHAIN_APPROX_NONE, Point(0, 0));
@@ -277,6 +278,12 @@ void RM_ArmorFitted::armorFitted() {
     float height = MAX(R_rect.size.width, R_rect.size.height);
     rect_area = R_rect.size.area();
     float w_h_ratio = width / height;
+
+    Point put_Point_R_rect_angle =
+        Point(R_rect.center.x + roi.tl.x, R_rect.center.y + roi.tl.y);
+    putText(dst_img, to_string(R_rect.angle), put_Point_R_rect_angle,
+            FONT_HERSHEY_PLAIN, 1, Scalar(150, 100, 0), 1, 8, false);
+
     if ((w_h_ratio < 0.4f) /*高宽比,角度筛选形状符合要求的灯条*/
         && ((0 <= R_rect.angle && R_rect.angle <= 45) ||
             (135 <= R_rect.angle && R_rect.angle <= 180)) &&
@@ -290,10 +297,10 @@ void RM_ArmorFitted::armorFitted() {
         line(dst_img, vtx[j] + (Point2f)roi.tl,
              vtx[(j + 1) % 4] + (Point2f)roi.tl, Scalar(200, 0, 0), 2, 8, 0);
       }
-      Point put_Point_R_rect_angle =
-          Point(R_rect.center.x + roi.tl.x, R_rect.center.y + roi.tl.y);
-      putText(dst_img, to_string(R_rect.angle), put_Point_R_rect_angle,
-              FONT_HERSHEY_PLAIN, 1, Scalar(150, 100, 0), 1, 8, false);
+      // Point put_Point_R_rect_angle =
+      //     Point(R_rect.center.x + roi.tl.x, R_rect.center.y + roi.tl.y);
+      // putText(dst_img, to_string(R_rect.angle), put_Point_R_rect_angle,
+      //         FONT_HERSHEY_PLAIN, 1, Scalar(150, 100, 0), 1, 8, false);
       Point put_h =
           Point(R_rect.center.x + roi.tl.x, R_rect.center.y + roi.tl.y + 10);
       putText(dst_img, to_string(R_rect.size.height), put_h, FONT_HERSHEY_PLAIN,
@@ -305,6 +312,11 @@ void RM_ArmorFitted::armorFitted() {
 #endif
     }
   }  //筛选灯条循环结束
+
+  contours.clear();
+  hierarchy.clear();
+  vector<Vec4i>(hierarchy).swap(hierarchy);
+  vector<vector<Point>>(contours).swap(contours);
 
 #if SHOW_DEBUG_INFORMATION == 1
   float max_dis_th;
@@ -329,6 +341,9 @@ void RM_ArmorFitted::armorFitted() {
       //灯条的角度
       float angle_left = left_light.rect.angle;
       float angle_right = right_light.rect.angle;
+      cout << "angle_left = " << angle_left << endl;
+      cout << "angle_right = " << angle_right << endl;
+      cout << "------------" << endl;
       //灯条的宽高
       float w1 = MIN(left_light.rect.size.width, left_light.rect.size.height);
       float h1 = MAX(left_light.rect.size.width, left_light.rect.size.height);
@@ -351,18 +366,20 @@ void RM_ArmorFitted::armorFitted() {
         //同侧
         is_light_angle_catch = (fabs(angle_left - angle_right) <= 10.f);
       } else if (angle_left < 90.f && angle_right > 90.f) {
-        //--- \ / --- 内八
-        is_light_angle_catch = (170.f <= fabs(angle_left - angle_right) &&
-                                fabs(angle_left - angle_right) <= 180.f);
-      } else if (angle_left > 90.f && angle_right < 90.f) {
         //--- / \ --- 外八
         is_light_angle_catch = (170.f <= fabs(angle_left - angle_right) &&
                                 fabs(angle_left - angle_right) <= 180.f);
-      } else if (angle_left == 0.f && angle_right != 0.f) {
+      } else if (angle_left > 90.f && angle_right < 90.f) {
+        //--- \ / --- 内八
+        is_light_angle_catch = (170.f <= fabs(angle_left - angle_right) &&
+                                fabs(angle_left - angle_right) <= 180.f);
+      } else if ((angle_left == 0.f || angle_left == 180.f) &&
+                 angle_right != 0.f) {
         //左边竖直
         is_light_angle_catch = (170.f <= fabs(angle_left - angle_right) ||
                                 fabs(angle_left - angle_right) <= 10.f);
-      } else if (angle_left != 0.f && angle_right == 0.f) {
+      } else if (angle_left != 0.f &&
+                 (angle_right == 0.f || angle_right == 180.f)) {
         //右边竖直
         is_light_angle_catch = (170.f <= fabs(angle_left - angle_right) ||
                                 fabs(angle_left - angle_right) <= 10.f);
@@ -389,6 +406,9 @@ void RM_ArmorFitted::armorFitted() {
       }
     }
   }  //匹配灯条循环结束
+
+  candidate_lights.clear();
+  vector<NiceLight>(candidate_lights).swap(candidate_lights);
 
   //角度解算,获得最终发送给云台的数据
   int shooting = 0;
