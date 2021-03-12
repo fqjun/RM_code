@@ -114,7 +114,20 @@ RM_ArmorFitted::RM_ArmorFitted() {
  * @brief Destroy the rm armorfitted::rm armorfitted object
  *
  */
-RM_ArmorFitted::~RM_ArmorFitted() {}
+RM_ArmorFitted::~RM_ArmorFitted() {
+  // #if IS_PARAM_ADJUSTMENT == 1
+  //   trackbar_img.release();
+  // #endif
+
+  src_img.release();
+  gray_img.release();
+  hsv_img.release();
+  bin_img_gray.release();
+  bin_img_color.release();
+  dst_img.release();
+  roi_img.release();
+  destroyAllWindows();
+}
 
 /**
  * @brief 装甲识别预处理函数
@@ -161,12 +174,6 @@ void RM_ArmorFitted::imageProcessing(Mat frame, int my_color) {
       /* 灰度图与RGB同样做蓝色处理 */
       subtract(_split[0], _split[2], bin_img_color);  // b - r
 #if IS_PARAM_ADJUSTMENT == 1
-      Mat trackbar_img = Mat::zeros(1, 1200, CV_8UC1);
-      namedWindow("trackbar");
-      cv::createTrackbar("GRAY_TH_BLUE:", "trackbar", &GRAY_TH_BLUE, 255,
-                         nullptr);
-      cv::createTrackbar("COLOR_TH_BLUE:", "trackbar", &COLOR_TH_BLUE, 255,
-                         nullptr);
       threshold(gray_img, bin_img_gray, GRAY_TH_BLUE, 255, THRESH_BINARY);
       threshold(bin_img_color, bin_img_color, COLOR_TH_BLUE, 255,
                 THRESH_BINARY);
@@ -183,12 +190,6 @@ void RM_ArmorFitted::imageProcessing(Mat frame, int my_color) {
       /* 灰度图与RGB同样做红色处理 */
       subtract(_split[2], _split[0], bin_img_color);  // r - b
 #if IS_PARAM_ADJUSTMENT == 1
-      Mat trackbar_img = Mat::zeros(1, 1200, CV_8UC1);
-      namedWindow("trackbar");
-      cv::createTrackbar("GRAY_TH_RED:", "trackbar", &GRAY_TH_RED, 255,
-                         nullptr);
-      cv::createTrackbar("COLOR_TH_RED:", "trackbar", &COLOR_TH_RED, 255,
-                         nullptr);
       threshold(gray_img, bin_img_gray, GRAY_TH_RED, 255, THRESH_BINARY);
       threshold(bin_img_color, bin_img_color, COLOR_TH_RED, 255, THRESH_BINARY);
       imshow("trackbar", trackbar_img);
@@ -206,17 +207,7 @@ void RM_ArmorFitted::imageProcessing(Mat frame, int my_color) {
       subtract(_split[0], _split[2], bin_img_color_1);  // b - r
       subtract(_split[2], _split[0], bin_img_color_2);  // r - b
 #if IS_PARAM_ADJUSTMENT == 1
-      Mat trackbar_img = Mat::zeros(1, 1200, CV_8UC1);
-      namedWindow("trackbar");
-      cv::createTrackbar("GRAY_TH_RED:", "trackbar", &GRAY_TH_RED, 255,
-                         nullptr);
-      cv::createTrackbar("GRAY_TH_BLUE:", "trackbar", &GRAY_TH_BLUE, 255,
-                         nullptr);
-      cv::createTrackbar("COLOR_TH_BLUE:", "trackbar", &COLOR_TH_BLUE, 255,
-                         nullptr);
-      cv::createTrackbar("COLOR_TH_RED:", "trackbar", &COLOR_TH_RED, 255,
-                         nullptr);
-      int th = int((GRAY_TH_RED + GRAY_TH_BLUE) * 0.5);
+      int th = int((this->GRAY_TH_RED + this->GRAY_TH_BLUE) * 0.5);
       threshold(gray_img, bin_img_gray, th, 255, THRESH_BINARY);
       threshold(bin_img_color_1, bin_img_color_1, COLOR_TH_BLUE, 255,
                 THRESH_BINARY);
@@ -541,6 +532,18 @@ void RM_ArmorFitted::armorFitted() {
   imshow("dst_img", dst_img);
 // imshow("roi_img",roi_img);
 #endif
+}
+
+int &RM_ArmorFitted::getThreshold(int threshold_mode) {
+  if (threshold_mode == RED_GRAY) {
+    return GRAY_TH_RED;
+  } else if (threshold_mode == RED_COLOR) {
+    return COLOR_TH_RED;
+  } else if (threshold_mode == BLUE_GRAY) {
+    return GRAY_TH_BLUE;
+  } else if (threshold_mode == BLUE_COLOR) {
+    return COLOR_TH_BLUE;
+  }
 }
 
 #if IS_NUMBER_PREDICT_OPEN == 1

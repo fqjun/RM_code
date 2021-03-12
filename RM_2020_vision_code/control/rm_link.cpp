@@ -76,73 +76,122 @@ void RM_Vision_Init::updateControl_information(int arr[REC_BUFF_LENGTH]) {
  *
  */
 void RM_Vision_Init::Run() {
-  // get Image
-  if (cap.isindustryimgInput()) {
-    src_img = cvarrToMat(cap.iplImage,
-                         true);  //这里只是进行指针转换，将IplImage转换成Mat类型
-  } else {
-    capture >> src_img;
-  }
-  if (src_img.empty()) {
-    cout << "图像为空" << endl;
-    return;
-  }
+#if IS_PARAM_ADJUSTMENT == 1
+  namedWindow("trackbar");
+#if MY_COLOR == 2  //己方为蓝色
+  cv::createTrackbar("GRAY_TH_RED:", "trackbar", &armor.getThreshold(RED_GRAY),
+                     255, nullptr);
+  cv::createTrackbar("COLOR_TH_RED:", "trackbar",
+                     &armor.getThreshold(RED_COLOR), 255, nullptr);
+#elif MY_COLOR == 1  //己方为红色
+  cv::createTrackbar("GRAY_TH_BLUE:", "trackbar",
+                     &armor.getThreshold(BLUE_GRAY), 255, nullptr);
+  cv::createTrackbar("COLOR_TH_BLUE:", "trackbar",
+                     &armor.getThreshold(BLUE_COLOR), 255, nullptr);
+#elif MY_COLOR == 0  //全都要
+  cv::createTrackbar("GRAY_TH_RED:", "trackbar", &armor.getThreshold(RED_GRAY),
+                     255, nullptr);
+  cv::createTrackbar("COLOR_TH_RED:", "trackbar",
+                     &armor.getThreshold(RED_COLOR), 255, nullptr);
+  cv::createTrackbar("GRAY_TH_BLUE:", "trackbar",
+                     &armor.getThreshold(BLUE_GRAY), 255, nullptr);
+  cv::createTrackbar("COLOR_TH_BLUE:", "trackbar",
+                     &armor.getThreshold(BLUE_COLOR), 255, nullptr);
+
+#endif
+#endif
+  for (;;) {
+    this->g_time_1 = getTickCount();
+    this->g_time = (this->g_time_1 - this->g_time_2) / getTickFrequency();
+    this->g_time_2 = getTickCount();
+    this->buff.g_time = this->g_time;
+    double g_time_fps = 1 / this->g_time;
+    // if (g_time_fps < 40)
+    cout << "FPS = " << g_time_fps << endl;
+    fps.starttheTime();
+
+    // get Image
+    if (cap.isindustryimgInput()) {
+      src_img =
+          cvarrToMat(cap.iplImage,
+                     true);  //这里只是进行指针转换，将IplImage转换成Mat类型
+    } else {
+      capture >> src_img;
+    }
+    if (src_img.empty()) {
+      cout << "图像为空" << endl;
+      return;
+    }
 
 #if IS_SERIAL_OPEN == 1
-  //读取串口数据
-  int ctrl_arr[REC_BUFF_LENGTH];
-  SerialPort::RMreceiveData(ctrl_arr);
-  updateControl_information(ctrl_arr);
+    //读取串口数据
+    int ctrl_arr[REC_BUFF_LENGTH];
+    SerialPort::RMreceiveData(ctrl_arr);
+    updateControl_information(ctrl_arr);
 #endif
 #if MY_COLOR == 0
-  g_Ctrl.my_color = ALL_COLOR;
+    g_Ctrl.my_color = ALL_COLOR;
 #elif MY_COLOR == 1
-  g_Ctrl.my_color = RED;
+    g_Ctrl.my_color = RED;
 #elif MY_COLOR == 2
-  g_Ctrl.my_color = BLUE;
+    g_Ctrl.my_color = BLUE;
 #else
-  // cout <<"串口决定"<<endl;
+    // cout <<"串口决定"<<endl;
 #endif
 
 #if MY_MODE == 0
-  g_Ctrl.now_run_mode = DEFAULT_MODE
+    g_Ctrl.now_run_mode = DEFAULT_MODE
 #elif MY_MODE == 1
-  g_Ctrl.now_run_mode = SUP_SHOOT;
+    g_Ctrl.now_run_mode = SUP_SHOOT;
 #elif MY_MODE == 2
-  g_Ctrl.now_run_mode = ENERGY_AGENCY;
+    g_Ctrl.now_run_mode = ENERGY_AGENCY;
 #elif MY_MODE == 3
-  g_Ctrl.now_run_mode = SENTRY_MODE;
+    g_Ctrl.now_run_mode = SENTRY_MODE;
 #elif MY_MODE == 4
-  g_Ctrl.now_run_mode = BASE_MODE;
+    g_Ctrl.now_run_mode = BASE_MODE;
 #else
-  // cout <<"串口决定"<<endl;
+    // cout <<"串口决定"<<endl;
 #endif
 
-      // if(g_Ctrl.my_color == RED){
-      //     cout <<"己方颜色为红色: "<< RED <<endl;
-      // } else if(g_Ctrl.my_color == BLUE){
-      //     cout <<"己方颜色为蓝色: "<< BLUE <<endl;
-      // } else {
-      //     cout <<"敌我不分模式: "<< ALL_COLOR <<endl;
-      // }
-      //选择模式
-      switch (g_Ctrl.now_run_mode) {
-    case SUP_SHOOT: {
-      armor.imageProcessing(src_img, g_Ctrl.my_color);
-      armor.armorFitted();
-      // cout<<"armorFitted mode"<<endl;
+        // if(g_Ctrl.my_color == RED){
+        //     cout <<"己方颜色为红色: "<< RED <<endl;
+        // } else if(g_Ctrl.my_color == BLUE){
+        //     cout <<"己方颜色为蓝色: "<< BLUE <<endl;
+        // } else {
+        //     cout <<"敌我不分模式: "<< ALL_COLOR <<endl;
+        // }
+        //选择模式
+        switch (g_Ctrl.now_run_mode) {
+      case SUP_SHOOT: {
+        armor.imageProcessing(src_img, g_Ctrl.my_color);
+        armor.armorFitted();
 
-    } break;
-    case ENERGY_AGENCY: {
-      buff.buffDetect_Task(src_img, g_Ctrl.my_color);
-      // cout<<"Enegry agency mode"<<endl;
-    } break;
-    default: {
-      armor.imageProcessing(src_img, g_Ctrl.my_color);
-      armor.armorFitted();
-    } break;
+      } break;
+      case ENERGY_AGENCY: {
+        buff.buffDetect_Task(src_img, g_Ctrl.my_color);
+        // cout<<"Enegry agency mode"<<endl;
+      } break;
+      default: {
+        armor.imageProcessing(src_img, g_Ctrl.my_color);
+        armor.armorFitted();
+      } break;
+    }
+    cap.cameraReleasebuff();
+
+    fps.endtheTime();
+    this->armor._t = fps.time;
+#if COUT_FPS == 1
+    fps.displayframeRate();
+#endif
+#if ANALYZE_EACH_FRAME == 1
+    if (run.is_continue()) {
+      continue;
+    }
+#endif
+    if (this->is_exit()) {
+      break;
+    }
   }
-  cap.cameraReleasebuff();
 }
 
 #if ANALYZE_EACH_FRAME == 1

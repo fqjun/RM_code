@@ -16,8 +16,8 @@
 */
 
 // #define CAMERA_PARAM_FILE "/home/gcu/workspace/RM_code/RM_2020_vision_code/camera/param/cameraParams_last.xml"
-// #define CAMERA_PARAM_FILE "/home/jun/workplace/Github/RM_code/RM_2020_vision_code/camera/param/cameraParams_last.xml"
-#define CAMERA_PARAM_FILE "/home/nuc/workspace/RM_code/RM_2020_vision_code/camera/param/cameraParams_last.xml"
+#define CAMERA_PARAM_FILE "/home/jun/workplace/Github/RM_code/RM_2020_vision_code/camera/param/cameraParams_last.xml"
+// #define CAMERA_PARAM_FILE "/home/nuc/workspace/RM_code/RM_2020_vision_code/camera/param/cameraParams_last.xml"
 /**
   @brief: 相机标定文件路径
   记得改路径
@@ -368,6 +368,20 @@ enum Robot_ID {
       @param: UAV           无人机
       @param: SENTRY        哨兵
     */
+};
+
+enum Threshold_mode{
+  RED_GRAY,
+  RED_COLOR,
+  BLUE_GRAY,
+  BLUE_COLOR,
+  /**
+   * @brief :描述当前阈值选择修改内容
+   * @param :RED_GRAY       红色灰度
+   * @param :RED_COLOR      红色颜色
+   * @param :BLUE_GRAY      蓝色灰度
+   * @param :BLUE_COLOR     蓝色颜色
+     */
 };
 
 /*---------------------------------------------------*/

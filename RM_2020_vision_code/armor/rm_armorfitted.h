@@ -330,6 +330,9 @@ class RM_ArmorFitted : public ArmorROI,
   void imageProcessing(Mat frame, int my_color);
   void armorFitted();
 
+  //返回阈值
+  int& getThreshold(int threshold_mode);
+
  public:
   float yaw_data = 0;    //云台偏航
   int _yaw_data = 0;     //偏航值的正负
@@ -345,6 +348,7 @@ class RM_ArmorFitted : public ArmorROI,
   ArmorROI roi;
   CandidateArmor armor = CandidateArmor();
   NiceLight light, left_light, right_light;
+
 
   Pinhole pinhole_test;
   Data_exchange data_exchange;
@@ -368,6 +372,7 @@ class RM_ArmorFitted : public ArmorROI,
   short int kf_reset_cnt = 0;
 
 #if IS_PARAM_ADJUSTMENT == 1
+  Mat trackbar_img = Mat::zeros(1, 1200, CV_8UC1);
   int GRAY_TH_BLUE = BLUE_ARMOR_GRAY_TH;    //蓝色装甲的阈值
   int COLOR_TH_BLUE = BLUE_ARMOR_COLOR_TH;  // 135
   int GRAY_TH_RED = RED_ARMOR_GRAY_TH;     //红色装甲的阈值
