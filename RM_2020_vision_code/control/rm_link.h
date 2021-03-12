@@ -32,6 +32,8 @@ public:
     void updateControl_information(int arr[REC_BUFF_LENGTH]);
 
     Control_Information g_Ctrl;
+    Fps fps;
+
     /** Camera Srart **/
     cv::VideoCapture capture;
     RM_VideoCapture cap;

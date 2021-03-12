@@ -10,6 +10,9 @@ RM_SolveAngle::RM_SolveAngle(){
     cout << cameraMatrix << endl;
     cout << distCoeffs << endl;
     cout << "RM_SolveAngle is readied" << endl;
+
+    object_3d.reserve(4);
+    target2d.reserve(4);
 }
 
 
