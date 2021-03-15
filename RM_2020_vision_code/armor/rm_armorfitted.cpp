@@ -431,7 +431,7 @@ void RM_ArmorFitted::armorFitted() {
 #endif
 
 #if IS_KF_PREDICT_ARMOR_OPEN == 1
-    Point2f predict_p = kf.predict_point(_t, armor_rect.center);
+    Point2f predict_p = kf.point_Predict(_t, armor_rect.center);
     RotatedRect predict_armor_rect =
         RotatedRect(predict_p, armor_rect.size, armor_rect.angle);
     kf_reset_cnt = 0;

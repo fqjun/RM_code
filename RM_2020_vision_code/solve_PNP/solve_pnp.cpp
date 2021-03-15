@@ -27,7 +27,7 @@ void RM_SolveAngle::run_SolvePnp(RotatedRect &rect, float _W, float _H){
     object_3d.push_back(Point3f(half_x, -half_y, 0));
     object_3d.push_back(Point3f(half_x, half_y, 0));
     object_3d.push_back(Point3f(-half_x, half_y, 0));
-
+    
     vertex_Sort(rect);
 
     solvePnP(object_3d, target2d, cameraMatrix, distCoeffs, rvec, tvec, false, SOLVEPNP_ITERATIVE);

@@ -94,7 +94,7 @@
  *
  */
 
-#define MY_COLOR 2
+#define MY_COLOR 0
 /**
   @brief: 选择己方阵营
   @param: 0     不限制颜色
@@ -151,7 +151,7 @@
   @param: 1     启用
 */
 
-#define IS_KF_PREDICT_ARMOR_OPEN 0
+#define IS_KF_PREDICT_ARMOR_OPEN 1
 /**
   @brief: 是否启用 KF 预测装甲板
   @param: 0     不启用
@@ -177,7 +177,7 @@
   @param: 0     不显示
   @param: 1     显示
 */
-#define SHOW_BIN_IMG 1
+#define SHOW_BIN_IMG 0
 /**
   @brief: 是否显示二值图像
   @param: 0     不显示
@@ -202,7 +202,7 @@
  * @param: 0    否
  * @param: 1    是
  */
-#define SHOW_DEBUG_INFORMATIO 1
+#define SHOW_DEBUG_INFORMATIO 0
 /**
   @brief: 是否打印调试信息
   @param: 0     不打印
